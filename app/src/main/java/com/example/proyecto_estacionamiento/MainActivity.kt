@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
         entraCarro.setOnClickListener {
 
-            val intent = Intent(applicationContext,DetallesAutomovil::class.java)
+            val intent = Intent(applicationContext,RegistroAutomovil::class.java)
 
             startActivity(intent)
 
