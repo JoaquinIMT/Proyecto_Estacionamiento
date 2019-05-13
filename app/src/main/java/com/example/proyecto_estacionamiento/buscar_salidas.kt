@@ -7,6 +7,9 @@ import android.widget.Button
 import android.widget.Chronometer
 import kotlin.toULong as toULong1
 import android.widget.Chronometer.OnChronometerTickListener
+import android.widget.Toast
+
+
 
 
 
@@ -49,8 +52,22 @@ class buscar_salidas : AppCompatActivity() {
             comenzar?.isEnabled = true
             pausar?.isEnabled = false
             tiempo?.stop()
+            showElapsedTime()
         }
 
+    }
+    private fun showElapsedTime() {
+        val time2 = SystemClock.elapsedRealtime() - tiempo!!.base
+        val h = (time2 / 3600000).toInt()
+        val m = (time2 - h * 3600000).toInt() / 60000
+        val s = (time2 - (h * 3600000).toLong() - (m * 60000).toLong()).toInt() / 1000
+        val t =
+            (if (h < 10) "0$h" else h).toString() + ":" + (if (m < 10) "0$m" else m) + ":" + if (s < 10) "0$s" else s
+
+        Toast.makeText(
+            this@buscar_salidas, "Elapsed milliseconds: $t",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }
 
