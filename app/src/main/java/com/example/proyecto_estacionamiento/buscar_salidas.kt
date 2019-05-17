@@ -6,11 +6,11 @@ import android.os.SystemClock
 import android.widget.Button
 import android.widget.Chronometer
 import kotlin.toULong as toULong1
-import android.widget.Chronometer.OnChronometerTickListener
 import android.widget.Toast
-
-
-
+import java.util.*
+import android.widget.TextView
+import java.lang.Double.parseDouble
+import java.text.SimpleDateFormat
 
 
 class buscar_salidas : AppCompatActivity() {
@@ -18,6 +18,14 @@ class buscar_salidas : AppCompatActivity() {
     var tiempo: Chronometer? = null
     var comenzar: Button? = null
     var pausar: Button? = null
+    var ha: Button? = null
+    var hs: Button? = null
+    var hora : Date? = null
+    var vt : TextView? = null
+    var mili : Long? = null
+    var mili2 : Long? = null
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_buscar_salidas)
@@ -25,6 +33,9 @@ class buscar_salidas : AppCompatActivity() {
         tiempo = findViewById(R.id.cronometro) as Chronometer
         comenzar = findViewById(R.id.empezar) as Button
         pausar = findViewById(R.id.pausar) as Button
+        ha = findViewById(R.id.ha) as Button
+        hs = findViewById(R.id.hs) as Button
+        vt = findViewById(R.id.vt) as TextView
 
         comenzar?.isEnabled = true
         pausar?.isEnabled = false
@@ -38,6 +49,27 @@ class buscar_salidas : AppCompatActivity() {
                 (if (h < 10) "0$h" else h).toString() + ":" + (if (m < 10) "0$m" else m) + ":" + if (s < 10) "0$s" else s
             chronometer.text = t
         }
+        ha?.setOnClickListener{
+            hora = Date()
+            var gg = getHoraActual("HH:mm")
+            mili = hora?.time
+            ha?.text = gg
+
+        }
+
+        hs?.setOnClickListener{
+            hora = Date()
+            var gg = getHoraActual("HH:mm")
+            mili2 = hora?.time
+            hs?.text = gg
+            horaFinal(mili,mili2)
+        }
+
+
+
+
+
+
         tiempo?.base=SystemClock.elapsedRealtime()
         tiempo?.text=("00:00:00")
 
@@ -65,9 +97,29 @@ class buscar_salidas : AppCompatActivity() {
             (if (h < 10) "0$h" else h).toString() + ":" + (if (m < 10) "0$m" else m) + ":" + if (s < 10) "0$s" else s
 
         Toast.makeText(
-            this@buscar_salidas, "Elapsed milliseconds: $t",
+            this@buscar_salidas, "Tiempo total: $t",
             Toast.LENGTH_SHORT
         ).show()
     }
+    fun getHoraActual(strFormato: String): String {
+
+        val objCalendar = Calendar.getInstance()
+        val simpleDateFormat = SimpleDateFormat(strFormato)
+
+        return simpleDateFormat.format(objCalendar.time)
+
+    }
+
+
+
+    fun horaFinal(entrada:Long?,salida:Long?){
+        var  horaFinal = salida!!- entrada!!
+        horaFinal = horaFinal.div(1000)
+        horaFinal = horaFinal.div(60)
+        vt?.text= horaFinal.toString()
+    }
+
+
+
 }
 
