@@ -8,7 +8,7 @@ import java.lang.reflect.Array
 
 
 //Esta clase es para que los elementos se generen repetitivamente con datos especificos
-class MainAdapter/*(Carros: ArrayList<Array>)*/: RecyclerView.Adapter<CustomViewHolder>() {
+class MainAdapter(val estacionamiento: Estacionamiento)/*(Carros: ArrayList<Array>)*/: RecyclerView.Adapter<CustomViewHolder>() {
 
     //val carros = Carros
 
@@ -20,7 +20,7 @@ class MainAdapter/*(Carros: ArrayList<Array>)*/: RecyclerView.Adapter<CustomView
 
     override fun getItemCount(): Int {
 
-        return 10
+        return estacionamiento.carros.size
         //return carros.size
     }
 

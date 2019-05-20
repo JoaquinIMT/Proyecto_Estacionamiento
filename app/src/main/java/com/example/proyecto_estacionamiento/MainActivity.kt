@@ -17,13 +17,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val automoviles = mutableListOf<Automovil>(Automovil(enHora = 11, saHora = 14),Automovil(modelo = "Holi",enHora = 10, saHora = 15))
 
-        entraCarro = findViewById(R.id.nuevo_registro)
+        val estacionamiento: Estacionamiento = Estacionamiento(21, automoviles)
+
+
+
+        entraCarro = findViewById<Button>(R.id.nuevo_registro)
 
         val adapter = FragmentAdapter(supportFragmentManager)
 
         adapter.newFragment(PrimerFragmento())
-        adapter.newFragment(FragmentoBusqueda())
+        adapter.newFragment(FragmentoBusqueda(estacionamiento))
 
         viewPager.adapter = adapter
 
@@ -36,6 +41,10 @@ class MainActivity : AppCompatActivity() {
 
             val intent = Intent(applicationContext,RegistroAutomovil::class.java)
 
+            intent.putExtra("Estacionamiento, lugares",estacionamiento.lugares)
+            intent.putExtra("Estacionamiento, cosa", ArrayList(estacionamiento.carros))
+
+
             startActivity(intent)
 
         }
@@ -47,8 +56,6 @@ class MainActivity : AppCompatActivity() {
     class FragmentAdapter(manager: FragmentManager): FragmentPagerAdapter(manager) {
 
         private val listaFragmentos : MutableList<Fragment> = ArrayList()
-
-
 
 
         override fun getItem(position: Int): Fragment {
