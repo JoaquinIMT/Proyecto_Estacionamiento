@@ -1,5 +1,7 @@
 package com.example.proyecto_estacionamiento
 
+import android.content.Intent
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,8 +34,14 @@ class MainAdapter(val estacionamiento: Estacionamiento)/*(Carros: ArrayList<Arra
 }
 
 
-class CustomViewHolder(view: View): RecyclerView.ViewHolder(view){
+class CustomViewHolder(val view: View): RecyclerView.ViewHolder(view){
 
+    init {
+        view.setOnClickListener{
+
+            view.setBackgroundColor(Color.parseColor("#5054B4"))
+        }
+    }
 
 
 }
