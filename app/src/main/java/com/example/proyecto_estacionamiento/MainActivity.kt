@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val automoviles = mutableListOf<Automovil>(Automovil(enHora = 11, saHora = 14),Automovil(modelo = "Holi",enHora = 10, saHora = 15))
+        val automoviles = mutableListOf<Automovil>(Automovil(matricula = "ASW0M3",marca = "Toyota",modelo = "Corolla",enHora = 11, saHora = 14),Automovil(matricula = "JOLUQFER",marca = "Nissan",modelo = "Versa",enHora = 10, saHora = 15))
 
         val estacionamiento: Estacionamiento = Estacionamiento(21, automoviles)
 
@@ -40,10 +40,7 @@ class MainActivity : AppCompatActivity() {
         entraCarro.setOnClickListener {
 
             val intent = Intent(applicationContext,RegistroAutomovil::class.java)
-
-            intent.putExtra("Estacionamiento, lugares",estacionamiento.lugares)
-            intent.putExtra("Estacionamiento, cosa", ArrayList(estacionamiento.carros))
-
+            intent.putExtra("estado","Registro")
 
             startActivity(intent)
 
