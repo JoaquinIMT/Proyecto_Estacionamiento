@@ -8,6 +8,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.proyecto_estacionamiento"
+        vectorDrawables.useSupportLibrary = true
         minSdkVersion 17
         targetSdkVersion 28
         versionCode 1
