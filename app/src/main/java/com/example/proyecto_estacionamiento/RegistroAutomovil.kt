@@ -1,11 +1,8 @@
 package com.example.proyecto_estacionamiento
 
-import android.content.Context
-import android.graphics.drawable.Drawable
-import android.opengl.Visibility
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
@@ -25,8 +22,10 @@ class RegistroAutomovil(): AppCompatActivity() {
     lateinit var modelo: TextView
     lateinit var enHora: TextView
     lateinit var saHora: TextView
-    lateinit var array : ArrayList<registro>
-    lateinit var registro : Button
+    //lateinit var array : ArrayList<Automovil>
+    lateinit var array : Automovil //Lista con los datos del automovil para agregar al array mayor
+    lateinit var estacionamiento: Estacionamiento
+    lateinit var registro : Button //Boton abajo de la pantalla para concluir cambios
     lateinit var hora : Date
     var entradaMili : Long? = null
 
@@ -41,6 +40,9 @@ class RegistroAutomovil(): AppCompatActivity() {
         registro = findViewById(R.id.nuevo_registro)
         enHora = findViewById(R.id.enhora)
         saHora = findViewById(R.id.sahora)
+
+
+        estacionamiento = intent.getParcelableExtra("Estacionamiento")
 
         val entrada = intent.getStringExtra("estado")
 
@@ -66,29 +68,51 @@ class RegistroAutomovil(): AppCompatActivity() {
                     hora = Date()
                     var horaEntrada = getHoraActual("HH:mm")
                     entradaMili = hora?.time
-                    array.add(registro(mat, mar, mod, horaEntrada, " ")).toString()
-                    matricula?.text = ""
+                    //array.add(Automovil(mat, mar, mod, horaEntrada, " ")).toString()
+
+                    //checamos que cuando mandemos llamar la lista con automoviles esta ya tenga registrado a un automovil
+                    // de otra forma este arreglo se define como el primero
+
+                    if (estacionamiento.carros != null){
+
+                        array = Automovil(mat, mar, mod, horaEntrada, " ")
+                        estacionamiento.carros?.add(array)
+                        estacionamiento.lugares.minus(1)
+
+                    }else{
+
+                        array = Automovil(mat, mar, mod, horaEntrada, " ")
+                        estacionamiento.carros = mutableListOf(array)
+                        estacionamiento.lugares.minus(1)
+
+                    }
+
+                    val intent = Intent(applicationContext,MainActivity::class.java)
+                    intent.putExtra("Estacionamiento",estacionamiento)
+                    startActivity(intent)
+
+                    /*matricula?.text = ""
                     marca?.text = ""
                     modelo?.text = ""
-                    imprimirArray(array!!)
+                    imprimirArray(array!!)*/
+
                 }
             }
 
         }else{
 
-            val valorMatricula = intent.getStringExtra("matricula")
-            val valorMarca = intent.getStringExtra("marca")
-            val valorModelo = intent.getStringExtra("modelo")
+            var automovil = intent.getParcelableExtra<Automovil>("Auto")
 
 
 
             registro.background = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_rojo)
             registro.text = "Salida"
 
-            matricula.text = valorMatricula
-            marca.text = valorMarca
-            modelo.text = valorModelo
-
+            matricula.text = automovil.matricula
+            marca.text = automovil.marca
+            modelo.text = automovil.modelo
+            enHora.text = automovil.horaEntrada
+            saHora.text = automovil.horaSalida
         }
 
 
@@ -100,10 +124,11 @@ class RegistroAutomovil(): AppCompatActivity() {
         return simpleDateFormat.format(objCalendar.time)
 
     }
-    fun imprimirArray(array : ArrayList<registro>){
+    fun imprimirArray(array : ArrayList<Automovil>){
 
         for (elemento in array){
-            Toast.makeText(this@RegistroAutomovil, elemento.getMatricula()+elemento.getMarca()+elemento.getModelo()+elemento.getHoraEntrada()+elemento.getHoraSalida(), Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this@RegistroAutomovil, elemento.getMatricula()+elemento.getMarca()+elemento.getModelo()+elemento.getHoraEntrada()+elemento.getHoraSalida(), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@RegistroAutomovil, elemento.matricula+elemento.marca+elemento.modelo+elemento.horaEntrada+elemento.horaSalida, Toast.LENGTH_SHORT).show()
         }
 
     }

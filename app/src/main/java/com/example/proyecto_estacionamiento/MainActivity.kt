@@ -17,9 +17,21 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val automoviles = mutableListOf<Automovil>(Automovil(matricula = "ASW0M3",marca = "Toyota",modelo = "Corolla",enHora = 11, saHora = 14),Automovil(matricula = "JOLUQFER",marca = "Nissan",modelo = "Versa",enHora = 10, saHora = 15))
+        var estacionamiento: Estacionamiento? =  null
 
-        val estacionamiento: Estacionamiento = Estacionamiento(21, automoviles)
+        val prueba: Estacionamiento? = intent.getParcelableExtra("Estacionamiento")
+
+        estacionamiento = if (prueba != null){
+            prueba
+        } else{
+            val automoviles = mutableListOf<Automovil>(Automovil(matricula = "ASW0M3",marca = "Toyota",modelo = "Corolla"
+                ,horaEntrada = "11", horaSalida = "14")
+                ,Automovil(matricula = "JOLUQFER",marca = "Nissan",modelo = "Versa",horaEntrada = "10", horaSalida = "15"))
+            Estacionamiento(21, null)
+        }
+
+
+
 
 
 
@@ -28,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         val adapter = FragmentAdapter(supportFragmentManager)
 
         adapter.newFragment(PrimerFragmento())
-        adapter.newFragment(FragmentoBusqueda(estacionamiento))
+        adapter.newFragment(FragmentoBusqueda(estacionamiento!!))
 
         viewPager.adapter = adapter
 
@@ -41,6 +53,7 @@ class MainActivity : AppCompatActivity() {
 
             val intent = Intent(applicationContext,RegistroAutomovil::class.java)
             intent.putExtra("estado","Registro")
+            intent.putExtra("Estacionamiento",estacionamiento)
 
             startActivity(intent)
 

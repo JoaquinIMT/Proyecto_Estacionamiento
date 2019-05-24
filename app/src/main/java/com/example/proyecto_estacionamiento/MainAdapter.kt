@@ -23,25 +23,34 @@ class MainAdapter(val estacionamiento: Estacionamiento)/*(Carros: ArrayList<Arra
     }
 
     override fun getItemCount(): Int {
-
-        return estacionamiento.carros.size
+        /*if(estacionamiento.carros != null){
+            return estacionamiento.carros!!.size
+        }else return 0
+        */
+        return if(estacionamiento.carros != null){
+            estacionamiento.carros!!.size
+        }else 0
         //return carros.size
     }
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
-        val autos = estacionamiento.carros[position]
-        holder.view.matricula.text = autos.matricula
-        holder.view.hora_entrada1.text = autos.enHora.toString()
-        holder.view.hora_entrada2.text = autos.saHora.toString()
-        holder.view.marca_modelo.text = autos.marca + " " + autos.modelo
+        if(estacionamiento.carros != null){
+            val autos = estacionamiento.carros!![position]
 
-        holder.carros = autos
+            holder.view.matricula.text = autos.matricula
+            holder.view.hora_entrada1.text = autos.horaEntrada
+            holder.view.hora_entrada2.text = autos.horaSalida
+            holder.view.marca_modelo.text = autos.marca + " " + autos.modelo
+
+            holder.estacionamiento = estacionamiento
+            holder.carro = autos
+        }
 
     }
 }
 
 
-class CustomViewHolder(val view: View, var carros: Automovil? = null): RecyclerView.ViewHolder(view){
+class CustomViewHolder(val view: View, var estacionamiento: Estacionamiento? = null, var carro: Automovil? = null ): RecyclerView.ViewHolder(view){
 
     init {
         /*view.setOnLongClickListener {
@@ -56,12 +65,14 @@ class CustomViewHolder(val view: View, var carros: Automovil? = null): RecyclerV
 
         view.setOnClickListener{
             val intent = Intent(view.context,RegistroAutomovil::class.java)
-            intent.putExtra("matricula",carros?.matricula)
+            /*intent.putExtra("matricula",carros?.matricula)
             intent.putExtra("modelo",carros?.modelo)
             intent.putExtra("marca",carros?.marca)
             intent.putExtra("enHora",carros?.enHora)
             intent.putExtra("saHora",carros?.saHora)
-            intent.putExtra("estado","Verificacion")
+            intent.putExtra("estado","Verificacion")*/
+            intent.putExtra("Auto",carro)
+            intent.putExtra("Estacionamiento",estacionamiento)
             view.context.startActivity(intent)
 
         }
