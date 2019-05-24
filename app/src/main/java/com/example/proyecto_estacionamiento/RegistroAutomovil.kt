@@ -44,6 +44,7 @@ class RegistroAutomovil(): AppCompatActivity() {
 
         estacionamiento = intent.getParcelableExtra("Estacionamiento")
 
+
         val entrada = intent.getStringExtra("estado")
 
         if(entrada == "Registro") {
@@ -74,9 +75,14 @@ class RegistroAutomovil(): AppCompatActivity() {
                     // de otra forma este arreglo se define como el primero
 
                     if (estacionamiento.carros != null){
+                        if (estacionamiento.carros?.size == 2){
+                            estacionamiento.carros?.reverse()
+                        }
 
                         array = Automovil(mat, mar, mod, horaEntrada, "")
+                        estacionamiento.carros?.reverse()
                         estacionamiento.carros?.add(array)
+                        estacionamiento.carros?.reverse()
                         estacionamiento.lugares -= 1
 
                     }else{
@@ -132,6 +138,8 @@ class RegistroAutomovil(): AppCompatActivity() {
                 estacionamiento.carros?.set(index!!,automovil)
 
                 estacionamiento.lugares += 1
+
+
 
                 intent(estacionamiento)
 
