@@ -44,13 +44,14 @@ class MainAdapter(val estacionamiento: Estacionamiento)/*(Carros: ArrayList<Arra
 
             holder.estacionamiento = estacionamiento
             holder.carro = autos
+            holder.position = position
         }
 
     }
 }
 
 
-class CustomViewHolder(val view: View, var estacionamiento: Estacionamiento? = null, var carro: Automovil? = null ): RecyclerView.ViewHolder(view){
+class CustomViewHolder(val view: View, var estacionamiento: Estacionamiento? = null, var carro: Automovil? = null, var position: Int? = null ): RecyclerView.ViewHolder(view){
 
     init {
         /*view.setOnLongClickListener {
@@ -73,6 +74,7 @@ class CustomViewHolder(val view: View, var estacionamiento: Estacionamiento? = n
             intent.putExtra("estado","Verificacion")*/
             intent.putExtra("Auto",carro)
             intent.putExtra("Estacionamiento",estacionamiento)
+            intent.putExtra("index", position)
             view.context.startActivity(intent)
 
         }

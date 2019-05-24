@@ -3,6 +3,7 @@ package com.example.proyecto_estacionamiento
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.app.INotificationSideChannel
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -17,6 +18,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val lugares = 21
+
         var estacionamiento: Estacionamiento? =  null
 
         val prueba: Estacionamiento? = intent.getParcelableExtra("Estacionamiento")
@@ -24,10 +27,11 @@ class MainActivity : AppCompatActivity() {
         estacionamiento = if (prueba != null){
             prueba
         } else{
-            val automoviles = mutableListOf<Automovil>(Automovil(matricula = "ASW0M3",marca = "Toyota",modelo = "Corolla"
+            /*val automoviles = mutableListOf<Automovil>(Automovil(matricula = "ASW0M3",marca = "Toyota",modelo = "Corolla"
                 ,horaEntrada = "11", horaSalida = "14")
                 ,Automovil(matricula = "JOLUQFER",marca = "Nissan",modelo = "Versa",horaEntrada = "10", horaSalida = "15"))
-            Estacionamiento(21, null)
+            */
+            Estacionamiento(lugares, null)
         }
 
 
@@ -39,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
         val adapter = FragmentAdapter(supportFragmentManager)
 
-        adapter.newFragment(PrimerFragmento())
+        adapter.newFragment(PrimerFragmento(estacionamiento.lugares))
         adapter.newFragment(FragmentoBusqueda(estacionamiento!!))
 
         viewPager.adapter = adapter

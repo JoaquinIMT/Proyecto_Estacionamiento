@@ -75,22 +75,19 @@ class RegistroAutomovil(): AppCompatActivity() {
 
                     if (estacionamiento.carros != null){
 
-                        array = Automovil(mat, mar, mod, horaEntrada, " ")
+                        array = Automovil(mat, mar, mod, horaEntrada, "")
                         estacionamiento.carros?.add(array)
-                        estacionamiento.lugares.minus(1)
+                        estacionamiento.lugares -= 1
 
                     }else{
 
-                        array = Automovil(mat, mar, mod, horaEntrada, " ")
+                        array = Automovil(mat, mar, mod, horaEntrada, "")
                         estacionamiento.carros = mutableListOf(array)
-                        estacionamiento.lugares.minus(1)
+                        estacionamiento.lugares -= 1
 
                     }
 
-                    val intent = Intent(applicationContext,MainActivity::class.java)
-                    intent.putExtra("Estacionamiento",estacionamiento)
-                    startActivity(intent)
-
+                    intent(estacionamiento)
                     /*matricula?.text = ""
                     marca?.text = ""
                     modelo?.text = ""
@@ -103,7 +100,11 @@ class RegistroAutomovil(): AppCompatActivity() {
 
             var automovil = intent.getParcelableExtra<Automovil>("Auto")
 
+            if(automovil.horaSalida != ""){
 
+                registro.visibility = View.GONE
+
+            }
 
             registro.background = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_rojo)
             registro.text = "Salida"
@@ -113,6 +114,30 @@ class RegistroAutomovil(): AppCompatActivity() {
             modelo.text = automovil.modelo
             enHora.text = automovil.horaEntrada
             saHora.text = automovil.horaSalida
+
+            registro.setOnClickListener {
+                val mat = matricula?.text.toString()
+                val mar = marca?.text.toString()
+                val mod = modelo?.text.toString()
+
+                hora = Date()
+                val horaSalida = getHoraActual("HH:mm")
+                entradaMili = hora?.time
+
+
+                val index = intent.getIntExtra("index", Int.MAX_VALUE)
+
+                automovil.horaSalida = horaSalida
+
+                estacionamiento.carros?.set(index!!,automovil)
+
+                estacionamiento.lugares += 1
+
+                intent(estacionamiento)
+
+
+            }
+
         }
 
 
@@ -131,6 +156,13 @@ class RegistroAutomovil(): AppCompatActivity() {
             Toast.makeText(this@RegistroAutomovil, elemento.matricula+elemento.marca+elemento.modelo+elemento.horaEntrada+elemento.horaSalida, Toast.LENGTH_SHORT).show()
         }
 
+    }
+
+    fun intent(estacionamiento1: Estacionamiento){
+
+        val intent = Intent(applicationContext,MainActivity::class.java)
+        intent.putExtra("Estacionamiento",estacionamiento1)
+        startActivity(intent)
     }
 
 
