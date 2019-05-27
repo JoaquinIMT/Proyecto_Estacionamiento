@@ -37,6 +37,10 @@ class MainAdapter(val estacionamiento: Estacionamiento)/*(Carros: ArrayList<Arra
         if(estacionamiento.carros != null){
             val autos = estacionamiento.carros!![position]
 
+            if (autos.horaSalida!=""){ //Con esta condición verificamos si el auto se encuentra en el estacionamiento y si no es así (posee hora de salida) se marca con rojo
+                holder.view.state_carro.setImageResource(R.drawable.bg_boton_redondo_rojo)
+            }
+
             holder.view.matricula.text = autos.matricula
             holder.view.hora_entrada1.text = autos.horaEntrada
             holder.view.hora_entrada2.text = autos.horaSalida

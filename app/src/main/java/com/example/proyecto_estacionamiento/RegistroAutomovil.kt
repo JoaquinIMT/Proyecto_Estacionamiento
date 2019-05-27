@@ -75,21 +75,12 @@ class RegistroAutomovil(): AppCompatActivity() {
                     // de otra forma este arreglo se define como el primero
 
                     if (estacionamiento.carros != null){
-                        if (estacionamiento.carros?.size == 2){
-                            estacionamiento.carros?.reverse()
-                        }
 
-                        array = Automovil(mat, mar, mod, horaEntrada, "")
-                        estacionamiento.carros?.reverse()
-                        estacionamiento.carros?.add(array)
-                        estacionamiento.carros?.reverse()
-                        estacionamiento.lugares -= 1
+                        addList(mat, mar, mod, horaEntrada)
 
                     }else{
 
-                        array = Automovil(mat, mar, mod, horaEntrada, "")
-                        estacionamiento.carros = mutableListOf(array)
-                        estacionamiento.lugares -= 1
+                        createList(mat, mar, mod, horaEntrada)
 
                     }
 
@@ -107,10 +98,10 @@ class RegistroAutomovil(): AppCompatActivity() {
             var automovil = intent.getParcelableExtra<Automovil>("Auto")
 
             if(automovil.horaSalida != ""){
-
+                saHora.text = automovil.horaSalida
                 registro.visibility = View.GONE
 
-            }
+            }else saHora.text = "--:--"
 
             registro.background = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_rojo)
             registro.text = "Salida"
@@ -119,7 +110,7 @@ class RegistroAutomovil(): AppCompatActivity() {
             marca.text = automovil.marca
             modelo.text = automovil.modelo
             enHora.text = automovil.horaEntrada
-            saHora.text = automovil.horaSalida
+
 
             registro.setOnClickListener {
                 val mat = matricula?.text.toString()
@@ -127,27 +118,18 @@ class RegistroAutomovil(): AppCompatActivity() {
                 val mod = modelo?.text.toString()
 
                 hora = Date()
+
                 val horaSalida = getHoraActual("HH:mm")
+
                 entradaMili = hora?.time
 
-
-                val index = intent.getIntExtra("index", Int.MAX_VALUE)
-
-                automovil.horaSalida = horaSalida
-
-                estacionamiento.carros?.set(index!!,automovil)
-
-                estacionamiento.lugares += 1
-
-
+                exitParking(automovil,horaSalida)
 
                 intent(estacionamiento)
-
 
             }
 
         }
-
 
     }
 
@@ -157,6 +139,7 @@ class RegistroAutomovil(): AppCompatActivity() {
         return simpleDateFormat.format(objCalendar.time)
 
     }
+
     fun imprimirArray(array : ArrayList<Automovil>){
 
         for (elemento in array){
@@ -173,5 +156,39 @@ class RegistroAutomovil(): AppCompatActivity() {
         startActivity(intent)
     }
 
+    fun createList( mat:String , mar: String, mod: String, horaEntrada: String ){
+
+        array = Automovil(mat, mar, mod, horaEntrada, "")
+        estacionamiento.carros = mutableListOf(array)
+        estacionamiento.lugares -= 1
+
+    }
+
+    fun addList(mat:String , mar: String, mod: String, horaEntrada: String ){
+        /*if (estacionamiento.carros?.size == 2){
+            estacionamiento.carros?.reverse()
+        }*/
+
+        array = Automovil(mat, mar, mod, horaEntrada, "")
+        estacionamiento.carros?.reverse()
+        estacionamiento.carros?.add(array)
+        estacionamiento.carros?.reverse()
+        estacionamiento.lugares -= 1
+    }
+
+    fun exitParking(automovil:Automovil, horaSalida: String){
+        val index = intent.getIntExtra("index", Int.MAX_VALUE)
+
+        estacionamiento.carros?.removeAt(index)
+
+        automovil.horaSalida = horaSalida
+
+        estacionamiento.carros?.add(automovil)
+
+        //estacionamiento.carros?.set(index!!,automovil)
+
+        estacionamiento.lugares += 1
+
+    }
 
 }

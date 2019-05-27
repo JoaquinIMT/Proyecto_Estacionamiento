@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.INotificationSideChannel
 import android.widget.Button
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -53,15 +54,19 @@ class MainActivity : AppCompatActivity() {
         tabs.getTabAt(0)?.setIcon(R.drawable.ic_home_negra)
         tabs.getTabAt(1)?.setIcon(R.drawable.ic_search_negra)
 
-        entraCarro.setOnClickListener {
+        if (estacionamiento.lugares > 0){
+            entraCarro.setOnClickListener {
 
-            val intent = Intent(applicationContext,RegistroAutomovil::class.java)
-            intent.putExtra("estado","Registro")
-            intent.putExtra("Estacionamiento",estacionamiento)
+                val intent = Intent(applicationContext,RegistroAutomovil::class.java)
+                intent.putExtra("estado","Registro")
+                intent.putExtra("Estacionamiento",estacionamiento)
 
-            startActivity(intent)
+                startActivity(intent)
 
-        }
+            }
+        }else Toast.makeText(this,"Estacionamiento lleno",Toast.LENGTH_LONG).show()
+
+
 
 
 
