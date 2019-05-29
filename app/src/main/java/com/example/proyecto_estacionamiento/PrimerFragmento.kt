@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_primer_fragmento.*
 
-class PrimerFragmento : Fragment() {
+class PrimerFragmento(val lugares: Int) : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -19,7 +19,7 @@ class PrimerFragmento : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        pagina_principal.text = "Pagina principal"
+        espacios.text = lugares.toString()
     }
 
 }

@@ -9,8 +9,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_busqueda.*
 import kotlinx.android.synthetic.main.fragment_primer_fragmento.*
+import java.sql.Date
+import java.sql.Time
+import java.util.*
 
-class FragmentoBusqueda : Fragment() {
+class FragmentoBusqueda(val estacionamiento: Estacionamiento) : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -23,7 +26,8 @@ class FragmentoBusqueda : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerview_carros.layoutManager = LinearLayoutManager(context?.applicationContext)
-        recyclerview_carros.adapter = MainAdapter()
+
+        recyclerview_carros.adapter = MainAdapter(estacionamiento)
 
     }
 
