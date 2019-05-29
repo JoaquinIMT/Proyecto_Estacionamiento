@@ -1,5 +1,7 @@
 package com.example.proyecto_estacionamiento
 
+import android.content.ContentValues
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -16,10 +18,13 @@ class RegistroAutomovil : AppCompatActivity() {
     var matricula: TextView? = null
     var marca: TextView? = null
     var modelo: TextView? = null
-    var array : ArrayList<registro> = ArrayList ()
     var registro : Button? = null
     var hora : Date? = null
     var entradaMili : Long? = null
+    var cont : Int =0
+    //var sqlLite = com.example.proyecto_estacionamiento.sqlLite()
+    //var tabla: utilidades = utilidades()
+    var sql : sqlLite = sqlLite(this,"AUTOMOVIL",null,1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +34,9 @@ class RegistroAutomovil : AppCompatActivity() {
         marca = findViewById(R.id.marca) as TextView
         modelo = findViewById(R.id.modelo) as TextView
         registro = findViewById(R.id.nuevo_registro) as Button
+
+
+
 
 
         registro?.setOnClickListener{
@@ -47,11 +55,13 @@ class RegistroAutomovil : AppCompatActivity() {
                 hora = Date()
                 var horaEntrada = getHoraActual("HH:mm")
                 entradaMili = hora?.time
-                array.add(registro(mat,mar,mod,horaEntrada," ")).toString()
+                sql.agregarAutomovil(marca?.text.toString(),modelo?.text.toString(),matricula?.text.toString(),horaEntrada)
+                Toast.makeText(this, "Se cargaron los datos del artículo", Toast.LENGTH_SHORT).show()
                 matricula?.text = ""
                 marca?.text = ""
                 modelo?.text = ""
-                imprimirArray(array!!)
+                var intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
             }
         }
 
@@ -64,6 +74,7 @@ class RegistroAutomovil : AppCompatActivity() {
         return simpleDateFormat.format(objCalendar.time)
 
     }
+    /*
     fun imprimirArray(array : ArrayList<registro>){
 
         for (elemento in array){
@@ -71,7 +82,23 @@ class RegistroAutomovil : AppCompatActivity() {
         }
 
 
-    }
+    }*/
+/*
+    private fun registrarUsuarios() {
+        val conn = ConexionSQLiteHelper(this, "bd_usuarios", null, 1)
+
+        val db = conn.writableDatabase
+
+        val values = ContentValues()
+        //values.put(tabla.CAMPO_ID, campoId.getText().toString())
+        values.put(tabla.CAMPO_MATRICULA, matricula?.getText().toString())
+        values.put(tabla.CAMPO_MARCA, marca?.getText().toString())
+
+        val idResultante = db.insert(Utilidades.TABLA_USUARIO, Utilidades.CAMPO_ID, values)
+
+        Toast.makeText(applicationContext, "Id Registro: $idResultante", Toast.LENGTH_SHORT).show()
+        db.close()
+    }*/
 
 
 }
