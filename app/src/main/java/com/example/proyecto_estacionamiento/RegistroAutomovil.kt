@@ -24,7 +24,10 @@ class RegistroAutomovil(): AppCompatActivity() {
     lateinit var saHora: TextView
     //lateinit var array : ArrayList<Automovil>
     lateinit var array : Automovil //Lista con los datos del automovil para agregar al array mayor
+
     lateinit var estacionamiento: Estacionamiento
+    lateinit var pasado : Pasado
+
     lateinit var registro : Button //Boton abajo de la pantalla para concluir cambios
     lateinit var hora : Date
     var entradaMili : Long? = null
@@ -34,6 +37,7 @@ class RegistroAutomovil(): AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registro_automovil)
+
         matricula = findViewById(R.id.matricula2)
         marca = findViewById(R.id.matricula)
         modelo = findViewById(R.id.modelo)
@@ -41,11 +45,14 @@ class RegistroAutomovil(): AppCompatActivity() {
         enHora = findViewById(R.id.enhora)
         saHora = findViewById(R.id.sahora)
 
-
         estacionamiento = intent.getParcelableExtra("Estacionamiento")
-
-
+        pasado = intent.getParcelableExtra("Pasado")
         val entrada = intent.getStringExtra("estado")
+
+
+        val actionBar = supportActionBar //Declaramos la barrra superior para su uso
+        actionBar?.setDisplayHomeAsUpEnabled(true) //Activamos el icono de regreso de actividad
+
 
         if(entrada == "Registro") {
 
@@ -53,6 +60,9 @@ class RegistroAutomovil(): AppCompatActivity() {
 
             saHora.visibility = View.GONE
             reloj2.visibility = View.GONE
+
+
+            actionBar?.title = "Registro de automovil"
 
             registro?.setOnClickListener {
                 var mat = matricula?.text.toString()
@@ -101,15 +111,22 @@ class RegistroAutomovil(): AppCompatActivity() {
                 saHora.text = automovil.horaSalida
                 registro.visibility = View.GONE
 
-            }else saHora.text = "--:--"
+                actionBar?.title = "Detalles de automovil"
 
-            registro.background = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_rojo)
-            registro.text = "Salida"
+            }else{
+                saHora.text = "--:--"
+                registro.background = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_rojo)
+                registro.text = "Salida"
+
+                actionBar?.title = "Salida de automovil"
+            }
+
 
             matricula.text = automovil.matricula
             marca.text = automovil.marca
             modelo.text = automovil.modelo
             enHora.text = automovil.horaEntrada
+
 
 
             registro.setOnClickListener {
@@ -133,6 +150,11 @@ class RegistroAutomovil(): AppCompatActivity() {
 
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
+
     fun getHoraActual(strFormato: String): String {
         val objCalendar = Calendar.getInstance()
         val simpleDateFormat = SimpleDateFormat(strFormato)
@@ -153,7 +175,9 @@ class RegistroAutomovil(): AppCompatActivity() {
 
         val intent = Intent(applicationContext,MainActivity::class.java)
         intent.putExtra("Estacionamiento",estacionamiento1)
+        intent.putExtra("Pasado",pasado)
         startActivity(intent)
+        finishAffinity()
     }
 
     fun createList( mat:String , mar: String, mod: String, horaEntrada: String ){
@@ -183,7 +207,7 @@ class RegistroAutomovil(): AppCompatActivity() {
 
         automovil.horaSalida = horaSalida
 
-        estacionamiento.carros?.add(automovil)
+        pasado.carros?.add(automovil)
 
         //estacionamiento.carros?.set(index!!,automovil)
 
