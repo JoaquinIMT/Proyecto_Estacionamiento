@@ -1,19 +1,33 @@
 package com.example.proyecto_estacionamiento
 
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.Toast
+import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_busqueda.*
-import kotlinx.android.synthetic.main.fragment_primer_fragmento.*
-import java.sql.Date
-import java.sql.Time
+import java.text.SimpleDateFormat
 import java.util.*
 
-class FragmentoBusqueda(val estacionamiento: Estacionamiento) : Fragment() {
+class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado, val numeroDeSQLite: Int) : Fragment(), CustomViewHolder.funcionloca {
+
+    var lugar: Int = -1
+    var carros = estacionamiento.carros
+    var bye : MutableList<Int> = mutableListOf(0)
+    lateinit var salirCarro :Button
+    lateinit var reciclerView: RecyclerView
+
+    /*override fun position(position: Int) {
+        lugar = position //To change body of created functions use File | Settings | File Templates.
+        Toast.makeText(context, lugar.toString(),Toast.LENGTH_LONG).show()
+    }*/
 
     val marcas : List<String> = listOf("Hola","Nissan","Toyota")
     val modelos : List<List<String>> = listOf(listOf(), listOf())
@@ -24,17 +38,103 @@ class FragmentoBusqueda(val estacionamiento: Estacionamiento) : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
+
         val index = marcas.indexOf("Hola")
         ,modelos[index]
 
+
+        val view = inflater.inflate(R.layout.fragment_busqueda, container, false)
+
+        salirCarro = view.findViewById(R.id.salida)
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_busqueda, container, false)
+        reciclerView = view.findViewById(R.id.recyclerview_carros)
+
+        reciclerView.layoutManager = LinearLayoutManager(context?.applicationContext)
+
+        reciclerView.adapter = MainAdapter(estacionamiento,this, pasado)
+
+
+        salirCarro.setOnClickListener {
+            if (bye.size > 1){
+/*
+                thing1.text = ""
+                val dbHandler = MindOrksDBOpenHelper(this.context!!, null)
+                val cursor = dbHandler.getAllName()
+                cursor!!.moveToFirst()
+                thing1.append(cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MATRICULA)))
+                while (cursor.moveToNext()) {
+                    thing1.append(cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MATRICULA)))
+                    thing1.append("\n")
+                }
+                cursor.close()*/
+                bye.removeAt(0)
+                //implement Dialog text
+
+                val help = mutableListOf<Automovil>()
+
+                val horaSalida = getHoraActual("HH:mm")
+
+                for(i in bye){
+                    help.add(carros!![i])
+                }
+                for(i in help){
+                    exitParking(i,horaSalida)
+                }
+                val intent = Intent(view.context,MainActivityReal::class.java)
+                intent.putExtra("Estacionamiento",estacionamiento)
+                intent.putExtra("Pasado",pasado)
+                intent.putExtra("NumeroDeSQLite",numeroDeSQLite)
+                startActivity(intent)
+                finishAffinity(MainActivityReal())
+                //exitParking(estacionamiento,estacionamiento.carros!![lugar], getHoraActual("HH:mm"))
+
+
+            }else{
+                Toast.makeText(context, "Seleccione el automovil a salir", Toast.LENGTH_LONG).show()
+
+            }
+
+        }
+
+        return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerview_carros.layoutManager = LinearLayoutManager(context?.applicationContext)
 
-        recyclerview_carros.adapter = MainAdapter(estacionamiento)
+    override fun onCheckedBox(pos: Int, state:Boolean) {
+        if(state){
+            addToBye(pos)
+        }else{
+            removeFromBye(pos)
+        }
+    }
+
+    private fun addToBye(index: Int) {
+        bye.add(index)
+    }
+
+    private fun removeFromBye(index: Int){
+        if(index==0){
+            bye.removeAt(0)
+
+        }else{
+            bye.remove(index)
+        }
+    }
+
+    fun exitParking(index: Automovil?, horaSalida: String){
+
+        estacionamiento.carros?.remove(index)
+        index?.horaSalida = horaSalida
+        //estacionamiento.carros?.set(index!!,automovil)
+        estacionamiento.lugares += 1
+        pasado.carros?.add(index!!)
+    }
+
+    fun getHoraActual(strFormato: String): String {
+        val objCalendar = Calendar.getInstance()
+        val simpleDateFormat = SimpleDateFormat(strFormato)
+        return simpleDateFormat.format(objCalendar.time)
 
     }
 
