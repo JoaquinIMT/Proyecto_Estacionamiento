@@ -13,13 +13,10 @@ import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_busqueda.*
-import kotlinx.android.synthetic.main.fragment_primer_fragmento.*
-import java.sql.Date
-import java.sql.Time
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado) : Fragment(), CustomViewHolder.funcionloca {
+class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado, val numeroDeSQLite: Int) : Fragment(), CustomViewHolder.funcionloca {
 
     var lugar: Int = -1
     var carros = estacionamiento.carros
@@ -50,6 +47,17 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
 
         salirCarro.setOnClickListener {
             if (bye.size > 1){
+/*
+                thing1.text = ""
+                val dbHandler = MindOrksDBOpenHelper(this.context!!, null)
+                val cursor = dbHandler.getAllName()
+                cursor!!.moveToFirst()
+                thing1.append(cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MATRICULA)))
+                while (cursor.moveToNext()) {
+                    thing1.append(cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MATRICULA)))
+                    thing1.append("\n")
+                }
+                cursor.close()*/
                 bye.removeAt(0)
                 //implement Dialog text
 
@@ -63,11 +71,12 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
                 for(i in help){
                     exitParking(i,horaSalida)
                 }
-                val intent = Intent(view.context,MainActivity::class.java)
+                val intent = Intent(view.context,MainActivityReal::class.java)
                 intent.putExtra("Estacionamiento",estacionamiento)
                 intent.putExtra("Pasado",pasado)
+                intent.putExtra("NumeroDeSQLite",numeroDeSQLite)
                 startActivity(intent)
-                finishAffinity(MainActivity())
+                finishAffinity(MainActivityReal())
                 //exitParking(estacionamiento,estacionamiento.carros!![lugar], getHoraActual("HH:mm"))
 
 

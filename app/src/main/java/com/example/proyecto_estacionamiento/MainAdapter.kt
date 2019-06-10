@@ -47,7 +47,7 @@ class MainAdapter(val estacionamiento: Estacionamiento,val context: FragmentoBus
 
             holder.view.matricula.text = autos.matricula
             holder.view.hora_entrada1.text = autos.horaEntrada
-            holder.view.hora_entrada2.text = autos.horaSalida
+            holder.view.hora_entrada2.text = "--:--"
             holder.view.marca_modelo.text = autos.marca + " " + autos.modelo
 
             holder.estacionamiento = estacionamiento
@@ -59,6 +59,8 @@ class MainAdapter(val estacionamiento: Estacionamiento,val context: FragmentoBus
 
             holder.hold = false
 
+            holder.numeroDeSQLite = autos._id
+
         }
     }
 }
@@ -66,7 +68,8 @@ class MainAdapter(val estacionamiento: Estacionamiento,val context: FragmentoBus
 
 class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = null,
                        var carro: Automovil? = null, var position: Int? = null,
-                       var cosa: FragmentoBusqueda? = null, var pasado: Pasado? = null, var hold: Boolean = false ): RecyclerView.ViewHolder(view){
+                       var cosa: FragmentoBusqueda? = null, var pasado: Pasado? = null,
+                       var hold: Boolean = false, var numeroDeSQLite: Int? = null ): RecyclerView.ViewHolder(view){
 
 
     var activityCallBack : funcionloca? = null
@@ -91,6 +94,7 @@ class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = n
             intent.putExtra("Pasado",pasado)
             intent.putExtra("Estacionamiento",estacionamiento)
             intent.putExtra("index", position)
+            intent.putExtra("numeroDeSQLite",numeroDeSQLite)
             view.context.startActivity(intent)
 
         }

@@ -3,6 +3,7 @@ package com.example.proyecto_estacionamiento
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.strictmode.SqliteObjectLeakedViolation
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
@@ -47,27 +48,44 @@ class RegistroAutomovil(): AppCompatActivity() {
 
         estacionamiento = intent.getParcelableExtra("Estacionamiento")
         pasado = intent.getParcelableExtra("Pasado")
+
+        var numeroDeSQLite : Int? = intent.getIntExtra("Numero_de_SQLite",Int.MAX_VALUE)
+        if(numeroDeSQLite != null){
+            numeroDeSQLite += 1
+        }
+
         val entrada = intent.getStringExtra("estado")
+
+        val dbHandler = MindOrksDBOpenHelper(this, null)
 
 
         val actionBar = supportActionBar //Declaramos la barrra superior para su uso
         actionBar?.setDisplayHomeAsUpEnabled(true) //Activamos el icono de regreso de actividad
 
 
-        if(entrada == "Registro") {
+        if(entrada == "Registro") { //Al entrar significa que se hará un registro
 
-            enHora.text = getHoraActual("HH:mm")
 
+            //Ocultamos el reloj de salida, dado que solo se pondra la hora actual
             saHora.visibility = View.GONE
             reloj2.visibility = View.GONE
 
+            //Se pone la hora actual en el textView
+            enHora.text = getHoraActual("HH:mm")
 
+            //Se ajusta el nombre del boton
             actionBar?.title = "Registro de automovil"
 
-            registro?.setOnClickListener {
-                var mat = matricula?.text.toString()
-                var mar = marca?.text.toString()
-                var mod = modelo?.text.toString()
+
+            registro.setOnClickListener {
+
+                //Obtenemos el texto de los EditText
+                val mat = matricula.text.toString()
+                val mar = marca.text.toString()
+                val mod = modelo.text.toString()
+
+                //Toast.makeText(this, mat + "Added to database", Toast.LENGTH_LONG).show()
+
 
                 if (mat.equals("") && mar.equals("") && mod.equals("")) {
 
@@ -76,17 +94,20 @@ class RegistroAutomovil(): AppCompatActivity() {
 
 
                 } else {
+
                     hora = Date()
                     var horaEntrada = getHoraActual("HH:mm")
                     entradaMili = hora?.time
-                    //array.add(Automovil(mat, mar, mod, horaEntrada, " ")).toString()
+
+                    val automovil = Automovil(mat,mar,mod,horaEntrada,"", numeroDeSQLite!!)
+                    dbHandler.addFields(automovil)
 
                     //checamos que cuando mandemos llamar la lista con automoviles esta ya tenga registrado a un automovil
                     // de otra forma este arreglo se define como el primero
 
                     if (estacionamiento.carros != null){
 
-                        addList(mat, mar, mod, horaEntrada)
+                        addList(mat, mar, mod, horaEntrada, numeroDeSQLite)
 
                     }else{
 
@@ -103,7 +124,7 @@ class RegistroAutomovil(): AppCompatActivity() {
                 }
             }
 
-        }else{
+        }else{ //Si entra aquí tendrá una salida o esta checando información
 
             var automovil = intent.getParcelableExtra<Automovil>("Auto")
 
@@ -114,11 +135,13 @@ class RegistroAutomovil(): AppCompatActivity() {
                 actionBar?.title = "Detalles de automovil"
 
             }else{
+
                 saHora.text = "--:--"
                 registro.background = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_rojo)
                 registro.text = "Salida"
 
                 actionBar?.title = "Salida de automovil"
+
             }
 
 
@@ -140,7 +163,7 @@ class RegistroAutomovil(): AppCompatActivity() {
 
                 entradaMili = hora?.time
 
-                exitParking(automovil,horaSalida)
+                exitParking(automovil,horaSalida,dbHandler)
 
                 intent(estacionamiento)
 
@@ -173,7 +196,7 @@ class RegistroAutomovil(): AppCompatActivity() {
 
     fun intent(estacionamiento1: Estacionamiento){
 
-        val intent = Intent(applicationContext,MainActivity::class.java)
+        val intent = Intent(applicationContext,MainActivityReal::class.java)
         intent.putExtra("Estacionamiento",estacionamiento1)
         intent.putExtra("Pasado",pasado)
         startActivity(intent)
@@ -182,30 +205,34 @@ class RegistroAutomovil(): AppCompatActivity() {
 
     fun createList( mat:String , mar: String, mod: String, horaEntrada: String ){
 
-        array = Automovil(mat, mar, mod, horaEntrada, "")
+        array = Automovil(mat, mar, mod, horaEntrada, "",0)
         estacionamiento.carros = mutableListOf(array)
         estacionamiento.lugares -= 1
 
     }
 
-    fun addList(mat:String , mar: String, mod: String, horaEntrada: String ){
+    fun addList(mat:String , mar: String, mod: String, horaEntrada: String, numeroDeSQLite: Int ){
         /*if (estacionamiento.carros?.size == 2){
             estacionamiento.carros?.reverse()
         }*/
 
-        array = Automovil(mat, mar, mod, horaEntrada, "")
+        array = Automovil(mat, mar, mod, horaEntrada, "", numeroDeSQLite )
         estacionamiento.carros?.reverse()
         estacionamiento.carros?.add(array)
         estacionamiento.carros?.reverse()
         estacionamiento.lugares -= 1
     }
 
-    fun exitParking(automovil:Automovil, horaSalida: String){
+    fun exitParking(automovil:Automovil, horaSalida: String, dbHandler: MindOrksDBOpenHelper){
+
         val index = intent.getIntExtra("index", Int.MAX_VALUE)
+        val numeroIDSQLite = intent.getIntExtra("NumeroDeSQLite",Int.MAX_VALUE)
 
         estacionamiento.carros?.removeAt(index)
 
         automovil.horaSalida = horaSalida
+
+        dbHandler.modify(numeroIDSQLite, automovil,0)
 
         pasado.carros?.add(automovil)
 

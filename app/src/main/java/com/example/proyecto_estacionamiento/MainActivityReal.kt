@@ -1,8 +1,7 @@
 package com.example.proyecto_estacionamiento
 
+import android.database.Cursor
 import android.os.Bundle
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import androidx.core.view.GravityCompat
 import androidx.appcompat.app.ActionBarDrawerToggle
 import android.view.MenuItem
@@ -12,12 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.Menu
 import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_main.*
-import java.text.SimpleDateFormat
-import java.util.*
+import kotlinx.android.synthetic.main.content_main_activity_real.*
 
 class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
+    var numeroDeSQLite: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,31 +42,57 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         val prueba: Estacionamiento? = intent.getParcelableExtra("Estacionamiento")
         val prueba2: Pasado? = intent.getParcelableExtra("Pasado")
+        val prueba3: Int = intent.getIntExtra("tipoE",Int.MAX_VALUE)
+
+        val dataBaseNew: MutableList<Automovil>? = getSQLITE()
+
+
 
         estacionamiento = if (prueba != null){
             prueba
         } else{
+
             /*val automoviles = mutableListOf<Automovil>(Automovil(matricula = "ASW0M3",marca = "Toyota",modelo = "Corolla"
                 ,horaEntrada = "11", horaSalida = "14")
                 ,Automovil(matricula = "JOLUQFER",marca = "Nissan",modelo = "Versa",horaEntrada = "10", horaSalida = "15"))
             */
-            Estacionamiento(lugares, null)
+            if(dataBaseNew != null){
+                val lugaresDisponibles = lugares - dataBaseNew.size
+                Estacionamiento(lugaresDisponibles,dataBaseNew)
+
+            }else{
+                Estacionamiento(lugares, null)
+            }
+
         }
 
         pasado =  if (prueba2 != null){
             prueba2
         } else{
-            /*val automoviles = mutableListOf<Automovil>(Automovil(matricula = "ASW0M3",marca = "Toyota",modelo = "Corolla"
-                ,horaEntrada = "11", horaSalida = "14")
-                ,Automovil(matricula = "JOLUQFER",marca = "Nissan",modelo = "Versa",horaEntrada = "10", horaSalida = "15"))
-            */
-            Pasado(mutableListOf())
+
+            val past = takePass(estacionamiento) //esta variable nos dice si al sacar las variables del sqlite hay automoviles fuera
+
+            if( past != null ){
+                for(i in past){
+                    estacionamiento.carros?.remove(i)
+                }
+
+                estacionamiento.lugares += past.size // Aqui asignamos los lugares correctos, si hay automoviles que salieron
+
+                Pasado(past)
+
+            }else{
+
+                Pasado(mutableListOf())
+
+            }
+
         }
 
         val adapter = FragmentAdapter(supportFragmentManager)
 
         adapter.newFragment(PrimerFragmento(estacionamiento, pasado))
-        adapter.newFragment(FragmentoBusqueda(estacionamiento, pasado))
+        adapter.newFragment(FragmentoBusqueda(estacionamiento, pasado, numeroDeSQLite))
         adapter.newFragment(FragmentoSalidas(pasado))
 
         viewPager.adapter = adapter
@@ -117,12 +141,79 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
             R.id.ic_power -> {
                 Toast.makeText(this,"Ya saliste de sesión",Toast.LENGTH_SHORT).show()
             }
-
         }
+
 
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    fun getSQLITE(): MutableList<Automovil>? {
+
+        val dbHandler = MindOrksDBOpenHelper(this, null)
+
+        val autmoviles = mutableListOf<Automovil>()
+
+        val cursor = dbHandler.getAllName()
+        cursor!!.moveToFirst()
+
+        if(cursor.count > 0){
+
+            var mat: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MATRICULA))
+            var mar: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MARCA))
+            var mod: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MODELO))
+            var he: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_HORAE))
+            var hs: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_HORASA))
+            var _id: Int = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_ID))
+
+
+            var cosa1 = Automovil(mat,mar,mod,he,hs,_id)
+
+            autmoviles.add(cosa1)
+
+            while (cursor.moveToNext()) {
+
+                mat = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MATRICULA))
+                mar = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MARCA))
+                mod = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MODELO))
+                he = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_HORAE))
+                hs = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_HORASA))
+                _id = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_ID))
+
+                cosa1 = Automovil(mat,mar,mod,he,hs,_id)
+
+                autmoviles.add(cosa1)
+            }
+            numeroDeSQLite = _id
+
+        }
+
+
+        cursor.close()
+
+        return autmoviles
+    }
+
+    fun takePass(estacionamiento: Estacionamiento): MutableList<Automovil>?{
+
+        var automoviles : MutableList<Automovil>? = mutableListOf<Automovil>()
+
+        if(estacionamiento.carros != null){
+            for(i in estacionamiento.carros!!){
+
+                if( i.horaSalida!="" ){
+                    automoviles?.add(i)
+                }
+
+            }
+
+        }else{
+            automoviles = null
+        }
+
+        return automoviles
+
     }
 
 }
