@@ -5,42 +5,21 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.INotificationSideChannel
 import android.widget.Button
-
-import android.widget.TextView
-
-
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.Serializable
 
-class MainActivity : AppCompatActivity(){
+class MainActivity : AppCompatActivity() {
 
     lateinit var entraCarro: Button
-    var salida : Button? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val lugares = 21
-
-
-        entraCarro = findViewById(R.id.nuevo_registro) as Button
-        salida = findViewById(R.id.salida) as Button
-
-        salida?.setOnClickListener{
-
-        }
-
-        val adapter = FragmentAdapter(supportFragmentManager)
-
-
-        adapter.newFragment(PrimerFragmento())
-        adapter.newFragment(FragmentoBusqueda())
 
         var estacionamiento: Estacionamiento? =  null
 
@@ -99,11 +78,11 @@ class MainActivity : AppCompatActivity(){
 
 
         override fun getItem(position: Int): Fragment {
-             return listaFragmentos[position]
+            return listaFragmentos[position]
         }
 
         override fun getCount(): Int {
-             return listaFragmentos.size
+            return listaFragmentos.size
         }
 
         fun newFragment(fragmento: Fragment){
@@ -112,14 +91,5 @@ class MainActivity : AppCompatActivity(){
 
         }
 
-
     }
-    /*
-    fun imprimirArray(array : ArrayList<registro>){
-
-        for (elemento in array){
-            Toast.makeText(this@MainActivity, elemento.getMatricula()+elemento.getMarca()+elemento.getModelo()+elemento.getHoraEntrada()+elemento.getHoraSalida(), Toast.LENGTH_SHORT).show()
-        }
-    }
-    */
 }

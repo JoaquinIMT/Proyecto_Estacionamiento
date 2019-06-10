@@ -15,10 +15,17 @@ import java.util.*
 
 class FragmentoBusqueda(val estacionamiento: Estacionamiento) : Fragment() {
 
+    val marcas : List<String> = listOf("Hola","Nissan","Toyota")
+    val modelos : List<List<String>> = listOf(listOf(), listOf())
+    //var sql :sqlLite = sqlLite(this,"g",null,1)
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        val index = marcas.indexOf("Hola")
+        ,modelos[index]
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_busqueda, container, false)

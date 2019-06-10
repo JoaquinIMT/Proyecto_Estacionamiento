@@ -1,5 +1,8 @@
 package com.example.proyecto_estacionamiento
 
+import android.app.Activity
+import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -12,9 +15,14 @@ import java.lang.reflect.Array
 
 
 //Esta clase es para que los elementos se generen repetitivamente con datos especificos
+
+class gg (): Application() {
+    var sql:sqlLite = sqlLite(this,"AUTOMOVIL",null,1)
+}
 class MainAdapter(val estacionamiento: Estacionamiento)/*(Carros: ArrayList<Array>)*/: RecyclerView.Adapter<CustomViewHolder>() {
 
     //val carros = Carros
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -40,6 +48,8 @@ class MainAdapter(val estacionamiento: Estacionamiento)/*(Carros: ArrayList<Arra
             if (autos.horaSalida!=""){ //Con esta condición verificamos si el auto se encuentra en el estacionamiento y si no es así (posee hora de salida) se marca con rojo
                 holder.view.state_carro.setImageResource(R.drawable.bg_boton_redondo_rojo)
             }
+            var alv : gg = gg()
+            alv.sql.agregarAutomovil(autos.marca,autos.modelo,autos.matricula,autos.horaEntrada,autos.horaSalida)
 
             holder.view.matricula.text = autos.matricula
             holder.view.hora_entrada1.text = autos.horaEntrada
