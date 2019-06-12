@@ -47,17 +47,7 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
 
         salirCarro.setOnClickListener {
             if (bye.size > 1){
-/*
-                thing1.text = ""
-                val dbHandler = MindOrksDBOpenHelper(this.context!!, null)
-                val cursor = dbHandler.getAllName()
-                cursor!!.moveToFirst()
-                thing1.append(cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MATRICULA)))
-                while (cursor.moveToNext()) {
-                    thing1.append(cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MATRICULA)))
-                    thing1.append("\n")
-                }
-                cursor.close()*/
+
                 bye.removeAt(0)
                 //implement Dialog text
 

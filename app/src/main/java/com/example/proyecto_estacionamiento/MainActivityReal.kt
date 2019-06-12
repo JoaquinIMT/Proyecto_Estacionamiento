@@ -44,13 +44,13 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val prueba2: Pasado? = intent.getParcelableExtra("Pasado")
         val prueba3: Int = intent.getIntExtra("tipoE",Int.MAX_VALUE)
 
-        val dataBaseNew: MutableList<Automovil>? = getSQLITE()
-
-
 
         estacionamiento = if (prueba != null){
             prueba
         } else{
+
+            val dataBaseNew: MutableList<Automovil>? = getSQLITE(true)
+
 
             /*val automoviles = mutableListOf<Automovil>(Automovil(matricula = "ASW0M3",marca = "Toyota",modelo = "Corolla"
                 ,horaEntrada = "11", horaSalida = "14")
@@ -70,21 +70,12 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
             prueba2
         } else{
 
-            val past = takePass(estacionamiento) //esta variable nos dice si al sacar las variables del sqlite hay automoviles fuera
+            val past = getSQLITE(false) //esta variable nos dice si al sacar las variables del sqlite hay automoviles fuera
 
             if( past != null ){
-                for(i in past){
-                    estacionamiento.carros?.remove(i)
-                }
-
-                estacionamiento.lugares += past.size // Aqui asignamos los lugares correctos, si hay automoviles que salieron
-
                 Pasado(past)
-
             }else{
-
                 Pasado(mutableListOf())
-
             }
 
         }
@@ -149,13 +140,13 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         return true
     }
 
-    fun getSQLITE(): MutableList<Automovil>? {
+    fun getSQLITE(tipo: Boolean): MutableList<Automovil>? {
 
         val dbHandler = MindOrksDBOpenHelper(this, null)
 
         val autmoviles = mutableListOf<Automovil>()
 
-        val cursor = dbHandler.getAllName()
+        val cursor = dbHandler.getAllName(tipo)
         cursor!!.moveToFirst()
 
         if(cursor.count > 0){
@@ -195,7 +186,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         return autmoviles
     }
 
-    fun takePass(estacionamiento: Estacionamiento): MutableList<Automovil>?{
+  /*  fun takePass(estacionamiento: Estacionamiento): MutableList<Automovil>?{
 
         var automoviles : MutableList<Automovil>? = mutableListOf<Automovil>()
 
@@ -215,5 +206,5 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         return automoviles
 
     }
-
+*/
 }

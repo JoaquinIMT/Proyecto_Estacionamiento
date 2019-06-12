@@ -100,7 +100,7 @@ class RegistroAutomovil(): AppCompatActivity() {
                     entradaMili = hora?.time
 
                     val automovil = Automovil(mat,mar,mod,horaEntrada,"", numeroDeSQLite!!)
-                    dbHandler.addFields(automovil)
+                    dbHandler.addFields(automovil,true)
 
                     //checamos que cuando mandemos llamar la lista con automoviles esta ya tenga registrado a un automovil
                     // de otra forma este arreglo se define como el primero
@@ -188,7 +188,6 @@ class RegistroAutomovil(): AppCompatActivity() {
     fun imprimirArray(array : ArrayList<Automovil>){
 
         for (elemento in array){
-            //Toast.makeText(this@RegistroAutomovil, elemento.getMatricula()+elemento.getMarca()+elemento.getModelo()+elemento.getHoraEntrada()+elemento.getHoraSalida(), Toast.LENGTH_SHORT).show()
             Toast.makeText(this@RegistroAutomovil, elemento.matricula+elemento.marca+elemento.modelo+elemento.horaEntrada+elemento.horaSalida, Toast.LENGTH_SHORT).show()
         }
 
@@ -212,9 +211,6 @@ class RegistroAutomovil(): AppCompatActivity() {
     }
 
     fun addList(mat:String , mar: String, mod: String, horaEntrada: String, numeroDeSQLite: Int ){
-        /*if (estacionamiento.carros?.size == 2){
-            estacionamiento.carros?.reverse()
-        }*/
 
         array = Automovil(mat, mar, mod, horaEntrada, "", numeroDeSQLite )
         estacionamiento.carros?.reverse()
@@ -232,11 +228,10 @@ class RegistroAutomovil(): AppCompatActivity() {
 
         automovil.horaSalida = horaSalida
 
-        dbHandler.modify(numeroIDSQLite, automovil,0)
+        dbHandler.dropElement(automovil) //retiramos el automovil de entradas
+        dbHandler.addFields(automovil,false) //ponemos el automovil en salida
 
         pasado.carros?.add(automovil)
-
-        //estacionamiento.carros?.set(index!!,automovil)
 
         estacionamiento.lugares += 1
 

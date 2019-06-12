@@ -32,8 +32,6 @@ class FragmentAdapter(manager: FragmentManager): FragmentPagerAdapter(manager) {
 
 }
 
-class Name(var userName: String? = null)
-
 class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     SQLiteOpenHelper(context, DATABASE_NAME, factory, DATABASE_VERSION) {
 
@@ -46,37 +44,60 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
                 + COLUMN_MODELO + " TEXT,"
                 + COLUMN_HORAE + " TEXT,"
                 + COLUMN_HORASA + " TEXT" +")")
+
         db.execSQL(CREATE_PRODUCTS_TABLE)
+    }
+
+    fun onCreateSalida(db: SQLiteDatabase) {
+
+        val CREATE_PRODUCTS_TABLE_SALIDA = ("CREATE TABLE " +
+                TABLE_SALIDA +
+                "(" + COLUMN_ID + " INTEGER PRIMARY KEY,"
+                + COLUMN_MATRICULA + " TEXT,"
+                + COLUMN_MARCA + " TEXT,"
+                + COLUMN_MODELO + " TEXT,"
+                + COLUMN_HORAE + " TEXT,"
+                + COLUMN_HORASA + " TEXT" +")")
+
+        db.execSQL(CREATE_PRODUCTS_TABLE_SALIDA)
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ESTACIONAMIENTO)
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SALIDA)
         onCreate(db)
+        onCreateSalida(db)
     }
 
-    fun addFields(automovil: Automovil){
+    fun addFields(automovil: Automovil, tipo: Boolean){
+        val db = this.writableDatabase
         val values = ContentValues()
-
         values.put(COLUMN_MATRICULA,automovil.matricula)
         values.put(COLUMN_MARCA,automovil.marca)
         values.put(COLUMN_MODELO,automovil.modelo)
         values.put(COLUMN_HORAE,automovil.horaEntrada)
         values.put(COLUMN_HORASA,automovil.horaSalida)
 
-        val db = this.writableDatabase
-        db.insert(TABLE_ESTACIONAMIENTO, null, values)
+        if(tipo){
+
+            db.insert(TABLE_ESTACIONAMIENTO, null, values)
+        }else{
+            db.insert(TABLE_SALIDA,null,values)
+        }
         db.close()
     }
 
-    fun modify(index: Int, automovil: Automovil, tipo: Int){
-        val values = ContentValues()
+    fun dropElement(automovil: Automovil){
         val db = this.writableDatabase
 
-        if(tipo == 0){
-            values.put(COLUMN_HORASA, automovil.horaSalida)
+        db.execSQL("DELETE FROM $TABLE_ESTACIONAMIENTO WHERE $COLUMN_MATRICULA='${automovil.matricula}' AND $COLUMN_MODELO='${automovil.modelo}'")
+    }
 
-            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_HORASA='${automovil.horaSalida}' WHERE $COLUMN_ID=${automovil._id}")
-        }
+    fun modify(index: Int, automovil: Automovil){
+        val db = this.writableDatabase
+
+        db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_HORASA='${automovil.horaSalida}' WHERE $COLUMN_ID=${automovil._id}")
 
         //db.update(TABLE_ESTACIONAMIENTO,values, COLUMN_ID+"="+index.toString(),null)
 
@@ -85,23 +106,38 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
     }
 
 
-    fun getAllName(): Cursor? {
+    fun getAllName(tipo: Boolean): Cursor? {
         val db = this.readableDatabase
+        val cursorPrueba: Cursor = if(tipo){
+             db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"
+                    + TABLE_ESTACIONAMIENTO + "'", null)
+        }else{
 
-        val cursorPrueba: Cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"
-                + TABLE_ESTACIONAMIENTO + "'", null)
-        if(cursorPrueba.count <= 0){
-            onCreate(db)
+             db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"
+                    + TABLE_SALIDA + "'", null)
         }
-        cursorPrueba.close()
+        if(cursorPrueba.count <= 0 && tipo){
+            onCreate(db)
+        }else if(cursorPrueba.count <= 0 && !tipo){
+            onCreateSalida(db)
+        }
 
-        return db.rawQuery("SELECT * FROM $TABLE_ESTACIONAMIENTO", null)
+        cursorPrueba.close()
+        val rawQuery = if(tipo){
+            db.rawQuery("SELECT * FROM $TABLE_ESTACIONAMIENTO", null)
+        }else{
+            db.rawQuery("SELECT * FROM $TABLE_SALIDA", null)
+        }
+        //onUpgrade(db,0,1)
+
+        return rawQuery
     }
 
     companion object {
         private val DATABASE_VERSION = 1
         private val DATABASE_NAME = "mindorksName.db"
         const val TABLE_ESTACIONAMIENTO = "estacionamiento"
+        const val TABLE_SALIDA = "salida"
         const val COLUMN_ID = "_id"
         const val COLUMN_MATRICULA = "matricula"
         const val COLUMN_MARCA = "marca"
@@ -111,6 +147,9 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
     }
 }
 
+
+
+//Con Parcelize se le asigna a la clase la propiedad para ser pasada como información a travez de los intent
 @Parcelize
 class Estacionamiento(var lugares: Int, var carros: MutableList<Automovil>?): Parcelable
 
