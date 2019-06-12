@@ -116,10 +116,6 @@ class RegistroAutomovil(): AppCompatActivity() {
                     }
 
                     intent(estacionamiento)
-                    /*matricula?.text = ""
-                    marca?.text = ""
-                    modelo?.text = ""
-                    imprimirArray(array!!)*/
 
                 }
             }
@@ -213,22 +209,21 @@ class RegistroAutomovil(): AppCompatActivity() {
     fun addList(mat:String , mar: String, mod: String, horaEntrada: String, numeroDeSQLite: Int ){
 
         array = Automovil(mat, mar, mod, horaEntrada, "", numeroDeSQLite )
-        estacionamiento.carros?.reverse()
         estacionamiento.carros?.add(array)
-        estacionamiento.carros?.reverse()
         estacionamiento.lugares -= 1
     }
 
     fun exitParking(automovil:Automovil, horaSalida: String, dbHandler: MindOrksDBOpenHelper){
 
         val index = intent.getIntExtra("index", Int.MAX_VALUE)
-        val numeroIDSQLite = intent.getIntExtra("NumeroDeSQLite",Int.MAX_VALUE)
+        //val numeroIDSQLite = intent.getIntExtra("NumeroDeSQLite",Int.MAX_VALUE)
 
         estacionamiento.carros?.removeAt(index)
 
+        dbHandler.dropElement(automovil) //retiramos el automovil de entradas
+
         automovil.horaSalida = horaSalida
 
-        dbHandler.dropElement(automovil) //retiramos el automovil de entradas
         dbHandler.addFields(automovil,false) //ponemos el automovil en salida
 
         pasado.carros?.add(automovil)

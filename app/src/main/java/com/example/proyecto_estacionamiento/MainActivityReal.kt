@@ -1,5 +1,6 @@
 package com.example.proyecto_estacionamiento
 
+import android.content.Intent
 import android.database.Cursor
 import android.os.Bundle
 import androidx.core.view.GravityCompat
@@ -16,6 +17,7 @@ import kotlinx.android.synthetic.main.content_main_activity_real.*
 class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     var numeroDeSQLite: Int = 0
+    val dbHandler = MindOrksDBOpenHelper(this, null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +44,8 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         val prueba: Estacionamiento? = intent.getParcelableExtra("Estacionamiento")
         val prueba2: Pasado? = intent.getParcelableExtra("Pasado")
-        val prueba3: Int = intent.getIntExtra("tipoE",Int.MAX_VALUE)
+        //val prueba3: Int = intent.getIntExtra("tipoE",Int.MAX_VALUE)
+        // Usar cuando implementos pantalla principal
 
 
         estacionamiento = if (prueba != null){
@@ -83,7 +86,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val adapter = FragmentAdapter(supportFragmentManager)
 
         adapter.newFragment(PrimerFragmento(estacionamiento, pasado))
-        adapter.newFragment(FragmentoBusqueda(estacionamiento, pasado, numeroDeSQLite))
+        adapter.newFragment(FragmentoBusqueda(estacionamiento, pasado, numeroDeSQLite, dbHandler))
         adapter.newFragment(FragmentoSalidas(pasado))
 
         viewPager.adapter = adapter
@@ -126,11 +129,16 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         when (item.itemId) {
 
             R.id.share -> {
-                Toast.makeText(this,"Compartiendo",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,"Se borraron las entradas al pasar la información",Toast.LENGTH_SHORT).show()
+                dbHandler.dropTable(true) //Mandamos false para eliminar la tabla de entradas de la base de datos
+                intentToMainActivityReal()
             }
 
             R.id.ic_power -> {
-                Toast.makeText(this,"Ya saliste de sesión",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,"Se borraron las salidas al salir de sesión",Toast.LENGTH_SHORT).show()
+                dbHandler.dropTable(false) //Mandamos false para eliminar la tabla de salidas de la base de datos
+                intentToMainActivityReal()
+
             }
         }
 
@@ -141,8 +149,6 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
     }
 
     fun getSQLITE(tipo: Boolean): MutableList<Automovil>? {
-
-        val dbHandler = MindOrksDBOpenHelper(this, null)
 
         val autmoviles = mutableListOf<Automovil>()
 
@@ -184,6 +190,13 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         cursor.close()
 
         return autmoviles
+    }
+
+    fun intentToMainActivityReal(){
+
+        val intent = Intent(applicationContext,MainActivityReal::class.java)
+        startActivity(intent)
+        finishAffinity()
     }
 
   /*  fun takePass(estacionamiento: Estacionamiento): MutableList<Automovil>?{

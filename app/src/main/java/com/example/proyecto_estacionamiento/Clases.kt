@@ -105,6 +105,16 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
 
     }
 
+    fun dropTable(tipo: Boolean){
+        val db = this.writableDatabase
+
+        if(tipo){
+            db.execSQL("DROP TABLE IF EXISTS $TABLE_ESTACIONAMIENTO")
+        } else db.execSQL("DROP TABLE IF EXISTS $TABLE_SALIDA")
+
+        db.close()
+    }
+
 
     fun getAllName(tipo: Boolean): Cursor? {
         val db = this.readableDatabase

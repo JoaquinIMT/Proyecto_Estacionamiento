@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.fragment_busqueda.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado, val numeroDeSQLite: Int) : Fragment(), CustomViewHolder.funcionloca {
+class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado, val numeroDeSQLite: Int, val dbHandler: MindOrksDBOpenHelper) : Fragment(), CustomViewHolder.funcionloca {
 
     var lugar: Int = -1
     var carros = estacionamiento.carros
@@ -108,7 +108,13 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
         index?.horaSalida = horaSalida
         //estacionamiento.carros?.set(index!!,automovil)
         estacionamiento.lugares += 1
+
         pasado.carros?.add(index!!)
+
+        dbHandler.dropElement(index!!) //retiramos el automovil de entradas
+
+        dbHandler.addFields(index,false) //ponemos el automovil en salida
+
     }
 
     fun getHoraActual(strFormato: String): String {
