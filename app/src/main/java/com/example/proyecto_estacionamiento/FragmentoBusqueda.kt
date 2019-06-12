@@ -1,6 +1,5 @@
 package com.example.proyecto_estacionamiento
 
-
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -29,24 +28,14 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
         Toast.makeText(context, lugar.toString(),Toast.LENGTH_LONG).show()
     }*/
 
-    val marcas : List<String> = listOf("Hola","Nissan","Toyota")
-    val modelos : List<List<String>> = listOf(listOf(), listOf())
-    //var sql :sqlLite = sqlLite(this,"g",null,1)
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-
-        val index = marcas.indexOf("Hola")
-        ,modelos[index]
-
-
         val view = inflater.inflate(R.layout.fragment_busqueda, container, false)
 
         salirCarro = view.findViewById(R.id.salida)
-
         // Inflate the layout for this fragment
         reciclerView = view.findViewById(R.id.recyclerview_carros)
 

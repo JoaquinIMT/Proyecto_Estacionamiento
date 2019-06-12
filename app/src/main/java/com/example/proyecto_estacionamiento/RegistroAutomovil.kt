@@ -1,14 +1,11 @@
 package com.example.proyecto_estacionamiento
-
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.strictmode.SqliteObjectLeakedViolation
+import android.text.Editable
 import android.view.View
-import android.widget.Button
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_registro_automovil.*
 import java.text.SimpleDateFormat
@@ -19,10 +16,12 @@ class RegistroAutomovil(): AppCompatActivity() {
     lateinit var tiempo : ProgressBar
 
     lateinit var matricula: TextView
+    lateinit var marcaAutoCompletar: AutoCompleteTextView
     lateinit var marca: TextView
     lateinit var modelo: TextView
     lateinit var enHora: TextView
     lateinit var saHora: TextView
+    var posicion :Int=0
     //lateinit var array : ArrayList<Automovil>
     lateinit var array : Automovil //Lista con los datos del automovil para agregar al array mayor
 
@@ -32,8 +31,15 @@ class RegistroAutomovil(): AppCompatActivity() {
     lateinit var registro : Button //Boton abajo de la pantalla para concluir cambios
     lateinit var hora : Date
     var entradaMili : Long? = null
-    //var sql = com.example.proyecto_estacionamiento.sqlLite(this,"AUTOMOVIL",null,1)
-    var sql:sqlLite = sqlLite(this,"AUTOMOVIL",null,1)
+    var marcas = arrayOf("Audi","BMW","Chevrolet","Chrysler","Corvette","Dodge","Fiat","Ford","GMC","Honda","Hummer","Hyundai","Isuzu","Jaguar","Jeep","Kia","Land-rover","Mazda","Mercedes-benz","Mini",
+                         "Mitsubishi","Nissan","Pontiac","Porsche","Renault","Smart","Suzuki","Toyota","Volkswagen","Volvo")
+    var modelos = arrayOf("80,a4,a6,s6,coupe,s2,rs2,a8,cabriolet,s8,a3,s4,tt,s3,allroad-quattro,rs4,a2,rs6,q7,r8,a5,s5,v8,200,100,90,tts,q5,a4-allroad-quattro,tt-rs,rs5,al,a7,rs3,q3,a6-allroad-quattro,s7,sq5",
+                          "serie-3,serie-5,compact,serie-7,serie-8,z3,z4,z8,x5,serie-6,x3,serie-1,z1,x6,x1")
+
+
+
+
+
 
 
 
@@ -41,12 +47,36 @@ class RegistroAutomovil(): AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registro_automovil)
 
-        matricula = findViewById(R.id.matricula2)
+        matricula = this.findViewById(R.id.matricula2)
         marca = findViewById(R.id.matricula)
+        marcaAutoCompletar= findViewById(R.id.matricula)
+        var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,marcas)
+        this.marcaAutoCompletar.setAdapter(adapterr)
         modelo = findViewById(R.id.modelo)
         registro = findViewById(R.id.nuevo_registro)
         enHora = findViewById(R.id.enhora)
         saHora = findViewById(R.id.sahora)
+
+        modelo.setOnClickListener{
+            Toast.makeText(this@RegistroAutomovil, "estoy aqui", Toast.LENGTH_SHORT).show()
+            if (marca.text.isEmpty()) {
+                Toast.makeText(this@RegistroAutomovil, "Soy nulo", Toast.LENGTH_SHORT).show()
+            }
+            else{
+                Toast.makeText(this@RegistroAutomovil, "Soy diferente de nulo", Toast.LENGTH_SHORT).show()
+                for(num in 0..marcas.size-1){
+                    Toast.makeText(this@RegistroAutomovil, num.toString(), Toast.LENGTH_SHORT).show()
+                    if(marcas.get(0).equals(marca.text)){
+                        posicion = num
+                        Toast.makeText(this@RegistroAutomovil, posicion, Toast.LENGTH_SHORT).show()
+
+                    }
+                }
+
+                }
+
+            }
+
 
         estacionamiento = intent.getParcelableExtra("Estacionamiento")
         pasado = intent.getParcelableExtra("Pasado")
@@ -101,13 +131,8 @@ class RegistroAutomovil(): AppCompatActivity() {
                     var horaEntrada = getHoraActual("HH:mm")
                     entradaMili = hora?.time
 
-
-                    Toast.makeText(this, "Se cargaron los datos del artículo", Toast.LENGTH_SHORT).show()
-                    //array.add(Automovil(mat, mar, mod, horaEntrada, " ")).toString()
-
                     val automovil = Automovil(mat,mar,mod,horaEntrada,"", numeroDeSQLite!!)
                     dbHandler.addFields(automovil)
-
 
                     //checamos que cuando mandemos llamar la lista con automoviles esta ya tenga registrado a un automovil
                     // de otra forma este arreglo se define como el primero
@@ -167,12 +192,8 @@ class RegistroAutomovil(): AppCompatActivity() {
                 hora = Date()
 
                 val horaSalida = getHoraActual("HH:mm")
-                val horaEntrada = getHoraActual("HH:mm")
-                entradaMili = hora?.time
 
                 entradaMili = hora?.time
-                //sql.agregarAutomovil(marca?.text.toString(),modelo?.text.toString(),matricula?.text.toString(),horaEntrada)
-                Toast.makeText(this, "Se cargaron los datos del artículo", Toast.LENGTH_SHORT).show()
 
                 exitParking(automovil,horaSalida,dbHandler)
 

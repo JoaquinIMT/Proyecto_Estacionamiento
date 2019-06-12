@@ -1,10 +1,4 @@
 package com.example.proyecto_estacionamiento
-
-
-import android.app.Activity
-import android.app.Application
-
-
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
@@ -24,15 +18,7 @@ import kotlin.coroutines.coroutineContext
 
 
 //Esta clase es para que los elementos se generen repetitivamente con datos especificos
-
-class gg (): Application() {
-    var sql:sqlLite = sqlLite(this,"AUTOMOVIL",null,1)
-}
-class MainAdapter(val estacionamiento: Estacionamiento)/*(Carros: ArrayList<Array>)*/: RecyclerView.Adapter<CustomViewHolder>() {
-
 class MainAdapter(val estacionamiento: Estacionamiento,val context: FragmentoBusqueda, val pasado: Pasado)/*(Carros: ArrayList<Array>)*/: RecyclerView.Adapter<CustomViewHolder>() {
-
-
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
@@ -56,8 +42,6 @@ class MainAdapter(val estacionamiento: Estacionamiento,val context: FragmentoBus
             if (autos.horaSalida!=""){ //Con esta condición verificamos si el auto se encuentra en el estacionamiento y si no es así (posee hora de salida) se marca con rojo
                 holder.view.state_carro.setImageResource(R.drawable.bg_boton_redondo_rojo)
             }
-            var alv : gg = gg()
-            alv.sql.agregarAutomovil(autos.marca,autos.modelo,autos.matricula,autos.horaEntrada,autos.horaSalida)
 
 
             holder.view.matricula.text = autos.matricula
@@ -132,10 +116,8 @@ class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = n
         /*view.setOnLongClickListener {
             fun click(): Boolean {
                 view.setBackgroundColor(Color.parseColor("#5054B4"))
-
                 return true
             }
-
             click()
         }*/ //Retomar esta parte de codigo cuando se pueda eliminar el arreglo
 
