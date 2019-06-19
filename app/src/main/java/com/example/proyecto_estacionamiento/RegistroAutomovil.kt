@@ -90,6 +90,20 @@ class RegistroAutomovil : AppCompatActivity() {
             if (!hasFocus) {
                 //SAVE THE DATA
                 if (marca.text.isEmpty()) {
+                    for(num3 in 0..modelos.size-1){
+                        val todosModelos = modelos.get(num3)
+                        val todosModelosSeparados = todosModelos.split(",")
+                        for(num4 in 0..todosModelosSeparados.size-1){
+                            var textoPosicion:String = todosModelosSeparados[num4]
+                            var textoModelo:String = modelo.text.toString()
+                            var comparacion = textoModelo.compareTo(textoPosicion)
+                            if(comparacion==0){
+                                marca.text = marcas.get(num3)
+                            }
+                        }
+                    }
+
+
                     if(marca.text.isEmpty()){
                         for(num2 in 0..marcas.size-1){
                             todosModelos=todosModelos+","+modelos.get(num2)
@@ -100,6 +114,7 @@ class RegistroAutomovil : AppCompatActivity() {
                         this.modeloAutoCompletar.setAdapter(adapterr)
                     }
                 }
+
             } else{
                 for(num in 0..marcas.size-1){
                     var textoPosicion:String = marcas.get(num)
@@ -113,12 +128,26 @@ class RegistroAutomovil : AppCompatActivity() {
                     }
                 }
             }
+
         }
 
         marca.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
                 //SAVE THE DATA
+                marca.text = ""
                 if (marca.text.isEmpty()) {
+                    for(num3 in 0..modelos.size-1){
+                        val todosModelos = modelos.get(num3)
+                        val todosModelosSeparados = todosModelos.split(",")
+                        for(num4 in 0..todosModelosSeparados.size-1){
+                            var textoPosicion:String = todosModelosSeparados[num4]
+                            var textoModelo:String = modelo.text.toString()
+                            var comparacion = textoModelo.compareTo(textoPosicion)
+                            if(comparacion==0){
+                                marca.text = marcas.get(num3)
+                            }
+                        }
+                    }
                     if(marca.text.isEmpty()){
                         for(num2 in 0..marcas.size-1){
                             todosModelos=todosModelos+","+modelos.get(num2)
@@ -142,10 +171,11 @@ class RegistroAutomovil : AppCompatActivity() {
 
 
                     }
+                    /*
                     if(!modelo.text.isEmpty()){
                         Toast.makeText(this@RegistroAutomovil, "entre al if", Toast.LENGTH_SHORT).show()
                         marca.text=marcas.get(num)
-                    }
+                    }*/
 
                 }
             }
