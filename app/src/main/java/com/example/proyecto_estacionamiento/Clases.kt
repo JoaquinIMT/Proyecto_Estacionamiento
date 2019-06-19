@@ -1,5 +1,4 @@
 package com.example.proyecto_estacionamiento
-
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
@@ -167,3 +166,5 @@ class Pasado(var carros: MutableList<Automovil>?): Parcelable
 
 @Parcelize
 class Automovil(var matricula: String, var marca: String, var modelo:String, var horaEntrada:String, var horaSalida:String, var _id : Int): Parcelable
+
+

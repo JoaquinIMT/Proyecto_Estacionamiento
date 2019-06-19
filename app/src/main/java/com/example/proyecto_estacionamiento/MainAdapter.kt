@@ -1,5 +1,4 @@
 package com.example.proyecto_estacionamiento
-
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
@@ -169,10 +168,8 @@ class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = n
         /*view.setOnLongClickListener {
             fun click(): Boolean {
                 view.setBackgroundColor(Color.parseColor("#5054B4"))
-
                 return true
             }
-
             click()
         }*/ //Retomar esta parte de codigo cuando se pueda eliminar el arreglo
 
