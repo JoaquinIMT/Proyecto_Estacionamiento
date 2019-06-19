@@ -93,7 +93,7 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         db.execSQL("DELETE FROM $TABLE_ESTACIONAMIENTO WHERE $COLUMN_MATRICULA='${automovil.matricula}' AND $COLUMN_MODELO='${automovil.modelo}'")
     }
 
-    fun modify(index: Int, automovil: Automovil){
+    fun modify(automovil: Automovil){
         val db = this.writableDatabase
 
         db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_HORASA='${automovil.horaSalida}' WHERE $COLUMN_ID=${automovil._id}")

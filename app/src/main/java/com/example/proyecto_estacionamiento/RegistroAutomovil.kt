@@ -1,5 +1,7 @@
 package com.example.proyecto_estacionamiento
 import android.content.Intent
+import android.graphics.drawable.Drawable
+import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.strictmode.SqliteObjectLeakedViolation
@@ -25,6 +27,7 @@ class RegistroAutomovil : AppCompatActivity() {
     lateinit var modelo: TextView
     lateinit var enHora: TextView
     lateinit var saHora: TextView
+    lateinit var salida: Button
     //lateinit var array : ArrayList<Automovil>
     lateinit var array : Automovil //Lista con los datos del automovil para agregar al array mayor
 
@@ -80,76 +83,17 @@ class RegistroAutomovil : AppCompatActivity() {
         marca = findViewById(R.id.matricula)
         marcaAutoCompletar= findViewById(R.id.matricula)
         modeloAutoCompletar= findViewById(R.id.modelo)
+
+
         var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,marcas)
         this.marcaAutoCompletar.setAdapter(adapterr)
         modelo = findViewById(R.id.modelo)
         registro = findViewById(R.id.nuevo_registro)
+        salida = findViewById(R.id.salida)
         enHora = findViewById(R.id.enhora)
         saHora = findViewById(R.id.sahora)
-        modelo.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
-            if (!hasFocus) {
-                //SAVE THE DATA
-                if (marca.text.isEmpty()) {
-                    if(marca.text.isEmpty()){
-                        for(num2 in 0..marcas.size-1){
-                            todosModelos=todosModelos+","+modelos.get(num2)
-
-                        }
-                        val todosModelosSeparados = todosModelos.split(",")
-                        var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,todosModelosSeparados)
-                        this.modeloAutoCompletar.setAdapter(adapterr)
-                    }
-                }
-            } else{
-                for(num in 0..marcas.size-1){
-                    var textoPosicion:String = marcas.get(num)
-                    var textoMarca:String = marca.text.toString()
-                    var comparacion = textoPosicion.compareTo(textoMarca)
-                    if(comparacion==0){
-                        var mod:String=modelos.get(num)
-                        val modelosCorre = mod.split(",")
-                        var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,modelosCorre)
-                        this.modeloAutoCompletar.setAdapter(adapterr)
-                    }
-                }
-            }
-        }
-
-        marca.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
-            if (!hasFocus) {
-                //SAVE THE DATA
-                if (marca.text.isEmpty()) {
-                    if(marca.text.isEmpty()){
-                        for(num2 in 0..marcas.size-1){
-                            todosModelos=todosModelos+","+modelos.get(num2)
-
-                        }
-                        val todosModelosSeparados = todosModelos.split(",")
-                        var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,todosModelosSeparados)
-                        this.modeloAutoCompletar.setAdapter(adapterr)
-                    }
-                }
-            } else{
-                for(num in 0..marcas.size-1){
-                    var textoPosicion:String = marcas.get(num)
-                    var textoMarca:String = marca.text.toString()
-                    var comparacion = textoPosicion.compareTo(textoMarca)
-                    if(comparacion==0){
-                        var mod:String=modelos.get(num)
-                        val modelosCorre = mod.split(",")
-                        var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,modelosCorre)
-                        this.modeloAutoCompletar.setAdapter(adapterr)
 
 
-                    }
-                    if(!modelo.text.isEmpty()){
-                        Toast.makeText(this@RegistroAutomovil, "entre al if", Toast.LENGTH_SHORT).show()
-                        marca.text=marcas.get(num)
-                    }
-
-                }
-            }
-        }
 
         estacionamiento = intent.getParcelableExtra("Estacionamiento")
         pasado = intent.getParcelableExtra("Pasado")
@@ -168,12 +112,19 @@ class RegistroAutomovil : AppCompatActivity() {
         actionBar?.setDisplayHomeAsUpEnabled(true) //Activamos el icono de regreso de actividad
 
 
-        if(entrada == "Registro") { //Al entrar significa que se hará un registro
+        if(entrada == "Registro") {
+
+            //Al entrar significa que se hará un registro
 
 
             //Ocultamos el reloj de salida, dado que solo se pondra la hora actual
             saHora.visibility = View.GONE
             reloj2.visibility = View.GONE
+            salida.visibility = View.GONE
+
+            marca.isEnabled = true
+            matricula.isEnabled = true
+            modelo.isEnabled = true
 
             //Se pone la hora actual en el textView
             enHora.text = getHoraActual("HH:mm")
@@ -225,21 +176,85 @@ class RegistroAutomovil : AppCompatActivity() {
                 }
             }
 
+            modelo.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+                if (!hasFocus) {
+                    //SAVE THE DATA
+                    if (marca.text.isEmpty()) {
+                        if(marca.text.isEmpty()){
+                            for(num2 in 0..marcas.size-1){
+                                todosModelos=todosModelos+","+modelos.get(num2)
+
+                            }
+                            val todosModelosSeparados = todosModelos.split(",")
+                            var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,todosModelosSeparados)
+                            this.modeloAutoCompletar.setAdapter(adapterr)
+                        }
+                    }
+                } else{
+                    for(num in 0..marcas.size-1){
+                        var textoPosicion:String = marcas.get(num)
+                        var textoMarca:String = marca.text.toString()
+                        var comparacion = textoPosicion.compareTo(textoMarca)
+                        if(comparacion==0){
+                            var mod:String=modelos.get(num)
+                            val modelosCorre = mod.split(",")
+                            var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,modelosCorre)
+                            this.modeloAutoCompletar.setAdapter(adapterr)
+                        }
+                    }
+                }
+            }
+
+            marca.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+                if (!hasFocus) {
+                    //SAVE THE DATA
+                    if (marca.text.isEmpty()) {
+                        if(marca.text.isEmpty()){
+                            for(num2 in 0..marcas.size-1){
+                                todosModelos=todosModelos+","+modelos.get(num2)
+
+                            }
+                            val todosModelosSeparados = todosModelos.split(",")
+                            var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,todosModelosSeparados)
+                            this.modeloAutoCompletar.setAdapter(adapterr)
+                        }
+                    }
+                } else{
+                    for(num in 0..marcas.size-1){
+                        var textoPosicion:String = marcas.get(num)
+                        var textoMarca:String = marca.text.toString()
+                        var comparacion = textoPosicion.compareTo(textoMarca)
+                        if(comparacion==0){
+                            var mod:String=modelos.get(num)
+                            val modelosCorre = mod.split(",")
+                            var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,modelosCorre)
+                            this.modeloAutoCompletar.setAdapter(adapterr)
+
+
+                        }
+                        /*if(!modelo.text.isEmpty()){
+                            Toast.makeText(this@RegistroAutomovil, "entre al if", Toast.LENGTH_SHORT).show()
+                            marca.text=marcas.get(num)
+                        }*/
+
+                    }
+                }
+            }
+
         }else{ //Si entra aquí tendrá una salida o esta checando información
 
             var automovil = intent.getParcelableExtra<Automovil>("Auto")
+            registro.background = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_verde)
 
             if(automovil.horaSalida != ""){
                 saHora.text = automovil.horaSalida
-                registro.visibility = View.GONE
-
+                salida.visibility = View.GONE
                 actionBar?.title = "Detalles de automovil"
 
             }else{
 
                 saHora.text = "--:--"
-                registro.background = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_rojo)
-                registro.text = "Salida"
+                registro.text = "Editar"
 
                 actionBar?.title = "Salida de automovil"
 
@@ -253,7 +268,7 @@ class RegistroAutomovil : AppCompatActivity() {
 
 
 
-            registro.setOnClickListener {
+            salida.setOnClickListener {
                 val mat = matricula.text.toString()
                 val mar = marca.text.toString()
                 val mod = modelo.text.toString()
@@ -269,7 +284,40 @@ class RegistroAutomovil : AppCompatActivity() {
                 intent(estacionamiento)
 
             }
+            registro.setOnClickListener {
 
+                if(salida.visibility == View.VISIBLE){
+
+                    marca.isEnabled = true
+                    matricula.isEnabled = true
+                    modelo.isEnabled = true
+
+                    salida.visibility = View.GONE
+
+
+
+                }else{
+
+
+                    marca.isEnabled = false
+                    matricula.isEnabled = false
+                    modelo.isEnabled = false
+
+                    salida.visibility = View.VISIBLE
+
+                }
+
+
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+
+        if(salida.visibility == View.GONE){
+            salida.visibility = View.VISIBLE
+        }else{
+            super.onBackPressed()
         }
 
     }

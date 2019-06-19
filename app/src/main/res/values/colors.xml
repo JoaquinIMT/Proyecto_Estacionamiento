@@ -5,6 +5,7 @@
     <color name="colorAccent">#0047ab</color>
     <color name="colorBlue"> #2699FB</color>
     <color name="colorRed"> @android:color/holo_red_light</color>
+    <color name="colorGreen">@android:color/holo_green_light </color>
 
 
 </resources>
