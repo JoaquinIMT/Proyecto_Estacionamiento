@@ -11,7 +11,10 @@ import kotlinx.android.synthetic.main.activity_registro_automovil.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
-class RegistroAutomovil(): AppCompatActivity() {
+import android.view.View.OnFocusChangeListener
+
+
+class RegistroAutomovil : AppCompatActivity() {
 
     lateinit var tiempo : ProgressBar
 
@@ -22,21 +25,21 @@ class RegistroAutomovil(): AppCompatActivity() {
     lateinit var modelo: TextView
     lateinit var enHora: TextView
     lateinit var saHora: TextView
-    var posicion :Int=0
     //lateinit var array : ArrayList<Automovil>
     lateinit var array : Automovil //Lista con los datos del automovil para agregar al array mayor
 
     lateinit var estacionamiento: Estacionamiento
     lateinit var pasado : Pasado
+    var todosModelos : String = ""
 
     lateinit var registro : Button //Boton abajo de la pantalla para concluir cambios
     lateinit var hora : Date
     var entradaMili : Long? = null
-    var marcas = arrayOf(
+    var marcas = mutableListOf(
                          "Audi","BMW","Chevrolet","Chrysler","Corvette","Dodge","Fiat","Ford","GMC","Honda","Hummer","Hyundai","Isuzu","Jaguar","Jeep","Kia","Land-rover","Mazda","Mercedes-benz","Mini",
                          "Mitsubishi","Nissan","Pontiac","Porsche","Renault","Smart","Suzuki","Toyota","Volkswagen","Volvo"
     )
-    var modelos = arrayOf(
+    var modelos = mutableListOf(
                           "80,a4,a6,s6,coupe,s2,rs2,a8,cabriolet,s8,a3,s4,tt,s3,allroad-quattro,rs4,a2,rs6,q7,r8,a5,s5,v8,200,100,90,tts,q5,a4-allroad-quattro,tt-rs,rs5,al,a7,rs3,q3,a6-allroad-quattro,s7,sq5",
                           "serie-3,serie-5,compact,serie-7,serie-8,z3,z4,z8,x5,serie-6,x3,serie-1,z1,x6,x1",
                           "Corvette,Blazer,Astro,Nubira,Evanda,Trans Sport,Camaro,Matiz,Alero,Tahoe,Tacuma,Trailblazer,Kalos,Aveo,Lacetti,Epica,Captiva,Hhr,Cruze,Spark,Orlando,Volt,Malibu",
@@ -58,7 +61,7 @@ class RegistroAutomovil(): AppCompatActivity() {
                           "Clase C,Clase E,Clase Sl,Clase S,Clase Cl,Clase G,Clase Slk,Clase V,Viano,Clase Clk,Clase A,Clase M,Vaneo,Slklasse,Slr Mclaren,Clase Cls,Clase R,Clase Gl,Clase B,100d,140d,180d,Sprinter,Vito,Transporter,280,220,200,190,600,400,Clase Sl R129,300,500,420,260,230,Clase Clc,Clase Glk,Sls Amg",
                           "Mini",
                           "Montero,Galant,Colt,Space Wagon,Space Runner,Space Gear,3000 Gt,Carisma,Eclipse,Space Star,Montero Sport,Montero Io,Outlander,Lancer,Grandis,L200,Canter,300 Gt,Asx,Imiev",
-                          "Terrano Ii,Terrano,Micra,Sunny,Primera,Serena,Patrol,Maxima Qx,200 Sx,300 Zx,Patrol Gr,100 Nx,Almera,Pathfinder,Almera Tino,Xtrail,350z,Murano,Note,Qashqai,Tiida,Vanette,Trade,Vanette Cargo,Pickup,Navara,Cabstar E,Cabstar,Maxima,Camion,Prairie,Bluebird,Np300 Pick Up,Qashqai2,Pixo,Gtr,370z,Cube,Juke,Leaf,Evalia",
+                          "Terrano Ii,Versa,Tsuru,Terrano,Micra,Sunny,Primera,Serena,Patrol,Maxima Qx,200 Sx,300 Zx,Patrol Gr,100 Nx,Almera,Pathfinder,Almera Tino,Xtrail,350z,Murano,Note,Qashqai,Tiida,Vanette,Trade,Vanette Cargo,Pickup,Navara,Cabstar E,Cabstar,Maxima,Camion,Prairie,Bluebird,Np300 Pick Up,Qashqai2,Pixo,Gtr,370z,Cube,Juke,Leaf,Evalia",
                           "Trans Sport,Firebird,Trans Am",
                           "911,Boxster,Cayenne,Carrera Gt,Cayman,928,968,944,924,Panamera,918",
                           "Megane,Safrane,Laguna,Clio,Twingo,Nevada,Espace,Spider,Scenic,Grand Espace,Avantime,Vel Satis,Grand Scenic,Clio Campus,Modus,Express,Trafic,Master,Kangoo,Mascott,Master Propulsion,Maxity,R19,R25,R5,R21,R4,Alpine,Fuego,R18,R11,R9,R6,Grand Modus,Kangoo Combi,Koleos,Fluence,Wind,Latitude,Grand Kangoo Combi",
@@ -83,13 +86,21 @@ class RegistroAutomovil(): AppCompatActivity() {
         registro = findViewById(R.id.nuevo_registro)
         enHora = findViewById(R.id.enhora)
         saHora = findViewById(R.id.sahora)
+        modelo.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) {
+                //SAVE THE DATA
+                if (marca.text.isEmpty()) {
+                    if(marca.text.isEmpty()){
+                        for(num2 in 0..marcas.size-1){
+                            todosModelos=todosModelos+","+modelos.get(num2)
 
-        modelo.setOnClickListener{
-            Toast.makeText(this@RegistroAutomovil, "estoy aqui", Toast.LENGTH_SHORT).show()
-            if (marca.text.isEmpty()) {
-
-            }
-            else{
+                        }
+                        val todosModelosSeparados = todosModelos.split(",")
+                        var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,todosModelosSeparados)
+                        this.modeloAutoCompletar.setAdapter(adapterr)
+                    }
+                }
+            } else{
                 for(num in 0..marcas.size-1){
                     var textoPosicion:String = marcas.get(num)
                     var textoMarca:String = marca.text.toString()
@@ -97,16 +108,48 @@ class RegistroAutomovil(): AppCompatActivity() {
                     if(comparacion==0){
                         var mod:String=modelos.get(num)
                         val modelosCorre = mod.split(",")
-                        Toast.makeText(this@RegistroAutomovil, mod, Toast.LENGTH_SHORT).show()
                         var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,modelosCorre)
                         this.modeloAutoCompletar.setAdapter(adapterr)
-
                     }
                 }
             }
-
         }
 
+        marca.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) {
+                //SAVE THE DATA
+                if (marca.text.isEmpty()) {
+                    if(marca.text.isEmpty()){
+                        for(num2 in 0..marcas.size-1){
+                            todosModelos=todosModelos+","+modelos.get(num2)
+
+                        }
+                        val todosModelosSeparados = todosModelos.split(",")
+                        var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,todosModelosSeparados)
+                        this.modeloAutoCompletar.setAdapter(adapterr)
+                    }
+                }
+            } else{
+                for(num in 0..marcas.size-1){
+                    var textoPosicion:String = marcas.get(num)
+                    var textoMarca:String = marca.text.toString()
+                    var comparacion = textoPosicion.compareTo(textoMarca)
+                    if(comparacion==0){
+                        var mod:String=modelos.get(num)
+                        val modelosCorre = mod.split(",")
+                        var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,modelosCorre)
+                        this.modeloAutoCompletar.setAdapter(adapterr)
+
+
+                    }
+                    if(!modelo.text.isEmpty()){
+                        Toast.makeText(this@RegistroAutomovil, "entre al if", Toast.LENGTH_SHORT).show()
+                        marca.text=marcas.get(num)
+                    }
+
+                }
+            }
+        }
 
         estacionamiento = intent.getParcelableExtra("Estacionamiento")
         pasado = intent.getParcelableExtra("Pasado")
@@ -159,7 +202,7 @@ class RegistroAutomovil(): AppCompatActivity() {
 
                     hora = Date()
                     var horaEntrada = getHoraActual("HH:mm")
-                    entradaMili = hora?.time
+                    entradaMili = hora.time
 
                     val automovil = Automovil(mat,mar,mod,horaEntrada,"", numeroDeSQLite!!)
                     dbHandler.addFields(automovil)
@@ -215,15 +258,15 @@ class RegistroAutomovil(): AppCompatActivity() {
 
 
             registro.setOnClickListener {
-                val mat = matricula?.text.toString()
-                val mar = marca?.text.toString()
-                val mod = modelo?.text.toString()
+                val mat = matricula.text.toString()
+                val mar = marca.text.toString()
+                val mod = modelo.text.toString()
 
                 hora = Date()
 
                 val horaSalida = getHoraActual("HH:mm")
 
-                entradaMili = hora?.time
+                entradaMili = hora.time
 
                 exitParking(automovil,horaSalida,dbHandler)
 
