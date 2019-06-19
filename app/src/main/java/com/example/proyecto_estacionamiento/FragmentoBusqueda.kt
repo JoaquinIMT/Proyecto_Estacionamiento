@@ -7,22 +7,33 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.Toast
+import android.widget.*
 import androidx.core.app.ActivityCompat.finishAffinity
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.jakewharton.rxbinding2.widget.textChanges
+import io.reactivex.Completable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_busqueda.*
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
-class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado, val numeroDeSQLite: Int, val dbHandler: MindOrksDBOpenHelper) : Fragment(), CustomViewHolder.funcionloca {
+class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado,
+                        val numeroDeSQLite: Int, val dbHandler: MindOrksDBOpenHelper) : Fragment(), CustomViewHolder.funcionloca {
 
     var lugar: Int = -1
     var carros = estacionamiento.carros
     var bye : MutableList<Int> = mutableListOf(0)
     lateinit var salirCarro :Button
     lateinit var reciclerView: RecyclerView
+    lateinit var adapter: MainAdapter
+
 
     /*override fun position(position: Int) {
         lugar = position //To change body of created functions use File | Settings | File Templates.
@@ -42,10 +53,12 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
 
         reciclerView.layoutManager = LinearLayoutManager(context?.applicationContext)
 
-        reciclerView.adapter = MainAdapter(estacionamiento,this, pasado)
+        adapter = MainAdapter(estacionamiento,this, pasado)
 
+        reciclerView.adapter = adapter
 
         salirCarro.setOnClickListener {
+
             if (bye.size > 1){
 
                 bye.removeAt(0)
@@ -123,5 +136,4 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
         return simpleDateFormat.format(objCalendar.time)
 
     }
-
 }

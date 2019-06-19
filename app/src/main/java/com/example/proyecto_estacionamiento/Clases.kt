@@ -158,7 +158,6 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
 }
 
 
-
 //Con Parcelize se le asigna a la clase la propiedad para ser pasada como información a travez de los intent
 @Parcelize
 class Estacionamiento(var lugares: Int, var carros: MutableList<Automovil>?): Parcelable
