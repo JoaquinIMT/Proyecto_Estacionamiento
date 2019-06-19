@@ -79,7 +79,6 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         values.put(COLUMN_HORASA,automovil.horaSalida)
 
         if(tipo){
-
             db.insert(TABLE_ESTACIONAMIENTO, null, values)
         }else{
             db.insert(TABLE_SALIDA,null,values)
@@ -96,7 +95,9 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
     fun modify(automovil: Automovil){
         val db = this.writableDatabase
 
-        db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_HORASA='${automovil.horaSalida}' WHERE $COLUMN_ID=${automovil._id}")
+        db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_HORASA='${automovil.horaSalida}' WHERE $COLUMN_MATRICULA=${automovil.matricula}")
+        db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_HORAE='${automovil.horaEntrada}' WHERE $COLUMN_MATRICULA=${automovil.matricula}")
+        db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_HORASA='${automovil.horaSalida}' WHERE $COLUMN_MATRICULA=${automovil.matricula}")
 
         //db.update(TABLE_ESTACIONAMIENTO,values, COLUMN_ID+"="+index.toString(),null)
 

@@ -176,6 +176,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 Toast.makeText(this,"Se borraron las entradas al pasar la información",Toast.LENGTH_SHORT).show()
                 dbHandler.dropTable(true) //Mandamos false para eliminar la tabla de entradas de la base de datos
                 intentToMainActivityReal()
+
             }
 
             R.id.ic_power -> {
