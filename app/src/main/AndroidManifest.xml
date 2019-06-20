@@ -14,8 +14,8 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             tools:ignore="GoogleAppIndexingWarning">
+        
         <activity android:name=".PruebaDesechable">
-
         </activity>
         <activity
                 android:name=".MainActivityReal"
