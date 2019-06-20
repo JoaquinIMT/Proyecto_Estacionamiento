@@ -1,5 +1,7 @@
 package com.example.proyecto_estacionamiento
 
+import android.app.SearchManager
+import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.os.Bundle
@@ -11,13 +13,18 @@ import com.google.android.material.navigation.NavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.Menu
+import android.widget.SearchView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.content_main_activity_real.*
 
 class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
+    lateinit var searchView: SearchView
     var numeroDeSQLite: Int = 0
     val dbHandler = MindOrksDBOpenHelper(this, null)
+    lateinit var fragmentoSalidas: FragmentoSalidas
+    lateinit var fragmentoBusqueda: FragmentoBusqueda
+    lateinit var primerFragmento: PrimerFragmento
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,9 +92,13 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         val adapter = FragmentAdapter(supportFragmentManager)
 
-        adapter.newFragment(PrimerFragmento(estacionamiento, pasado))
-        adapter.newFragment(FragmentoBusqueda(estacionamiento, pasado, numeroDeSQLite, dbHandler))
-        adapter.newFragment(FragmentoSalidas(pasado))
+        fragmentoSalidas = FragmentoSalidas(pasado)
+        fragmentoBusqueda = FragmentoBusqueda(estacionamiento, pasado, numeroDeSQLite, dbHandler)
+        primerFragmento = PrimerFragmento(estacionamiento, pasado)
+
+        adapter.newFragment(primerFragmento)
+        adapter.newFragment(fragmentoBusqueda)
+        adapter.newFragment(fragmentoSalidas)
 
         viewPager.adapter = adapter
 
@@ -111,10 +122,43 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main_activity_real, menu)
-        return false
+
+        val searchManager: SearchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+
+        searchView = menu.findItem(R.id.action_search).actionView as SearchView
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        searchView.maxWidth = Int.MAX_VALUE
+
+        searchView.setOnSearchClickListener {
+
+            if(tabs.selectedTabPosition != 1 ){
+                //tabs.setScrollPosition(1,0F,false)
+
+
+            }
+
+        }
+
+        searchView.setOnQueryTextListener(object :SearchView.OnQueryTextListener{
+
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                fragmentoBusqueda.adapter.filter.filter(query)
+                //adapter.filter.filter("hola")
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                fragmentoBusqueda.adapter.filter.filter(newText)
+                return false
+            }
+
+        })
+
+
+        return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    /*override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -122,7 +166,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
-    }
+    }*/
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
@@ -132,6 +176,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 Toast.makeText(this,"Se borraron las entradas al pasar la información",Toast.LENGTH_SHORT).show()
                 dbHandler.dropTable(true) //Mandamos false para eliminar la tabla de entradas de la base de datos
                 intentToMainActivityReal()
+
             }
 
             R.id.ic_power -> {

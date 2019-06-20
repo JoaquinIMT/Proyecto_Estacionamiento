@@ -8,6 +8,8 @@ import android.text.BoringLayout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -18,7 +20,57 @@ import kotlin.coroutines.coroutineContext
 
 
 //Esta clase es para que los elementos se generen repetitivamente con datos especificos
-class MainAdapter(val estacionamiento: Estacionamiento,val context: FragmentoBusqueda, val pasado: Pasado)/*(Carros: ArrayList<Array>)*/: RecyclerView.Adapter<CustomViewHolder>() {
+class MainAdapter(var estacionamiento: Estacionamiento,val context: FragmentoBusqueda, val pasado: Pasado): RecyclerView.Adapter<CustomViewHolder>(),Filterable {
+
+    val carros = if(estacionamiento.carros != null){
+
+        estacionamiento.carros!!
+
+    }else{
+
+        mutableListOf()
+
+    }
+
+    var filterList: List<Automovil> = carros
+
+    override fun getFilter(): Filter {
+        return object : Filter(){
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+
+                val text: String = constraint.toString()
+                if(text.isEmpty()) {
+
+                    filterList = carros
+
+                }else{
+
+                    val returnList = ArrayList<Automovil>()
+                    for(row in carros){
+                        if(row.marca.toLowerCase().contains(text.toLowerCase()) ||
+                            row.matricula.toLowerCase().contains(text.toLowerCase()) ||
+                                    row.modelo.toLowerCase().contains(text.toLowerCase()))  returnList.add(row)
+                    }
+
+                    filterList = returnList
+                }
+
+                val filterResults = Filter.FilterResults()
+                filterResults.values = filterList
+
+                return filterResults
+
+            }
+
+            override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
+
+                filterList = filterResults?.values as List<Automovil>
+                notifyDataSetChanged()
+
+            }
+
+        }
+    }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
@@ -29,15 +81,15 @@ class MainAdapter(val estacionamiento: Estacionamiento,val context: FragmentoBus
 
     override fun getItemCount(): Int {
 
-        return if(estacionamiento.carros != null){
-            estacionamiento.carros!!.size
-        }else 0
+        return if(filterList.isEmpty()){
+            0
+        }else filterList.size
 
     }
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
-        if(estacionamiento.carros != null){
-            val autos = estacionamiento.carros!![position]
+        if(filterList.isNotEmpty()){
+            val autos = filterList[position]
 
             if (autos.horaSalida!=""){ //Con esta condición verificamos si el auto se encuentra en el estacionamiento y si no es así (posee hora de salida) se marca con rojo
                 holder.view.state_carro.setImageResource(R.drawable.bg_boton_redondo_rojo)
