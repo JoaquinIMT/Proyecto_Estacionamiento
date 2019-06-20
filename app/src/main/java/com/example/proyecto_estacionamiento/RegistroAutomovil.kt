@@ -86,8 +86,12 @@ class RegistroAutomovil : AppCompatActivity() {
         modeloAutoCompletar= findViewById(R.id.modelo)
 
 
-        var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,marcas)
-        this.marcaAutoCompletar.setAdapter(adapterr)
+        var adapterrMarcas : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,marcas)
+        this.marcaAutoCompletar.setAdapter(adapterrMarcas)
+/*
+        var adapterrModelos : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,modelos)
+        this.marcaAutoCompletar.setAdapter(adapterrModelos)
+        */
         modelo = findViewById(R.id.modelo)
         registro = findViewById(R.id.nuevo_registro)
         salida = findViewById(R.id.salida)
@@ -177,45 +181,13 @@ class RegistroAutomovil : AppCompatActivity() {
 
             modelo.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
                 if (!hasFocus) {
+                    mandarModelos()
+                    autocompletaMarca()
                     //SAVE THE DATA
-                    if (marca.text.isEmpty()) {
-                        for(num3 in 0..modelos.size-1){
-                            val todosModelos = modelos.get(num3)
-                            val todosModelosSeparados = todosModelos.split(",")
-                            for(num4 in 0..todosModelosSeparados.size-1){
-                                var textoPosicion:String = todosModelosSeparados[num4]
-                                var textoModelo:String = modelo.text.toString()
-                                var comparacion = textoModelo.compareTo(textoPosicion)
-                                if(comparacion==0){
-                                    marca.text = marcas.get(num3)
-                                }
-                            }
-                        }
 
-
-                        if(marca.text.isEmpty()){
-                            for(num2 in 0..marcas.size-1){
-                                todosModelos=todosModelos+","+modelos.get(num2)
-
-                            }
-                            val todosModelosSeparados = todosModelos.split(",")
-                            var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,todosModelosSeparados)
-                            this.modeloAutoCompletar.setAdapter(adapterr)
-                        }
-                    }
 
                 } else{
-                    for(num in 0..marcas.size-1){
-                        var textoPosicion:String = marcas.get(num)
-                        var textoMarca:String = marca.text.toString()
-                        var comparacion = textoPosicion.compareTo(textoMarca)
-                        if(comparacion==0){
-                            var mod:String=modelos.get(num)
-                            val modelosCorre = mod.split(",")
-                            var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,modelosCorre)
-                            this.modeloAutoCompletar.setAdapter(adapterr)
-                        }
-                    }
+                    mandarModelos()
                 }
 
             }
@@ -223,20 +195,7 @@ class RegistroAutomovil : AppCompatActivity() {
             marca.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
                 if (!hasFocus) {
                     //SAVE THE DATA
-                    marca.text = ""
-                    if (marca.text.isEmpty()) {
-                        for(num3 in 0..modelos.size-1){
-                            val todosModelos = modelos.get(num3)
-                            val todosModelosSeparados = todosModelos.split(",")
-                            for(num4 in 0..todosModelosSeparados.size-1){
-                                var textoPosicion:String = todosModelosSeparados[num4]
-                                var textoModelo:String = modelo.text.toString()
-                                var comparacion = textoModelo.compareTo(textoPosicion)
-                                if(comparacion==0){
-                                    marca.text = marcas.get(num3)
-                                }
-                            }
-                        }
+                    autocompletaMarca()
                         if(marca.text.isEmpty()){
                             for(num2 in 0..marcas.size-1){
                                 todosModelos=todosModelos+","+modelos.get(num2)
@@ -246,27 +205,8 @@ class RegistroAutomovil : AppCompatActivity() {
                             var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,todosModelosSeparados)
                             this.modeloAutoCompletar.setAdapter(adapterr)
                         }
-                    }
                 } else{
-                    for(num in 0..marcas.size-1){
-                        var textoPosicion:String = marcas.get(num)
-                        var textoMarca:String = marca.text.toString()
-                        var comparacion = textoPosicion.compareTo(textoMarca)
-                        if(comparacion==0){
-                            var mod:String=modelos.get(num)
-                            val modelosCorre = mod.split(",")
-                            var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,modelosCorre)
-                            this.modeloAutoCompletar.setAdapter(adapterr)
-
-
-                        }
-                        /*
-                        if(!modelo.text.isEmpty()){
-                            Toast.makeText(this@RegistroAutomovil, "entre al if", Toast.LENGTH_SHORT).show()
-                            marca.text=marcas.get(num)
-                        }*/
-
-                    }
+                    mandarModelos()
                 }
             }
 
@@ -412,6 +352,42 @@ class RegistroAutomovil : AppCompatActivity() {
 
         estacionamiento.lugares += 1
 
+    }
+    fun mandarModelos (){
+        for(num in 0..marcas.size-1){
+            var textoPosicion:String = marcas.get(num)
+            var textoMarca:String = marca.text.toString()
+            var comparacion = textoPosicion.compareTo(textoMarca)
+            if(comparacion==0){
+                var mod:String=modelos.get(num)
+                val modelosCorre = mod.split(",")
+                var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,modelosCorre)
+                this.modeloAutoCompletar.setAdapter(adapterr)
+            }
+        }
+        if(marca.text.isEmpty()){
+            for(num2 in 0..marcas.size-1){
+                todosModelos=todosModelos+","+modelos.get(num2)
+            }
+            val todosModelosSeparados = todosModelos.split(",")
+            var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,todosModelosSeparados)
+            this.modeloAutoCompletar.setAdapter(adapterr)
+        }
+
+    }
+    fun autocompletaMarca(){
+        for(num3 in 0..modelos.size-1){
+            val todosModelos = modelos.get(num3)
+            val todosModelosSeparados = todosModelos.split(",")
+            for(num4 in 0..todosModelosSeparados.size-1){
+                var textoPosicion:String = todosModelosSeparados[num4]
+                var textoModelo:String = modelo.text.toString()
+                var comparacion = textoModelo.compareTo(textoPosicion)
+                if(comparacion==0){
+                    marca.text = marcas.get(num3)
+                }
+            }
+        }
     }
 
 }
