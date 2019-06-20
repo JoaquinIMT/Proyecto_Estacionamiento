@@ -1,4 +1,6 @@
 package com.example.proyecto_estacionamiento
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.opengl.Visibility
@@ -6,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.strictmode.SqliteObjectLeakedViolation
 import android.text.Editable
+import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.core.content.ContextCompat
@@ -14,6 +18,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import android.view.View.OnFocusChangeListener
+import android.view.inputmethod.InputMethodManager
+import android.view.KeyEvent.KEYCODE_ENTER
+
+
 
 
 class RegistroAutomovil : AppCompatActivity() {
@@ -178,7 +186,9 @@ class RegistroAutomovil : AppCompatActivity() {
 
                 }
             }
-
+            modelo.setOnClickListener{
+                cerrarteclado()
+            }
             modelo.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
                 if (!hasFocus) {
                     mandarModelos()
@@ -189,7 +199,9 @@ class RegistroAutomovil : AppCompatActivity() {
                 } else{
                     mandarModelos()
                 }
-
+            }
+            marca.setOnClickListener{
+                cerrarteclado()
             }
 
             marca.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
@@ -389,5 +401,14 @@ class RegistroAutomovil : AppCompatActivity() {
             }
         }
     }
+    fun cerrarteclado() {
+        var view : View = currentFocus
+        if(view != null){
+            val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+        }
+
+    }
+
 
 }
