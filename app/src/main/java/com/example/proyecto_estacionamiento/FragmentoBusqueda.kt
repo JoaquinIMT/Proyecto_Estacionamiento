@@ -74,9 +74,7 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
                     exitParking(i,horaSalida)
                 }
                 val intent = Intent(view.context,MainActivityReal::class.java)
-                intent.putExtra("Estacionamiento",estacionamiento)
-                intent.putExtra("Pasado",pasado)
-                intent.putExtra("NumeroDeSQLite",numeroDeSQLite)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 startActivity(intent)
                 finishAffinity(MainActivityReal())
                 //exitParking(estacionamiento,estacionamiento.carros!![lugar], getHoraActual("HH:mm"))
@@ -91,6 +89,8 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
 
         return view
     }
+
+
 
 
     override fun onCheckedBox(pos: Int, state:Boolean) {

@@ -92,14 +92,17 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         db.execSQL("DELETE FROM $TABLE_ESTACIONAMIENTO WHERE $COLUMN_MATRICULA='${automovil.matricula}' AND $COLUMN_MODELO='${automovil.modelo}'")
     }
 
-    fun modify(automovil: Automovil){
+    fun modify(automovilNuevo: Automovil,automovilAntiguo: Automovil,tipo: Boolean){
         val db = this.writableDatabase
-
-        db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_HORASA='${automovil.horaSalida}' WHERE $COLUMN_MATRICULA=${automovil.matricula}")
-        db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_HORAE='${automovil.horaEntrada}' WHERE $COLUMN_MATRICULA=${automovil.matricula}")
-        db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_HORASA='${automovil.horaSalida}' WHERE $COLUMN_MATRICULA=${automovil.matricula}")
-
-        //db.update(TABLE_ESTACIONAMIENTO,values, COLUMN_ID+"="+index.toString(),null)
+        if(tipo){
+            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MODELO='${automovilNuevo.modelo}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
+            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MARCA='${automovilNuevo.marca}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
+            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MATRICULA='${automovilNuevo.matricula}' WHERE $COLUMN_HORAE='${automovilAntiguo.horaEntrada}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")        //db.update(TABLE_ESTACIONAMIENTO,values, COLUMN_ID+"="+index.toString(),null)
+        }else{
+            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MODELO='${automovilNuevo.modelo}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
+            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MARCA='${automovilNuevo.marca}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
+            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MATRICULA='${automovilNuevo.matricula}' WHERE $COLUMN_HORAE='${automovilAntiguo.horaEntrada}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")        //db.update(TABLE_ESTACIONAMIENTO,values, COLUMN_ID+"="+index.toString(),null)
+        }
 
         db.close()
 

@@ -26,6 +26,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
     lateinit var fragmentoBusqueda: FragmentoBusqueda
     lateinit var primerFragmento: PrimerFragmento
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_real)
@@ -114,7 +115,15 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
+        } else if(fragmentoBusqueda.bye.size > 1){
+
+            fragmentoBusqueda.bye = mutableListOf(0)
+            val ft = supportFragmentManager.beginTransaction()
+            ft.detach(fragmentoBusqueda)
+            ft.attach(fragmentoBusqueda)
+            ft.commit()
+
+        } else{
             super.onBackPressed()
         }
     }
