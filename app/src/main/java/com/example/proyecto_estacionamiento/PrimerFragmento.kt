@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_primer_fragmento.*
@@ -16,6 +17,7 @@ class PrimerFragmento(val estacionamiento: Estacionamiento, val pasado: Pasado) 
 
     lateinit var entraCarro: Button
     lateinit var espacios: TextView
+    var progressBar: ProgressBar? = null
 
 
 
@@ -30,6 +32,11 @@ class PrimerFragmento(val estacionamiento: Estacionamiento, val pasado: Pasado) 
         espacios = view.findViewById(R.id.espacios)
 
         espacios.text = estacionamiento.lugares.toString()
+        val total = 21.0
+        var quitar: Double = 100/total
+        progressBar = view.findViewById(R.id.progressBar)
+        progressBar?.progress=(quitar*estacionamiento.lugares).toInt()
+        //espacios.text=(quitar*estacionamiento.lugares).toString()
 
         if (estacionamiento.lugares > 0){
             entraCarro.setOnClickListener {

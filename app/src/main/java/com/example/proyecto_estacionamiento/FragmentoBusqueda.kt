@@ -8,20 +8,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.app.ActivityCompat.finishAffinity
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.DiffUtil
+
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.jakewharton.rxbinding2.widget.textChanges
-import io.reactivex.Completable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+
+
 import kotlinx.android.synthetic.main.fragment_busqueda.*
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
+
 
 class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado,
                         val numeroDeSQLite: Int, val dbHandler: MindOrksDBOpenHelper) : Fragment(), CustomViewHolder.funcionloca {
