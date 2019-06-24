@@ -85,6 +85,9 @@ class RegistroAutomovil : AppCompatActivity() {
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val botonVerde: Drawable = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_verde)!!
+        val botonAzul: Drawable = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_azul)!!
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registro_automovil)
 
@@ -133,9 +136,7 @@ class RegistroAutomovil : AppCompatActivity() {
             reloj2.visibility = View.GONE
             salida.visibility = View.GONE
 
-            marca.isEnabled = true
-            matricula.isEnabled = true
-            modelo.isEnabled = true
+            makeEnabled(true)
 
             //Se pone la hora actual en el textView
             enHora.text = getHoraActual("HH:mm")
@@ -182,7 +183,7 @@ class RegistroAutomovil : AppCompatActivity() {
 
                     }
 
-                    intent(estacionamiento)
+                    intent()
 
                 }
             }
@@ -224,11 +225,12 @@ class RegistroAutomovil : AppCompatActivity() {
 
         }else{ //Si entra aquí tendrá una salida o esta checando información
 
-            var automovil = intent.getParcelableExtra<Automovil>("Auto")
-            registro.background = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_verde)
+            val automovil = intent.getParcelableExtra<Automovil>("Auto")
+            registro.background = botonVerde
 
             if(automovil.horaSalida != ""){
                 saHora.text = automovil.horaSalida
+                registro.text = "Editar"
                 salida.visibility = View.GONE
                 actionBar?.title = "Detalles de automovil"
 
@@ -262,45 +264,82 @@ class RegistroAutomovil : AppCompatActivity() {
 
                 exitParking(automovil,horaSalida,dbHandler)
 
-                intent(estacionamiento)
+                intent()
 
             }
-            registro.setOnClickListener {
+            if(entrada == "Salida"){
+                registro.setOnClickListener {
 
-                if(salida.visibility == View.VISIBLE){
+                    if(salida.visibility == View.VISIBLE){
 
-                    marca.isEnabled = true
-                    matricula.isEnabled = true
-                    modelo.isEnabled = true
-
-                    salida.visibility = View.GONE
+                        makeEnabled(true)
+                        salida.visibility = View.GONE
 
 
 
-                }else{
+                    }else{
 
+                        makeEnabled(false)
+                        val screenText: List<String> = getText()
+                        update(Automovil(screenText[0],screenText[1],screenText[2],screenText[3],screenText[4],1),automovil,true,dbHandler)
 
-                    marca.isEnabled = false
-                    matricula.isEnabled = false
-                    modelo.isEnabled = false
+                        salida.visibility = View.VISIBLE
 
-                    salida.visibility = View.VISIBLE
-
+                    }
                 }
 
+            }else{
+                registro.setOnClickListener {
+                    if (registro.background == botonVerde){
+                        makeEnabled(true)
+                        registro.background = botonAzul
+                        registro.text = "Confirmar"
+                    }else{
+                        makeEnabled(false)
+                        registro.text = "Editar"
+                        val screenText: List<String> = getText()
+                        update(Automovil(screenText[0],screenText[1],screenText[2],screenText[3],screenText[4],1),automovil,false,dbHandler)
+                        registro.background = botonVerde
+
+
+
+                    }
+                }
 
             }
+
         }
     }
 
     override fun onBackPressed() {
-        if(entrada == "Registro"){
+        val botonVerde: Drawable = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_verde)!!
+        val botonAzul: Drawable = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_azul)!!
 
-        }else if(entrada == ""){
+
+        when(intent.getStringExtra("estado")){
+            "Registro" -> super.onBackPressed()
+
+            "Salida" -> {
+                if(salida.visibility == View.VISIBLE){
+                    refreshActivity()
+                    super.onBackPressed()
+                }else{
+                    makeEnabled(false)
+                    salida.visibility = View.VISIBLE
+                }
+            }
+
+            "Chequeo" -> {
+                if(salida.background == botonAzul){
+                    salida.background = botonVerde
+                }else{
+                    refreshActivity()
+                    super.onBackPressed()
+                }
+
+            }
 
         }
-
-
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -308,7 +347,35 @@ class RegistroAutomovil : AppCompatActivity() {
         return true
     }
 
-    fun getHoraActual(strFormato: String): String {
+    private fun refreshActivity(){
+        val intent = Intent(this,MainActivityReal::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun getText(): List<String>{
+        val mat = matricula.text.toString()
+        val mar = marca.text.toString()
+        val mod = modelo.text.toString()
+        val horae = enHora.text.toString()
+        val horas = saHora.text.toString()
+
+        return(listOf(mat,mar,mod,horae,horas))
+    }
+
+    private fun update(automovil1: Automovil ,automovil2:Automovil ,bol:Boolean, dbHandler: MindOrksDBOpenHelper){
+
+        dbHandler.modify(automovil1,automovil2,bol)
+    }
+
+    private fun makeEnabled(bol: Boolean){
+        marca.isEnabled = bol
+        matricula.isEnabled = bol
+        modelo.isEnabled = bol
+    }
+
+    private fun getHoraActual(strFormato: String): String {
         val objCalendar = Calendar.getInstance()
         val simpleDateFormat = SimpleDateFormat(strFormato)
         return simpleDateFormat.format(objCalendar.time)
@@ -323,16 +390,14 @@ class RegistroAutomovil : AppCompatActivity() {
 
     }
 
-    fun intent(estacionamiento1: Estacionamiento){
+    private fun intent(){
 
         val intent = Intent(applicationContext,MainActivityReal::class.java)
-        intent.putExtra("Estacionamiento",estacionamiento1)
-        intent.putExtra("Pasado",pasado)
         startActivity(intent)
         finishAffinity()
     }
 
-    fun createList( mat:String , mar: String, mod: String, horaEntrada: String ){
+    private fun createList( mat:String , mar: String, mod: String, horaEntrada: String ){
 
         array = Automovil(mat, mar, mod, horaEntrada, "",0)
         estacionamiento.carros = mutableListOf(array)
@@ -340,19 +405,16 @@ class RegistroAutomovil : AppCompatActivity() {
 
     }
 
-    fun addList(mat:String , mar: String, mod: String, horaEntrada: String, numeroDeSQLite: Int ){
+    private fun addList(mat:String , mar: String, mod: String, horaEntrada: String, numeroDeSQLite: Int ){
 
         array = Automovil(mat, mar, mod, horaEntrada, "", numeroDeSQLite )
         estacionamiento.carros?.add(array)
         estacionamiento.lugares -= 1
+
     }
 
-    fun exitParking(automovil:Automovil, horaSalida: String, dbHandler: MindOrksDBOpenHelper){
-
-        val index = intent.getIntExtra("index", Int.MAX_VALUE)
+    private fun exitParking(automovil:Automovil, horaSalida: String, dbHandler: MindOrksDBOpenHelper){
         //val numeroIDSQLite = intent.getIntExtra("NumeroDeSQLite",Int.MAX_VALUE)
-
-        estacionamiento.carros?.removeAt(index)
 
         dbHandler.dropElement(automovil) //retiramos el automovil de entradas
 
@@ -360,11 +422,10 @@ class RegistroAutomovil : AppCompatActivity() {
 
         dbHandler.addFields(automovil,false) //ponemos el automovil en salida
 
-        pasado.carros?.add(automovil)
-
         estacionamiento.lugares += 1
 
     }
+
     fun mandarModelos (){
         for(num in 0..marcas.size-1){
             var textoPosicion:String = marcas.get(num)
@@ -387,6 +448,7 @@ class RegistroAutomovil : AppCompatActivity() {
         }
 
     }
+
     fun autocompletaMarca(){
         for(num3 in 0..modelos.size-1){
             val todosModelos = modelos.get(num3)
@@ -401,6 +463,7 @@ class RegistroAutomovil : AppCompatActivity() {
             }
         }
     }
+
     fun cerrarteclado() {
         var view : View = currentFocus
         if(view != null){
