@@ -20,12 +20,15 @@ import kotlinx.android.synthetic.main.content_main_activity_real.*
 class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     lateinit var searchView: SearchView
-    var numeroDeSQLite: Int = 0
     val dbHandler = MindOrksDBOpenHelper(this, null)
     lateinit var fragmentoSalidas: FragmentoSalidas
     lateinit var fragmentoBusqueda: FragmentoBusqueda
     lateinit var primerFragmento: PrimerFragmento
     lateinit var estacionamiento: Estacionamiento
+
+
+
+    lateinit var pasado: Pasado
 
 
 
@@ -49,55 +52,47 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         val lugares = 21
 
+
         //var estacionamiento: Estacionamiento? =  null
         var pasado: Pasado? =  null
 
-        val prueba: Estacionamiento? = intent.getParcelableExtra("Estacionamiento")
-        val prueba2: Pasado? = intent.getParcelableExtra("Pasado")
-        //val prueba3: Int = intent.getIntExtra("tipoE",Int.MAX_VALUE)
-        // Usar cuando implementos pantalla principal
+        val dataBaseNew: MutableList<Automovil> = getSQLITE(true)
 
 
-        estacionamiento = if (prueba != null){
-            prueba
-        } else{
-
-            val dataBaseNew: MutableList<Automovil>? = getSQLITE(true)
+        val past = getSQLITE(false) //esta variable nos dice si al sacar las variables del sqlite hay automoviles fuera
 
 
-            /*val automoviles = mutableListOf<Automovil>(Automovil(matricula = "ASW0M3",marca = "Toyota",modelo = "Corolla"
-                ,horaEntrada = "11", horaSalida = "14")
-                ,Automovil(matricula = "JOLUQFER",marca = "Nissan",modelo = "Versa",horaEntrada = "10", horaSalida = "15"))
-            */
-            if(dataBaseNew != null){
-                val lugaresDisponibles = lugares - dataBaseNew.size
-                Estacionamiento(lugaresDisponibles,dataBaseNew)
+
+        estacionamiento = if(dataBaseNew.size > 0){
+            val lugaresDisponibles = lugares - dataBaseNew.size
+            Estacionamiento(lugaresDisponibles,dataBaseNew)
 
             }else{
                 Estacionamiento(lugares, null)
             }
 
-        }
 
-        pasado =  if (prueba2 != null){
-            prueba2
-        } else{
+        pasado = if( past.size > 0 ){
 
-            val past = getSQLITE(false) //esta variable nos dice si al sacar las variables del sqlite hay automoviles fuera
+            Pasado(past)
 
-            if( past != null ){
-                Pasado(past)
             }else{
                 Pasado(mutableListOf())
             }
 
-        }
 
         val adapter = FragmentAdapter(supportFragmentManager)
+        val codigo : String = if(estacionamiento.carros!= null){
+
+            estacionamiento.carros!![estacionamiento.carros!!.size-1].folio
+
+        }else{
+            "A0000"
+        }
 
         fragmentoSalidas = FragmentoSalidas(pasado)
-        fragmentoBusqueda = FragmentoBusqueda(estacionamiento, pasado, numeroDeSQLite, dbHandler)
-        primerFragmento = PrimerFragmento(estacionamiento, pasado)
+        fragmentoBusqueda = FragmentoBusqueda(estacionamiento, pasado, dbHandler)
+        primerFragmento = PrimerFragmento(estacionamiento.lugares, codigo)
 
         adapter.newFragment(primerFragmento)
         adapter.newFragment(fragmentoBusqueda)
@@ -154,7 +149,6 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
             override fun onQueryTextSubmit(query: String?): Boolean {
                 fragmentoBusqueda.adapter.filter.filter(query)
-                //adapter.filter.filter("hola")
                 return false
             }
 
@@ -189,7 +183,11 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 startActivity(intent)
                 Toast.makeText(this,"Se borraron las entradas al pasar la información",Toast.LENGTH_SHORT).show()
                 dbHandler.dropTable(true) //Mandamos false para eliminar la tabla de entradas de la base de datos
+
                 //intentToMainActivityReal()
+
+
+                intentToMainActivityReal()
 
             }
 
@@ -197,6 +195,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 Toast.makeText(this,"Se borraron las salidas al salir de sesión",Toast.LENGTH_SHORT).show()
                 dbHandler.dropTable(false) //Mandamos false para eliminar la tabla de salidas de la base de datos
                 intentToMainActivityReal()
+
 
             }
         }
@@ -207,7 +206,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         return true
     }
 
-    fun getSQLITE(tipo: Boolean): MutableList<Automovil>? {
+    fun getSQLITE(tipo: Boolean): MutableList<Automovil> {
 
         val autmoviles = mutableListOf<Automovil>()
 
@@ -221,10 +220,11 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
             var mod: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MODELO))
             var he: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_HORAE))
             var hs: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_HORASA))
-            var _id: Int = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_ID))
+            var color: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_COLOR))
+            var cam: Boolean = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO)) != 0
+            var folio: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO))
 
-
-            var cosa1 = Automovil(mat,mar,mod,he,hs,_id)
+            var cosa1 = Automovil(mat,mar,mod,he,hs,color,cam,folio)
 
             autmoviles.add(cosa1)
 
@@ -235,13 +235,13 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 mod = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MODELO))
                 he = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_HORAE))
                 hs = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_HORASA))
-                _id = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_ID))
-
-                cosa1 = Automovil(mat,mar,mod,he,hs,_id)
+                color = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_COLOR))
+                cam = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO)) != 0
+                folio = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO))
+                cosa1 = Automovil(mat,mar,mod,he,hs,color,cam,folio)
 
                 autmoviles.add(cosa1)
             }
-            numeroDeSQLite = _id
 
         }
 
@@ -258,25 +258,4 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         finishAffinity()
     }
 
-  /*  fun takePass(estacionamiento: Estacionamiento): MutableList<Automovil>?{
-
-        var automoviles : MutableList<Automovil>? = mutableListOf<Automovil>()
-
-        if(estacionamiento.carros != null){
-            for(i in estacionamiento.carros!!){
-
-                if( i.horaSalida!="" ){
-                    automoviles?.add(i)
-                }
-
-            }
-
-        }else{
-            automoviles = null
-        }
-
-        return automoviles
-
-    }
-*/
 }

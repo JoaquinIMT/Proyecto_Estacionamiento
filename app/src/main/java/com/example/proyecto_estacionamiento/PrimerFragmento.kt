@@ -13,7 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_primer_fragmento.*
 
-class PrimerFragmento(val estacionamiento: Estacionamiento, val pasado: Pasado) : Fragment() {
+class PrimerFragmento(val lugares: Int, val codigo: String) : Fragment() {
 
     lateinit var entraCarro: Button
     lateinit var espacios: TextView
@@ -31,24 +31,24 @@ class PrimerFragmento(val estacionamiento: Estacionamiento, val pasado: Pasado) 
         // Inflate the layout for this fragment
         espacios = view.findViewById(R.id.espacios)
 
-        espacios.text = estacionamiento.lugares.toString()
+        espacios.text = lugares.toString()
         val total = 21.0
         var quitar: Double = 100/total
         progressBar = view.findViewById(R.id.progressBar)
-        progressBar?.progress=(quitar*estacionamiento.lugares).toInt()
+        progressBar?.progress=(quitar*lugares).toInt()
         //espacios.text=(quitar*estacionamiento.lugares).toString()
 
-        if (estacionamiento.lugares > 0){
+        if (lugares > 0){
             entraCarro.setOnClickListener {
 
                 val intent = Intent(context,RegistroAutomovil::class.java)
                 intent.putExtra("estado","Registro")
-                intent.putExtra("Estacionamiento",estacionamiento)
-                intent.putExtra("Pasado",pasado)
+                intent.putExtra("codigo",codigo)
 
                 startActivity(intent)
 
             }
+
         }else Toast.makeText(context,"Estacionamiento lleno", Toast.LENGTH_LONG).show()
 
 

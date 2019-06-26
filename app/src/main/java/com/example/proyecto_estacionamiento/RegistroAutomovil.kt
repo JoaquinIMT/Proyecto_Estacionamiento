@@ -1,15 +1,9 @@
 package com.example.proyecto_estacionamiento
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
-import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.strictmode.SqliteObjectLeakedViolation
-import android.text.Editable
-import android.view.KeyEvent
-import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.core.content.ContextCompat
@@ -19,14 +13,9 @@ import java.util.*
 import kotlin.collections.ArrayList
 import android.view.View.OnFocusChangeListener
 import android.view.inputmethod.InputMethodManager
-import android.view.KeyEvent.KEYCODE_ENTER
-
-
 
 
 class RegistroAutomovil : AppCompatActivity() {
-
-    lateinit var tiempo : ProgressBar
 
     lateinit var matricula: TextView
     lateinit var marcaAutoCompletar: AutoCompleteTextView
@@ -35,14 +24,17 @@ class RegistroAutomovil : AppCompatActivity() {
     lateinit var modelo: TextView
     lateinit var enHora: TextView
     lateinit var saHora: TextView
+    lateinit var colorAutocompletar: AutoCompleteTextView
+    lateinit var color: TextView
+    lateinit var folio: TextView
+    lateinit var tipo: TextView
     lateinit var salida: Button
-    //lateinit var array : ArrayList<Automovil>
-    lateinit var array : Automovil //Lista con los datos del automovil para agregar al array mayor
 
-    lateinit var estacionamiento: Estacionamiento
-    lateinit var pasado : Pasado
+
     var todosModelos : String = ""
     var entrada : String = ""
+    var cam: Boolean = false
+
 
     lateinit var registro : Button //Boton abajo de la pantalla para concluir cambios
     lateinit var hora : Date
@@ -95,7 +87,7 @@ class RegistroAutomovil : AppCompatActivity() {
         marca = findViewById(R.id.matricula)
         marcaAutoCompletar= findViewById(R.id.matricula)
         modeloAutoCompletar= findViewById(R.id.modelo)
-
+        colorAutocompletar = findViewById(R.id.color)
 
         var adapterrMarcas : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,marcas)
         this.marcaAutoCompletar.setAdapter(adapterrMarcas)
@@ -108,14 +100,8 @@ class RegistroAutomovil : AppCompatActivity() {
         salida = findViewById(R.id.salida)
         enHora = findViewById(R.id.enhora)
         saHora = findViewById(R.id.sahora)
-
-        estacionamiento = intent.getParcelableExtra("Estacionamiento")
-        pasado = intent.getParcelableExtra("Pasado")
-
-        var numeroDeSQLite : Int? = intent.getIntExtra("Numero_de_SQLite",Int.MAX_VALUE)
-        if(numeroDeSQLite != null){
-            numeroDeSQLite += 1
-        }
+        color = findViewById(R.id.color)
+        folio = findViewById(R.id.folio)
 
         val entrada = intent.getStringExtra("estado")
 
@@ -127,6 +113,32 @@ class RegistroAutomovil : AppCompatActivity() {
 
 
         if(entrada == "Registro") {
+            val folioRecibido: String = intent.getStringExtra("codigo")
+
+            var numeroDeFolioRecibido : String = folioRecibido.substring(1).toInt().toString()
+            var letra = folioRecibido[0]
+            var nuevoNumero: Int = numeroDeFolioRecibido.toInt()+1
+
+            if(nuevoNumero > 3){
+                if(letra == "Z".single()){
+                    letra = "A".single()
+                }else{
+                    ++letra
+                }
+
+                nuevoNumero = 1
+                numeroDeFolioRecibido="1"
+            }
+
+            val folioInsertar: String = when(numeroDeFolioRecibido.length){
+
+                1 -> letra+"000"+nuevoNumero.toString()
+                2 -> letra+"00"+nuevoNumero.toString()
+                3 -> letra+"0"+nuevoNumero.toString()
+                else -> "Error"
+            }
+
+            folio.text = folioInsertar
 
             //Al entrar significa que se hará un registro
 
@@ -135,6 +147,7 @@ class RegistroAutomovil : AppCompatActivity() {
             saHora.visibility = View.GONE
             reloj2.visibility = View.GONE
             salida.visibility = View.GONE
+
 
             makeEnabled(true)
 
@@ -148,14 +161,12 @@ class RegistroAutomovil : AppCompatActivity() {
             registro.setOnClickListener {
 
                 //Obtenemos el texto de los EditText
-                val mat = matricula.text.toString()
-                val mar = marca.text.toString()
-                val mod = modelo.text.toString()
+                val texts = getText()
 
                 //Toast.makeText(this, mat + "Added to database", Toast.LENGTH_LONG).show()
 
 
-                if (mat.equals("") && mar.equals("") && mod.equals("")) {
+                if (texts[0].equals("") || texts[1].equals("") || texts[2].equals("")) {
 
 
                     Toast.makeText(this@RegistroAutomovil, "Faltan Campos por completar", Toast.LENGTH_SHORT).show()
@@ -167,21 +178,11 @@ class RegistroAutomovil : AppCompatActivity() {
                     var horaEntrada = getHoraActual("HH:mm")
                     entradaMili = hora.time
 
-                    val automovil = Automovil(mat,mar,mod,horaEntrada,"", numeroDeSQLite!!)
+                    val automovil = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,texts[6])
                     dbHandler.addFields(automovil,true)
 
                     //checamos que cuando mandemos llamar la lista con automoviles esta ya tenga registrado a un automovil
                     // de otra forma este arreglo se define como el primero
-
-                    if (estacionamiento.carros != null){
-
-                        addList(mat, mar, mod, horaEntrada, numeroDeSQLite)
-
-                    }else{
-
-                        createList(mat, mar, mod, horaEntrada)
-
-                    }
 
                     intent()
 
@@ -228,33 +229,25 @@ class RegistroAutomovil : AppCompatActivity() {
             val automovil = intent.getParcelableExtra<Automovil>("Auto")
             registro.background = botonVerde
 
+            registro.text = "Editar"
+            setTexts(automovil)
+
+
             if(automovil.horaSalida != ""){
                 saHora.text = automovil.horaSalida
-                registro.text = "Editar"
                 salida.visibility = View.GONE
                 actionBar?.title = "Detalles de automovil"
 
             }else{
 
                 saHora.text = "--:--"
-                registro.text = "Editar"
-
                 actionBar?.title = "Salida de automovil"
 
             }
 
-
-            matricula.text = automovil.matricula
-            marca.text = automovil.marca
-            modelo.text = automovil.modelo
-            enHora.text = automovil.horaEntrada
-
-
-
             salida.setOnClickListener {
-                val mat = matricula.text.toString()
-                val mar = marca.text.toString()
-                val mod = modelo.text.toString()
+                val texts = getText()
+                val automovilPantalla = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,texts[6])
 
                 hora = Date()
 
@@ -262,7 +255,7 @@ class RegistroAutomovil : AppCompatActivity() {
 
                 entradaMili = hora.time
 
-                exitParking(automovil,horaSalida,dbHandler)
+                exitParking(automovilPantalla,horaSalida,dbHandler)
 
                 intent()
 
@@ -280,8 +273,10 @@ class RegistroAutomovil : AppCompatActivity() {
                     }else{
 
                         makeEnabled(false)
-                        val screenText: List<String> = getText()
-                        update(Automovil(screenText[0],screenText[1],screenText[2],screenText[3],screenText[4],1),automovil,true,dbHandler)
+                        val texts = getText()
+                        val automovilPantalla = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,texts[6])
+
+                        update(automovilPantalla,automovil,true,dbHandler)
 
                         salida.visibility = View.VISIBLE
 
@@ -297,8 +292,9 @@ class RegistroAutomovil : AppCompatActivity() {
                     }else{
                         makeEnabled(false)
                         registro.text = "Editar"
-                        val screenText: List<String> = getText()
-                        update(Automovil(screenText[0],screenText[1],screenText[2],screenText[3],screenText[4],1),automovil,false,dbHandler)
+                        val texts = getText()
+                        val automovilPantalla = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,texts[6])
+                        update(automovilPantalla,automovil,false,dbHandler)
                         registro.background = botonVerde
 
 
@@ -360,8 +356,23 @@ class RegistroAutomovil : AppCompatActivity() {
         val mod = modelo.text.toString()
         val horae = enHora.text.toString()
         val horas = saHora.text.toString()
+        val colo = colorAutocompletar.text.toString()
+        val foli = folio.text.toString()
 
-        return(listOf(mat,mar,mod,horae,horas))
+        return(listOf(mat,mar,mod,horae,horas,colo,foli))
+    }
+
+    private fun setTexts(automovilToSet: Automovil){
+
+
+        matricula.text = automovilToSet.matricula
+        marca.text = automovilToSet.marca
+        modelo.text = automovilToSet.modelo
+        enHora.text = automovilToSet.horaEntrada
+        color.text = automovilToSet.color
+        folio.text = automovilToSet.folio
+
+
     }
 
     private fun update(automovil1: Automovil ,automovil2:Automovil ,bol:Boolean, dbHandler: MindOrksDBOpenHelper){
@@ -373,6 +384,8 @@ class RegistroAutomovil : AppCompatActivity() {
         marca.isEnabled = bol
         matricula.isEnabled = bol
         modelo.isEnabled = bol
+        colorAutocompletar.isEnabled = bol
+        folio.isEnabled = bol
     }
 
     private fun getHoraActual(strFormato: String): String {
@@ -397,22 +410,6 @@ class RegistroAutomovil : AppCompatActivity() {
         finishAffinity()
     }
 
-    private fun createList( mat:String , mar: String, mod: String, horaEntrada: String ){
-
-        array = Automovil(mat, mar, mod, horaEntrada, "",0)
-        estacionamiento.carros = mutableListOf(array)
-        estacionamiento.lugares -= 1
-
-    }
-
-    private fun addList(mat:String , mar: String, mod: String, horaEntrada: String, numeroDeSQLite: Int ){
-
-        array = Automovil(mat, mar, mod, horaEntrada, "", numeroDeSQLite )
-        estacionamiento.carros?.add(array)
-        estacionamiento.lugares -= 1
-
-    }
-
     private fun exitParking(automovil:Automovil, horaSalida: String, dbHandler: MindOrksDBOpenHelper){
         //val numeroIDSQLite = intent.getIntExtra("NumeroDeSQLite",Int.MAX_VALUE)
 
@@ -422,7 +419,6 @@ class RegistroAutomovil : AppCompatActivity() {
 
         dbHandler.addFields(automovil,false) //ponemos el automovil en salida
 
-        estacionamiento.lugares += 1
 
     }
 

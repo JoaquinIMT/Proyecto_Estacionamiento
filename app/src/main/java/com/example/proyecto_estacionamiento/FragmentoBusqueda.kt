@@ -19,9 +19,8 @@ import java.util.*
 
 
 class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado,
-                        val numeroDeSQLite: Int, val dbHandler: MindOrksDBOpenHelper) : Fragment(), CustomViewHolder.funcionloca {
+                        val dbHandler: MindOrksDBOpenHelper) : Fragment(), CustomViewHolder.funcionloca {
 
-    var lugar: Int = -1
     var carros = estacionamiento.carros
     var bye : MutableList<Int> = mutableListOf(0)
     lateinit var salirCarro :Button
@@ -44,7 +43,6 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
         salirCarro = view.findViewById(R.id.salida)
         // Inflate the layout for this fragment
         reciclerView = view.findViewById(R.id.recyclerview_carros)
-
         reciclerView.layoutManager = LinearLayoutManager(context?.applicationContext)
 
         adapter = MainAdapter(estacionamiento,this, pasado)

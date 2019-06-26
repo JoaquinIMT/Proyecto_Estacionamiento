@@ -18,8 +18,6 @@
             tools:ignore="GoogleAppIndexingWarning">
 
         <activity android:name=".QR">
-
-
         </activity>
         <activity android:name=".PruebaDesechable">
         </activity>
@@ -32,8 +30,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-
-
         </activity>
         <activity android:name=".TiempoYPrecio">
         </activity>
