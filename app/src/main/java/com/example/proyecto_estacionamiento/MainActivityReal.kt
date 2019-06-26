@@ -25,6 +25,8 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
     lateinit var fragmentoSalidas: FragmentoSalidas
     lateinit var fragmentoBusqueda: FragmentoBusqueda
     lateinit var primerFragmento: PrimerFragmento
+    lateinit var estacionamiento: Estacionamiento
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +49,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         val lugares = 21
 
-        var estacionamiento: Estacionamiento? =  null
+        //var estacionamiento: Estacionamiento? =  null
         var pasado: Pasado? =  null
 
         val prueba: Estacionamiento? = intent.getParcelableExtra("Estacionamiento")
@@ -182,9 +184,12 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         when (item.itemId) {
 
             R.id.share -> {
+                val intent:Intent = Intent(applicationContext, QR::class.java)
+                intent.putExtra("estacionamiento",estacionamiento)
+                startActivity(intent)
                 Toast.makeText(this,"Se borraron las entradas al pasar la información",Toast.LENGTH_SHORT).show()
                 dbHandler.dropTable(true) //Mandamos false para eliminar la tabla de entradas de la base de datos
-                intentToMainActivityReal()
+                //intentToMainActivityReal()
 
             }
 
