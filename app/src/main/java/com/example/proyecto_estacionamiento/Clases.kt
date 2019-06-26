@@ -41,6 +41,9 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
                 + COLUMN_MATRICULA + " TEXT,"
                 + COLUMN_MARCA + " TEXT,"
                 + COLUMN_MODELO + " TEXT,"
+                + COLUMN_COLOR + " TEXT,"
+                + COLUMN_FOLIO + " TEXT,"
+                + COLUMN_TIPO + " INTEGER,"
                 + COLUMN_HORAE + " TEXT,"
                 + COLUMN_HORASA + " TEXT" +")")
 
@@ -55,6 +58,9 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
                 + COLUMN_MATRICULA + " TEXT,"
                 + COLUMN_MARCA + " TEXT,"
                 + COLUMN_MODELO + " TEXT,"
+                + COLUMN_COLOR + " TEXT,"
+                + COLUMN_FOLIO + " TEXT,"
+                + COLUMN_TIPO + " INTEGER,"
                 + COLUMN_HORAE + " TEXT,"
                 + COLUMN_HORASA + " TEXT" +")")
 
@@ -77,6 +83,9 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         values.put(COLUMN_MODELO,automovil.modelo)
         values.put(COLUMN_HORAE,automovil.horaEntrada)
         values.put(COLUMN_HORASA,automovil.horaSalida)
+        values.put(COLUMN_COLOR,automovil.color)
+        values.put(COLUMN_FOLIO,automovil.folio)
+        values.put(COLUMN_TIPO,automovil.tipo)
 
         if(tipo){
             db.insert(TABLE_ESTACIONAMIENTO, null, values)
@@ -97,10 +106,14 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         if(tipo){
             db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MODELO='${automovilNuevo.modelo}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
             db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MARCA='${automovilNuevo.marca}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
+            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_COLOR='${automovilNuevo.color}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
+            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_TIPO='${automovilNuevo.tipo}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
             db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MATRICULA='${automovilNuevo.matricula}' WHERE $COLUMN_HORAE='${automovilAntiguo.horaEntrada}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")        //db.update(TABLE_ESTACIONAMIENTO,values, COLUMN_ID+"="+index.toString(),null)
         }else{
             db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MODELO='${automovilNuevo.modelo}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
             db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MARCA='${automovilNuevo.marca}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
+            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_COLOR='${automovilNuevo.color}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
+            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_TIPO='${automovilNuevo.tipo}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
             db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MATRICULA='${automovilNuevo.matricula}' WHERE $COLUMN_HORAE='${automovilAntiguo.horaEntrada}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")        //db.update(TABLE_ESTACIONAMIENTO,values, COLUMN_ID+"="+index.toString(),null)
         }
 
@@ -149,14 +162,17 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
     companion object {
         private val DATABASE_VERSION = 1
         private val DATABASE_NAME = "mindorksName.db"
-        const val TABLE_ESTACIONAMIENTO = "estacionamiento"
-        const val TABLE_SALIDA = "salida"
+        const val TABLE_ESTACIONAMIENTO = "estacionamiento_completo"
+        const val TABLE_SALIDA = "salida_completa"
         const val COLUMN_ID = "_id"
         const val COLUMN_MATRICULA = "matricula"
         const val COLUMN_MARCA = "marca"
         const val COLUMN_MODELO = "modelo"
         const val COLUMN_HORAE = "hora_entrada"
         const val COLUMN_HORASA = "hora_salida"
+        const val COLUMN_COLOR = "color"
+        const val COLUMN_FOLIO = "folio"
+        const val COLUMN_TIPO = "tipo"
     }
 }
 
@@ -169,6 +185,8 @@ class Estacionamiento(var lugares: Int, var carros: MutableList<Automovil>?): Pa
 class Pasado(var carros: MutableList<Automovil>?): Parcelable
 
 @Parcelize
-class Automovil(var matricula: String, var marca: String, var modelo:String, var horaEntrada:String, var horaSalida:String, var _id : Int): Parcelable
+class Automovil(var matricula: String, var marca: String, var modelo:String,
+                var horaEntrada:String, var horaSalida:String,var color: String,
+                var tipo: Boolean,var folio : String): Parcelable
 
 

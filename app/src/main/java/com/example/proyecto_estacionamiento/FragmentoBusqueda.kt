@@ -24,9 +24,8 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado,
-                        val numeroDeSQLite: Int, val dbHandler: MindOrksDBOpenHelper) : Fragment(), CustomViewHolder.funcionloca {
+                        val dbHandler: MindOrksDBOpenHelper) : Fragment(), CustomViewHolder.funcionloca {
 
-    var lugar: Int = -1
     var carros = estacionamiento.carros
     var bye : MutableList<Int> = mutableListOf(0)
     lateinit var salirCarro :Button
@@ -49,7 +48,6 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
         salirCarro = view.findViewById(R.id.salida)
         // Inflate the layout for this fragment
         reciclerView = view.findViewById(R.id.recyclerview_carros)
-
         reciclerView.layoutManager = LinearLayoutManager(context?.applicationContext)
 
         adapter = MainAdapter(estacionamiento,this, pasado)
@@ -58,7 +56,9 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
 
         salirCarro.setOnClickListener {
 
-            if (bye.size > 1){
+            Toast.makeText(view.context,Int.MAX_VALUE.toString(),Toast.LENGTH_SHORT).show()
+
+            /*if (bye.size > 1){
 
                 bye.removeAt(0)
                 //implement Dialog text
@@ -84,7 +84,7 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
                 Toast.makeText(context, "Seleccione el automovil a salir", Toast.LENGTH_LONG).show()
 
             }
-
+*/
         }
 
         return view

@@ -49,7 +49,9 @@ class MainAdapter(var estacionamiento: Estacionamiento,val context: FragmentoBus
                     for(row in carros){
                         if(row.marca.toLowerCase().contains(text.toLowerCase()) ||
                             row.matricula.toLowerCase().contains(text.toLowerCase()) ||
-                                    row.modelo.toLowerCase().contains(text.toLowerCase()))  returnList.add(row)
+                                    row.modelo.toLowerCase().contains(text.toLowerCase()) ||
+                                    row.folio.toLowerCase().contains(text.toLowerCase())
+                                )  returnList.add(row)
                     }
 
                     filterList = returnList
@@ -110,7 +112,7 @@ class MainAdapter(var estacionamiento: Estacionamiento,val context: FragmentoBus
 
             holder.hold = false
 
-            holder.numeroDeSQLite = autos._id
+
 
         }
     }
@@ -120,7 +122,7 @@ class MainAdapter(var estacionamiento: Estacionamiento,val context: FragmentoBus
 class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = null,
                        var carro: Automovil? = null, var position: Int? = null,
                        var cosa: FragmentoBusqueda? = null, var pasado: Pasado? = null,
-                       var hold: Boolean = false, var numeroDeSQLite: Int? = null ): RecyclerView.ViewHolder(view){
+                       var hold: Boolean = false): RecyclerView.ViewHolder(view){
 
 
     var activityCallBack : funcionloca? = null
@@ -142,11 +144,9 @@ class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = n
         view.setOnClickListener{
             val intent = Intent(view.context,RegistroAutomovil::class.java)
             intent.putExtra("Auto",carro)
-            intent.putExtra("Pasado",pasado)
             intent.putExtra("estado","Salida")
             intent.putExtra("Estacionamiento",estacionamiento)
             intent.putExtra("index", position)
-            intent.putExtra("numeroDeSQLite",numeroDeSQLite)
             view.context.startActivity(intent)
 
         }
@@ -227,10 +227,7 @@ class CustomViewHolder2(var view: View, var carro: Automovil? = null,
         view.setOnClickListener{
             val intent = Intent(view.context,RegistroAutomovil::class.java)
             intent.putExtra("Auto",carro)
-            intent.putExtra("Pasado",Pasado(mutableListOf()))
             intent.putExtra("estado","Chequeo")
-            intent.putExtra("Estacionamiento",Estacionamiento(0, mutableListOf()))
-            intent.putExtra("index", position)
             view.context.startActivity(intent)
 
         }
