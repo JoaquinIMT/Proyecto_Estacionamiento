@@ -1,6 +1,7 @@
 package com.example.proyecto_estacionamiento
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +18,7 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import com.google.zxing.integration.android.IntentIntegrator
+import com.google.zxing.integration.android.IntentResult
 import kotlinx.android.synthetic.main.activity_qr.*
 
 class QR : AppCompatActivity() {
@@ -24,7 +26,7 @@ class QR : AppCompatActivity() {
     val CODIGO_PERMISO_ESCRIBIR_ALMACENAMIENTO = 1
     val ALTURA_CODIGO = 500
     val ANCHURA_CODIGO = 500
-    //var etTextoParaCodigo: EditText? = null
+    var etTextoParaCodigo: TextView? = null
     lateinit var estacionamiento: Estacionamiento
     //var arreglo: Estacionamiento?= intent.getParcelableExtra("estacionamiento")
     var todo: String = ""
@@ -35,15 +37,14 @@ class QR : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qr)
         verificarYPedirPermisos()
-//        initFunc()
         estacionamiento = intent.getParcelableExtra("estacionamiento")
-        var etTextoParaCodigo = findViewById(R.id.etTextoParaCodigo) as TextView
+        etTextoParaCodigo = findViewById(R.id.etTextoParaCodigo) as TextView
 
         val imagenCodigo = findViewById(R.id.ivCodigoGenerado) as ImageView
 
         val btnGenerar = findViewById(R.id.btnGenerar) as Button
         val btnGuardar = findViewById(R.id.btnGuardar) as Button
-        val btnEmpezar = findViewById(R.id.btnGuardar) as Button
+        val btnEmpezar = findViewById(R.id.btnEmpezar) as Button
 
         btnGenerar.setOnClickListener {
             val texto = obtenerTextoParaCodigo()
@@ -52,10 +53,15 @@ class QR : AppCompatActivity() {
             val bitmap = QRCode.from(texto).withSize(ANCHURA_CODIGO, ALTURA_CODIGO).bitmap()
             imagenCodigo.setImageBitmap(bitmap)
         }
-        btnEmpezar.setOnClickListener {
 
+        btnEmpezar.setOnClickListener {
+            val scanner = IntentIntegrator(this)
+            scanner.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
+            scanner.setBeepEnabled(false)
+            scanner.initiateScan()
 
         }
+
         btnGuardar.setOnClickListener {
             val texto = obtenerTextoParaCodigo()
             if (texto.isEmpty()) return@setOnClickListener
@@ -130,31 +136,21 @@ class QR : AppCompatActivity() {
             )
         }
     }
-
-    private fun initFunc() {
-        empezar.setOnClickListener {
-
-        }
-    }
-
-    private fun initScan() {
-        IntentIntegrator(this).initiateScan()
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
-        if (result != null) {
-            if(result.contents == null){
-                Toast.makeText(this, "the data is emply", Toast.LENGTH_SHORT).show()
-            }
-            else{
-                etTextoParaCodigo.setText(result.contents.toString())
-            }
+        if (resultCode == Activity.RESULT_OK) {
+            val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
+            if (result != null) {
+                if (result.contents == null) {
+                    Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this, "Scanned: " + result.contents, Toast.LENGTH_LONG).show()
+                    etTextoParaCodigo?.text = result.contents
 
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
+                }
+            } else {
+                super.onActivityResult(requestCode, resultCode, data)
+            }
         }
-
     }
 
 }

@@ -5,6 +5,8 @@
           package="com.example.proyecto_estacionamiento">
 
     <dist:module dist:instant="true"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+
 
     <application
             android:allowBackup="true"
@@ -14,6 +16,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             tools:ignore="GoogleAppIndexingWarning">
+
         <activity android:name=".QR">
 
 
@@ -38,8 +41,10 @@
         </activity>
         <activity android:name=".RegistroAutomovil">
         </activity>
+
     </application>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA" />
+
+
 
 </manifest>
