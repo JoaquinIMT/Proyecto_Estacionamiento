@@ -51,9 +51,7 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
 
         salirCarro.setOnClickListener {
 
-            Toast.makeText(view.context,Int.MAX_VALUE.toString(),Toast.LENGTH_SHORT).show()
-
-            /*if (bye.size > 1){
+            if (bye.size > 1){
 
                 bye.removeAt(0)
                 //implement Dialog text
@@ -79,7 +77,7 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
                 Toast.makeText(context, "Seleccione el automovil a salir", Toast.LENGTH_LONG).show()
 
             }
-*/
+
         }
 
         return view
