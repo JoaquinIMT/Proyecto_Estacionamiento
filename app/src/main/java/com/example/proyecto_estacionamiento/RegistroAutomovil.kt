@@ -32,7 +32,6 @@ class RegistroAutomovil : AppCompatActivity() {
 
 
     var todosModelos : String = ""
-    var entrada : String = ""
     var cam: Boolean = false
 
 
@@ -150,6 +149,7 @@ class RegistroAutomovil : AppCompatActivity() {
 
 
             makeEnabled(true)
+            folio.isEnabled = true
 
             //Se pone la hora actual en el textView
             enHora.text = getHoraActual("HH:mm")
@@ -178,7 +178,16 @@ class RegistroAutomovil : AppCompatActivity() {
                     var horaEntrada = getHoraActual("HH:mm")
                     entradaMili = hora.time
 
-                    val automovil = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,texts[6])
+                    //Verificamos que el folio que vamos a usar sea el esperado, si fue modificado, se le agrega una coma al inicio para saber
+                    // que es de un socio o valet parking
+                    val folioFinal : String = if(texts[6] != folioInsertar){
+                        ","+texts[6]
+                    }else{
+                        dbHandler.upDateFolio(texts[6])
+                        texts[6]
+                    }
+
+                    val automovil = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,folioFinal)
                     dbHandler.addFields(automovil,true)
 
                     //checamos que cuando mandemos llamar la lista con automoviles esta ya tenga registrado a un automovil
@@ -370,7 +379,11 @@ class RegistroAutomovil : AppCompatActivity() {
         modelo.text = automovilToSet.modelo
         enHora.text = automovilToSet.horaEntrada
         color.text = automovilToSet.color
-        folio.text = automovilToSet.folio
+        folio.text = if(automovilToSet.folio[0] == ",".single()){
+            automovilToSet.folio.substring(1)
+        }else{
+            automovilToSet.folio
+        }
 
 
     }
@@ -385,7 +398,6 @@ class RegistroAutomovil : AppCompatActivity() {
         matricula.isEnabled = bol
         modelo.isEnabled = bol
         colorAutocompletar.isEnabled = bol
-        folio.isEnabled = bol
     }
 
     private fun getHoraActual(strFormato: String): String {
@@ -461,7 +473,7 @@ class RegistroAutomovil : AppCompatActivity() {
     }
 
     fun cerrarteclado() {
-        var view : View = currentFocus
+        val view : View? = currentFocus
         if(view != null){
             val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
             inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)

@@ -73,17 +73,58 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
 
         val adapter = FragmentAdapter(supportFragmentManager)
-        val codigo : String = if(estacionamiento.carros!= null){
 
-            estacionamiento.carros!![estacionamiento.carros!!.size-1].folio
+        val codigoActual = getFolio()
+
+        /*val codigo0 = "A0000"
+
+        val codigoDeSalida: Int = if(pasado.carros.isNotEmpty()){
+            var temporal: Int = 0
+            for (i in pasado.carros){
+
+                val numeroSuma: Int = i.folio.substring(1).toInt()+i.folio[0].toInt()
+
+                temporal = if( numeroSuma> temporal){
+                    i.folio.substring(1).toInt()
+                }else{
+                    temporal
+                }
+            }
+
+            temporal
 
         }else{
-            "A0000"
-        }
+            0
+        }*/
+
+        /*val codigoEstacionamiento : Int = if(estacionamiento.carros!= null){
+            var index: Int? = null
+
+            for (i in 1..estacionamiento.carros!!.size){
+                 index = if(estacionamiento.carros!![estacionamiento.carros!!.size-i].folio[0] == ",".single()){
+                    null
+                }else{
+                     i
+                }
+                if(index == i){
+                    break
+                }
+            }
+
+
+            if(index == null){
+                0
+            }else{
+                estacionamiento.carros!![estacionamiento.carros!!.size-index].folio.substring(1).toInt()
+            }
+
+        }else{
+            0
+        }*/
 
         fragmentoSalidas = FragmentoSalidas(pasado)
         fragmentoBusqueda = FragmentoBusqueda(estacionamiento, pasado, dbHandler)
-        primerFragmento = PrimerFragmento(estacionamiento.lugares, codigo)
+        primerFragmento = PrimerFragmento(estacionamiento.lugares, codigoActual)
 
         adapter.newFragment(primerFragmento)
         adapter.newFragment(fragmentoBusqueda)
@@ -101,8 +142,11 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
     override fun onBackPressed() {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+
             drawerLayout.closeDrawer(GravityCompat.START)
+
         } else if(fragmentoBusqueda.bye.size > 1){
 
             fragmentoBusqueda.bye = mutableListOf(0)
@@ -110,6 +154,10 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
             ft.detach(fragmentoBusqueda)
             ft.attach(fragmentoBusqueda)
             ft.commit()
+            for(i in 0 until fragmentoBusqueda.adapter.filterList.size-1){
+                fragmentoBusqueda.adapter.filterList[i].checked = false
+            }
+            fragmentoBusqueda.adapter.notifyDataSetChanged()
 
         } else{
             super.onBackPressed()
@@ -130,10 +178,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
             if(tabs.selectedTabPosition != 1 ){
                 //tabs.setScrollPosition(1,0F,false)
-
-
             }
-
         }
 
         searchView.setOnQueryTextListener(object :SearchView.OnQueryTextListener{
@@ -189,11 +234,23 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         return true
     }
 
+    fun getFolio(): String {
+        val cursor = dbHandler.getFolio()
+
+        cursor!!.moveToFirst()
+        var folio = ""
+        if(cursor.count > 0){
+            folio = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO))
+        }
+        return folio
+    }
+
     fun getSQLITE(tipo: Boolean): MutableList<Automovil> {
 
         val autmoviles = mutableListOf<Automovil>()
 
         val cursor = dbHandler.getAllName(tipo)
+
         cursor!!.moveToFirst()
 
         if(cursor.count > 0){

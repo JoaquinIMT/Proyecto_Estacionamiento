@@ -1,26 +1,18 @@
 package com.example.proyecto_estacionamiento
-import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.text.BoringLayout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
-import android.widget.Toast
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.carros_row.view.*
-import java.lang.reflect.Array
-import kotlin.coroutines.coroutineContext
 
 
 //Esta clase es para que los elementos se generen repetitivamente con datos especificos
-class MainAdapter(var estacionamiento: Estacionamiento,val context: FragmentoBusqueda, val pasado: Pasado): RecyclerView.Adapter<CustomViewHolder>(),Filterable {
+class MainAdapter(var estacionamiento: Estacionamiento,
+                  val context: FragmentoBusqueda, val pasado: Pasado): RecyclerView.Adapter<CustomViewHolder>(),Filterable, CustomViewHolder.checked {
+
 
     val carros = if(estacionamiento.carros != null){
 
@@ -32,7 +24,7 @@ class MainAdapter(var estacionamiento: Estacionamiento,val context: FragmentoBus
 
     }
 
-    var filterList: List<Automovil> = carros
+    var filterList: MutableList<Automovil> = carros
 
     override fun getFilter(): Filter {
         return object : Filter(){
@@ -66,7 +58,7 @@ class MainAdapter(var estacionamiento: Estacionamiento,val context: FragmentoBus
 
             override fun publishResults(constraint: CharSequence?, filterResults: FilterResults?) {
 
-                filterList = filterResults?.values as List<Automovil>
+                filterList = filterResults?.values as MutableList<Automovil>
                 notifyDataSetChanged()
 
             }
@@ -78,7 +70,7 @@ class MainAdapter(var estacionamiento: Estacionamiento,val context: FragmentoBus
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val lineOfRow = layoutInflater.inflate(R.layout.carros_row,parent,false)
-        return CustomViewHolder(lineOfRow,cosa = context)
+        return CustomViewHolder(lineOfRow, cosa = context, cosa2 = this)
     }
 
     override fun getItemCount(): Int {
@@ -90,7 +82,9 @@ class MainAdapter(var estacionamiento: Estacionamiento,val context: FragmentoBus
     }
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
+
         if(filterList.isNotEmpty()){
+
             val autos = filterList[position]
 
             if (autos.horaSalida!=""){ //Con esta condición verificamos si el auto se encuentra en el estacionamiento y si no es así (posee hora de salida) se marca con rojo
@@ -110,35 +104,62 @@ class MainAdapter(var estacionamiento: Estacionamiento,val context: FragmentoBus
             holder.cosa = context
             holder.pasado = pasado
 
-            holder.hold = false
+            if(autos.checked){
 
+                holder.view.state_carro.setImageResource(R.drawable.bg_boton_redondo_rojo)
 
+            }else{
 
+                holder.view.state_carro.setImageResource(R.drawable.bg_boton_redondo_azul)
+
+            }
+
+            holder.hold = autos.checked
         }
+    }
+
+    override fun imageChecked(position: Int, state: Boolean) {
+        changeChecked(position, state)
+    }
+
+    private fun changeChecked(position: Int, state: Boolean){
+
+        filterList[position].checked = state
+        notifyDataSetChanged()
     }
 }
 
 
 class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = null,
                        var carro: Automovil? = null, var position: Int? = null,
-                       var cosa: FragmentoBusqueda? = null, var pasado: Pasado? = null,
+                       var cosa: FragmentoBusqueda? = null, var cosa2: MainAdapter? = null, var pasado: Pasado? = null,
                        var hold: Boolean = false): RecyclerView.ViewHolder(view){
 
 
-    var activityCallBack : funcionloca? = null
+    var activityCallBack : interfazLoca? = null
+    var autoCallback: checked? = null
 
+    interface checked{
+        fun imageChecked(position: Int, state: Boolean)
+    }
 
-    interface funcionloca {
+    interface interfazLoca {
         fun onCheckedBox(pos : Int,state: Boolean)
     }
 
 
-    var selected: Int? = null
-
     init {
 
         if(cosa != null){
+
             activityCallBack = cosa!!
+
+        }
+
+        if(cosa2 != null){
+
+            autoCallback = cosa2!!
+
         }
 
         view.setOnClickListener{
@@ -152,13 +173,15 @@ class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = n
         }
         view.setOnLongClickListener {
             if(hold){
-                view.state_carro.setImageResource(R.drawable.bg_boton_redondo_azul)// = ContextCompat.getDrawable(view.context,R.drawable.bg_boton_redondo_rojo)
+
                 activityCallBack?.onCheckedBox(position!!,false)
-                hold = false
+                autoCallback?.imageChecked(position!!,false)
+
             }else{
-                view.state_carro.setImageResource(R.drawable.bg_boton_redondo_rojo)// = ContextCompat.getDrawable(view.context,R.drawable.bg_boton_redondo_rojo)
+
                 activityCallBack?.onCheckedBox(position!!,true)
-                hold = true
+                autoCallback?.imageChecked(position!!,true)
+
             }
 
             //Toast.makeText(view.context,"Holi", Toast.LENGTH_SHORT).show()

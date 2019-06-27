@@ -13,13 +13,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 
-import kotlinx.android.synthetic.main.fragment_busqueda.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado,
-                        val dbHandler: MindOrksDBOpenHelper) : Fragment(), CustomViewHolder.funcionloca {
+                        val dbHandler: MindOrksDBOpenHelper) : Fragment(), CustomViewHolder.interfazLoca {
 
     var carros = estacionamiento.carros
     var bye : MutableList<Int> = mutableListOf(0)
