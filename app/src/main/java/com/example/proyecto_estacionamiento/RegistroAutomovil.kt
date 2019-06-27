@@ -270,17 +270,19 @@ class RegistroAutomovil : AppCompatActivity() {
 
             }
             if(entrada == "Salida"){
+
                 registro.setOnClickListener {
 
                     if(salida.visibility == View.VISIBLE){
 
                         makeEnabled(true)
                         salida.visibility = View.GONE
-
-
+                        registro.background = botonAzul
+                        registro.text = "Confirmar"
 
                     }else{
-
+                        registro.text = "Editar"
+                        registro.background = botonVerde
                         makeEnabled(false)
                         val texts = getText()
                         val automovilPantalla = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,texts[6])
@@ -293,6 +295,7 @@ class RegistroAutomovil : AppCompatActivity() {
                 }
 
             }else{
+
                 registro.setOnClickListener {
                     if (registro.background == botonVerde){
                         makeEnabled(true)
@@ -301,10 +304,11 @@ class RegistroAutomovil : AppCompatActivity() {
                     }else{
                         makeEnabled(false)
                         registro.text = "Editar"
+                        registro.background = botonVerde
                         val texts = getText()
                         val automovilPantalla = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,texts[6])
                         update(automovilPantalla,automovil,false,dbHandler)
-                        registro.background = botonVerde
+
 
 
 
@@ -329,6 +333,8 @@ class RegistroAutomovil : AppCompatActivity() {
                     refreshActivity()
                     super.onBackPressed()
                 }else{
+                    registro.text = "Editar"
+                    registro.background = botonVerde
                     makeEnabled(false)
                     salida.visibility = View.VISIBLE
                 }
