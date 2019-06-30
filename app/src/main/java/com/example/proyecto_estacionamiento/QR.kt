@@ -10,16 +10,12 @@ import android.os.Environment
 import android.widget.*
 import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
-import kotlinx.android.synthetic.main.activity_buscar_salidas.*
 import net.glxn.qrgen.android.QRCode
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import com.google.zxing.integration.android.IntentIntegrator
-import com.google.zxing.integration.android.IntentResult
-import kotlinx.android.synthetic.main.activity_qr.*
 
 class QR : AppCompatActivity() {
 
@@ -31,13 +27,14 @@ class QR : AppCompatActivity() {
 //    var arreglo: Estacionamiento?= intent.getParcelableExtra("estacionamiento")
     var todo: String = ""
     val dbHandler = MindOrksDBOpenHelper(this, null)
-
+    lateinit var empezar: Button
     private var tienePermisoParaEscribir = false // Para los permisos en tiempo de ejecución
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qr)
         verificarYPedirPermisos()
+        empezar = findViewById(R.id.btnempezar)
         estacionamiento = intent.getParcelableExtra("estacionamiento")
         etTextoParaCodigo = findViewById(R.id.etTextoParaCodigo) as TextView
 
@@ -45,7 +42,7 @@ class QR : AppCompatActivity() {
 
         val btnGenerar = findViewById(R.id.btnGenerar) as Button
         val btnGuardar = findViewById(R.id.btnGuardar) as Button
-        val btnEmpezar = findViewById(R.id.btnEmpezar) as Button
+        val btnEmpezar = findViewById(R.id.btnempezar) as Button
 
         btnGenerar.setOnClickListener {
             obtenerTextoParaCodigo()
@@ -58,9 +55,13 @@ class QR : AppCompatActivity() {
 
         btnEmpezar.setOnClickListener {
             val scanner = IntentIntegrator(this)
-            scanner.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-            scanner.initiateScan()
+            //scanner.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
+            //scanner.initiateScan()
             val separado = todo.split(".")
+            dbHandler.createTable()
+            val a = Automovil("1","1","1","1","1","1",false,"1")
+            dbHandler.addFields(a,true)
+            intent()
             for(i in 0..separado.size-1){
                 if(i>0){
                     val posicion = separado.get(i)
@@ -71,12 +72,9 @@ class QR : AppCompatActivity() {
                     //val v2 = separado2.get(6)
 
                     //Toast.makeText(this, v2, Toast.LENGTH_SHORT).show()
-                    val automovil = Automovil(separado2.get(0),separado2.get(1),separado2.get(2),separado2.get(3),separado2.get(4),separado2.get(6),false,separado2.get(8))
-                    dbHandler.addFields(automovil,true)
-                    //intent()
+
 
                 }
-
                 //Toast.makeText(this, "gg", Toast.LENGTH_SHORT).show()
 
                 //separado.size
@@ -94,9 +92,6 @@ class QR : AppCompatActivity() {
 
 
             }
-
-
-
 
         }
 
