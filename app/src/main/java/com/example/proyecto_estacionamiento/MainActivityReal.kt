@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.Menu
 import android.widget.SearchView
+import android.widget.TabHost
 import android.widget.Toast
 import kotlinx.android.synthetic.main.content_main_activity_real.*
 
@@ -76,51 +77,6 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         val codigoActual = getFolio()
 
-        /*val codigo0 = "A0000"
-
-        val codigoDeSalida: Int = if(pasado.carros.isNotEmpty()){
-            var temporal: Int = 0
-            for (i in pasado.carros){
-
-                val numeroSuma: Int = i.folio.substring(1).toInt()+i.folio[0].toInt()
-
-                temporal = if( numeroSuma> temporal){
-                    i.folio.substring(1).toInt()
-                }else{
-                    temporal
-                }
-            }
-
-            temporal
-
-        }else{
-            0
-        }*/
-
-        /*val codigoEstacionamiento : Int = if(estacionamiento.carros!= null){
-            var index: Int? = null
-
-            for (i in 1..estacionamiento.carros!!.size){
-                 index = if(estacionamiento.carros!![estacionamiento.carros!!.size-i].folio[0] == ",".single()){
-                    null
-                }else{
-                     i
-                }
-                if(index == i){
-                    break
-                }
-            }
-
-
-            if(index == null){
-                0
-            }else{
-                estacionamiento.carros!![estacionamiento.carros!!.size-index].folio.substring(1).toInt()
-            }
-
-        }else{
-            0
-        }*/
 
         fragmentoSalidas = FragmentoSalidas(pasado)
         fragmentoBusqueda = FragmentoBusqueda(estacionamiento, pasado, dbHandler)
@@ -177,8 +133,10 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         searchView.setOnSearchClickListener {
 
             if(tabs.selectedTabPosition != 1 ){
-                //tabs.setScrollPosition(1,0F,false)
+                tabs.setScrollPosition(1,0F,false)
             }
+            viewPager.currentItem = 1
+
         }
 
         searchView.setOnQueryTextListener(object :SearchView.OnQueryTextListener{
