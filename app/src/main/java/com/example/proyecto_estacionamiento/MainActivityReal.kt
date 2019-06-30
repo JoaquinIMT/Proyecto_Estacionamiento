@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.Menu
 import android.widget.SearchView
+import android.widget.TabHost
 import android.widget.Toast
 import kotlinx.android.synthetic.main.content_main_activity_real.*
 
@@ -82,17 +83,13 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
 
         val adapter = FragmentAdapter(supportFragmentManager)
-        val codigo : String = if(estacionamiento.carros!= null){
 
-            estacionamiento.carros!![estacionamiento.carros!!.size-1].folio
+        val codigoActual = getFolio()
 
-        }else{
-            "A0000"
-        }
 
         fragmentoSalidas = FragmentoSalidas(pasado)
         fragmentoBusqueda = FragmentoBusqueda(estacionamiento, pasado, dbHandler)
-        primerFragmento = PrimerFragmento(estacionamiento.lugares, codigo)
+        primerFragmento = PrimerFragmento(estacionamiento.lugares, codigoActual)
 
         adapter.newFragment(primerFragmento)
         adapter.newFragment(fragmentoBusqueda)
@@ -110,8 +107,11 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
     override fun onBackPressed() {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+
             drawerLayout.closeDrawer(GravityCompat.START)
+
         } else if(fragmentoBusqueda.bye.size > 1){
 
             fragmentoBusqueda.bye = mutableListOf(0)
@@ -119,6 +119,10 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
             ft.detach(fragmentoBusqueda)
             ft.attach(fragmentoBusqueda)
             ft.commit()
+            for(i in 0 until fragmentoBusqueda.adapter.filterList.size-1){
+                fragmentoBusqueda.adapter.filterList[i].checked = false
+            }
+            fragmentoBusqueda.adapter.notifyDataSetChanged()
 
         } else{
             super.onBackPressed()
@@ -138,10 +142,9 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         searchView.setOnSearchClickListener {
 
             if(tabs.selectedTabPosition != 1 ){
-                //tabs.setScrollPosition(1,0F,false)
-
-
+                tabs.setScrollPosition(1,0F,false)
             }
+            viewPager.currentItem = 1
 
         }
 
@@ -206,11 +209,23 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         return true
     }
 
+    fun getFolio(): String {
+        val cursor = dbHandler.getFolio()
+
+        cursor!!.moveToFirst()
+        var folio = ""
+        if(cursor.count > 0){
+            folio = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO))
+        }
+        return folio
+    }
+
     fun getSQLITE(tipo: Boolean): MutableList<Automovil> {
 
         val autmoviles = mutableListOf<Automovil>()
 
         val cursor = dbHandler.getAllName(tipo)
+
         cursor!!.moveToFirst()
 
         if(cursor.count > 0){
