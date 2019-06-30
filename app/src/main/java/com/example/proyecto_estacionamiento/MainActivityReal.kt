@@ -187,7 +187,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 //intentToMainActivityReal()
 
 
-                intentToMainActivityReal()
+                //intentToMainActivityReal()
 
             }
 

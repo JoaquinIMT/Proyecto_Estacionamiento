@@ -30,6 +30,11 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+
+>>>>>>> Develop
+
+
         </activity>
         <activity android:name=".TiempoYPrecio">
         </activity>

@@ -28,8 +28,9 @@ class QR : AppCompatActivity() {
     val ANCHURA_CODIGO = 500
     var etTextoParaCodigo: TextView? = null
     lateinit var estacionamiento: Estacionamiento
-    //var arreglo: Estacionamiento?= intent.getParcelableExtra("estacionamiento")
+//    var arreglo: Estacionamiento?= intent.getParcelableExtra("estacionamiento")
     var todo: String = ""
+    val dbHandler = MindOrksDBOpenHelper(this, null)
 
     private var tienePermisoParaEscribir = false // Para los permisos en tiempo de ejecución
 
@@ -47,7 +48,8 @@ class QR : AppCompatActivity() {
         val btnEmpezar = findViewById(R.id.btnEmpezar) as Button
 
         btnGenerar.setOnClickListener {
-            val texto = obtenerTextoParaCodigo()
+            obtenerTextoParaCodigo()
+            val texto = todo
             if (texto.isEmpty()) return@setOnClickListener
 
             val bitmap = QRCode.from(texto).withSize(ANCHURA_CODIGO, ALTURA_CODIGO).bitmap()
@@ -57,13 +59,49 @@ class QR : AppCompatActivity() {
         btnEmpezar.setOnClickListener {
             val scanner = IntentIntegrator(this)
             scanner.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-            scanner.setBeepEnabled(false)
             scanner.initiateScan()
+            val separado = todo.split(".")
+            for(i in 0..separado.size-1){
+                if(i>0){
+                    val posicion = separado.get(i)
+                    //Toast.makeText(this, posicion, Toast.LENGTH_SHORT).show()
+                    var separado2 = posicion.split(",")
+                    Toast.makeText(this, "0="+separado2.get(0)+"1="+separado2.get(1)+"2="+separado2.get(2)+"3="+separado2.get(3)+"4="+separado2.get(4)+"6="+separado2.get(6)+"7="+false+"8="+separado2.get(8), Toast.LENGTH_SHORT).show()
+
+                    //val v2 = separado2.get(6)
+
+                    //Toast.makeText(this, v2, Toast.LENGTH_SHORT).show()
+                    val automovil = Automovil(separado2.get(0),separado2.get(1),separado2.get(2),separado2.get(3),separado2.get(4),separado2.get(6),false,separado2.get(8))
+                    dbHandler.addFields(automovil,true)
+                    //intent()
+
+                }
+
+                //Toast.makeText(this, "gg", Toast.LENGTH_SHORT).show()
+
+                //separado.size
+
+                /*
+                if(i>0){
+                //Toast.makeText(this, separado.get(i), Toast.LENGTH_SHORT).show()
+                    var separado2 = posicion.split(",")
+                    //Toast.makeText(this, separado2.get(0)+separado2.get(1)+separado2.get(2)+separado2.get(3)+separado2.get(4)+separado2.get(5)+separado2.get(6).toBoolean()+separado2.get(7), Toast.LENGTH_SHORT).show()
+                    val automovil = Automovil(separado2.get(0),separado2.get(1),separado2.get(2),separado2.get(3),separado2.get(4),separado2.get(5),separado2.get(6).toBoolean(),separado2.get(7))
+                    dbHandler.addFields(automovil,true)
+
+                }
+                */
+
+
+            }
+
+
+
 
         }
 
         btnGuardar.setOnClickListener {
-            val texto = obtenerTextoParaCodigo()
+            val texto = todo
             if (texto.isEmpty()) return@setOnClickListener
             if (!tienePermisoParaEscribir) {
                 noTienePermiso()
@@ -86,7 +124,7 @@ class QR : AppCompatActivity() {
 
     }
 
-    private fun obtenerTextoParaCodigo(): String {
+    private fun obtenerTextoParaCodigo() {
         /*
         etTextoParaCodigo?.error = null
         val posibleTexto = etTextoParaCodigo?.text.toString()
@@ -96,10 +134,9 @@ class QR : AppCompatActivity() {
         }*/
         for (i in estacionamiento?.carros!!) {
             todo =
-                todo + "." + i.matricula + "," + i.marca + "," + i.modelo + "," + i.horaEntrada + "," + i.horaSalida + "," + i._id
+                todo + "." + i.matricula + "," + i.marca + "," + i.modelo + "," + i.horaEntrada + "," + i.horaSalida + "," + i.horaSalida+ "," + i.color+ "," + i.tipo + "," + i.folio
         }
         Toast.makeText(this, todo, Toast.LENGTH_SHORT).show()
-        return todo
     }
 
     private fun noTienePermiso() {
@@ -145,12 +182,19 @@ class QR : AppCompatActivity() {
                 } else {
                     Toast.makeText(this, "Scanned: " + result.contents, Toast.LENGTH_LONG).show()
                     etTextoParaCodigo?.text = result.contents
+                    todo= result.contents
 
                 }
             } else {
                 super.onActivityResult(requestCode, resultCode, data)
             }
         }
+    }
+    private fun intent(){
+
+        val intent = Intent(applicationContext,MainActivityReal::class.java)
+        startActivity(intent)
+        finishAffinity()
     }
 
 }
