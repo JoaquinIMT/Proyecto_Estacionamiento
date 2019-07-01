@@ -50,8 +50,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         navView.setNavigationItemSelectedListener(this)
 
-        val lugares = 21
-
+        val lugares = 50
 
         //var estacionamiento: Estacionamiento? =  null
         var pasado: Pasado? =  null
@@ -86,7 +85,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         fragmentoSalidas = FragmentoSalidas(pasado)
         fragmentoBusqueda = FragmentoBusqueda(estacionamiento, pasado, dbHandler)
-        primerFragmento = PrimerFragmento(estacionamiento.lugares, codigoActual)
+        primerFragmento = PrimerFragmento(estacionamiento.lugares,lugares.toFloat(), codigoActual)
 
         adapter.newFragment(primerFragmento)
         adapter.newFragment(fragmentoBusqueda)

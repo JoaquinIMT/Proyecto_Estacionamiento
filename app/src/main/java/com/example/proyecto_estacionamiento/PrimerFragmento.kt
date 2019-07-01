@@ -13,7 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_primer_fragmento.*
 
-class PrimerFragmento(val lugares: Int, val codigo: String) : Fragment() {
+class PrimerFragmento(val lugares: Int, val total: Float, val codigo: String) : Fragment() {
 
     lateinit var entraCarro: Button
     lateinit var espacios: TextView
@@ -32,10 +32,13 @@ class PrimerFragmento(val lugares: Int, val codigo: String) : Fragment() {
         espacios = view.findViewById(R.id.espacios)
 
         espacios.text = lugares.toString()
-        val total = 21.0
-        var quitar: Double = 100/total
+
+        val quitar: Float = 100/total
+
         progressBar = view.findViewById(R.id.progressBar)
+
         progressBar?.progress=(quitar*lugares).toInt()
+
         //espacios.text=(quitar*estacionamiento.lugares).toString()
 
         if (lugares > 0){
