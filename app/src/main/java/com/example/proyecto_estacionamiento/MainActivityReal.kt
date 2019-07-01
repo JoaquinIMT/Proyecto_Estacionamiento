@@ -46,14 +46,11 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         navView.setNavigationItemSelectedListener(this)
 
-
         val lugares = 21
 
         val dataBaseNew: MutableList<Automovil> = getSQLITE(true)
 
         val past = getSQLITE(false) //esta variable nos dice si al sacar las variables del sqlite hay automoviles fuera
-
-
 
         estacionamiento = if(dataBaseNew.size > 0){
             val lugaresDisponibles = lugares - dataBaseNew.size
@@ -133,8 +130,11 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         searchView.setOnSearchClickListener {
 
             if(tabs.selectedTabPosition != 1 ){
+
                 tabs.setScrollPosition(1,0F,false)
+
             }
+
             viewPager.currentItem = 1
 
         }
