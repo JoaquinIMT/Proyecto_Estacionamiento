@@ -182,6 +182,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
             R.id.share -> {
                 val intent:Intent = Intent(applicationContext, QR::class.java)
                 intent.putExtra("estacionamiento",estacionamiento)
+                intent.putExtra("folio",getFolio())
                 startActivity(intent)
                 Toast.makeText(this,"Se borraron las entradas al pasar la información",Toast.LENGTH_SHORT).show()
                 dbHandler.dropTable(true) //Mandamos false para eliminar la tabla de entradas de la base de datos
