@@ -83,6 +83,7 @@ class QR : AppCompatActivity() {
     }
 
     private fun obtenerTextoParaCodigo() {
+        todo += intent.getStringExtra("folio")+"."
         for (i in estacionamiento?.carros!!) {
             val aux= i.matricula + "," + i.marca + "," + i.modelo + "," + i.horaEntrada + "," + i.horaSalida + "," + i.horaSalida+ "," + i.color+ "," + i.tipo + "," + i.folio
             todo = todo+ aux + "."
@@ -135,7 +136,7 @@ class QR : AppCompatActivity() {
                 } else {
                     Toast.makeText(this, "Leido Correctamente" + result.contents, Toast.LENGTH_LONG).show()
                     etTextoParaCodigo?.text = result.contents
-                    todo= result.contents
+                    todo = result.contents
 
 
                 }
@@ -156,15 +157,26 @@ class QR : AppCompatActivity() {
         scanner.initiateScan()
     }
     private  fun meterDatos(){
+
         val separado = todo.split(".")
+
         for (i in 0..separado.size-2) {
+
                 val posicion = separado.get(i)
                 //Toast.makeText(this, posicion, Toast.LENGTH_SHORT).show()
-                var separado2 = posicion.split(",")
+                if(i == 0){
+                    dbHandler.upDateFolio(posicion)
+                } else{
+                    var separado2 = posicion.split(",")
                     Toast.makeText(this, "entre al if", Toast.LENGTH_SHORT).show()
                     val automovil = Automovil(separado2.get(0), separado2.get(1), separado2.get(2), separado2.get(3), separado2.get(4), separado2.get(6), false,separado2.get(8))
                     dbHandler.addFields(automovil, true)
+
+                }
+
+
         }
+
     }
 
 }
