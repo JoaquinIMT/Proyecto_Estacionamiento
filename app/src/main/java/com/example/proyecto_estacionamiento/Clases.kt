@@ -88,6 +88,11 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         onCreateSalida(db)
     }
 
+    fun createTable(){
+        val db = this.writableDatabase
+        onCreate(db)
+    }
+
     fun addFields(automovil: Automovil, tipo: Boolean){
         val db = this.writableDatabase
         val values = ContentValues()

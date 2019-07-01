@@ -38,6 +38,7 @@ class RegistroAutomovil : AppCompatActivity() {
     lateinit var registro : Button //Boton abajo de la pantalla para concluir cambios
     lateinit var hora : Date
     var entradaMili : Long? = null
+    var VehiColor = mutableListOf("Rojo","Azul","Amarillo","verde","Blanco","Negro","Plata","Gris","Beige","Cafe","Rosa","Violeta")
     var marcas = mutableListOf(
                          "Audi","BMW","Chevrolet","Chrysler","Corvette","Dodge","Fiat","Ford","GMC","Honda","Hummer","Hyundai","Isuzu","Jaguar","Jeep","Kia","Land-rover","Mazda","Mercedes-benz","Mini",
                          "Mitsubishi","Nissan","Pontiac","Porsche","Renault","Smart","Suzuki","Toyota","Volkswagen","Volvo"
@@ -90,10 +91,10 @@ class RegistroAutomovil : AppCompatActivity() {
 
         var adapterrMarcas : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,marcas)
         this.marcaAutoCompletar.setAdapter(adapterrMarcas)
-/*
-        var adapterrModelos : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,modelos)
-        this.marcaAutoCompletar.setAdapter(adapterrModelos)
-        */
+
+        var adapterColor : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,VehiColor)
+        this.colorAutocompletar.setAdapter(adapterColor)
+
         modelo = findViewById(R.id.modelo)
         registro = findViewById(R.id.nuevo_registro)
         salida = findViewById(R.id.salida)
