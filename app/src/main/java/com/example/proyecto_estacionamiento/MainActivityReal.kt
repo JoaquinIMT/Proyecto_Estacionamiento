@@ -51,7 +51,9 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         navView.setNavigationItemSelectedListener(this)
 
 
+
         val lugares = 50
+
 
 
         //var estacionamiento: Estacionamiento? =  null
@@ -61,8 +63,6 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
 
         val past = getSQLITE(false) //esta variable nos dice si al sacar las variables del sqlite hay automoviles fuera
-
-
 
         estacionamiento = if(dataBaseNew.size > 0){
             val lugaresDisponibles = lugares - dataBaseNew.size
@@ -89,7 +89,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         fragmentoSalidas = FragmentoSalidas(pasado)
         fragmentoBusqueda = FragmentoBusqueda(estacionamiento, pasado, dbHandler)
-        primerFragmento = PrimerFragmento(estacionamiento.lugares, codigoActual)
+        primerFragmento = PrimerFragmento(estacionamiento.lugares,lugares.toFloat(), codigoActual)
 
         adapter.newFragment(primerFragmento)
         adapter.newFragment(fragmentoBusqueda)
@@ -142,8 +142,11 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         searchView.setOnSearchClickListener {
 
             if(tabs.selectedTabPosition != 1 ){
+
                 tabs.setScrollPosition(1,0F,false)
+
             }
+
             viewPager.currentItem = 1
 
         }
@@ -183,6 +186,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
             R.id.share -> {
                 val intent:Intent = Intent(applicationContext, QR::class.java)
                 intent.putExtra("estacionamiento",estacionamiento)
+                intent.putExtra("folio",getFolio())
                 startActivity(intent)
                 Toast.makeText(this,"Se borraron las entradas al pasar la información",Toast.LENGTH_SHORT).show()
                 dbHandler.dropTable(true) //Mandamos false para eliminar la tabla de entradas de la base de datos
