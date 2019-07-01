@@ -51,7 +51,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         navView.setNavigationItemSelectedListener(this)
 
 
-        val lugares = 21
+        val lugares = 50
 
 
         //var estacionamiento: Estacionamiento? =  null

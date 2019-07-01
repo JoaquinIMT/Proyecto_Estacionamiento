@@ -32,7 +32,7 @@ class PrimerFragmento(val lugares: Int, val codigo: String) : Fragment() {
         espacios = view.findViewById(R.id.espacios)
 
         espacios.text = lugares.toString()
-        val total = 21.0
+        val total = 50.0
         var quitar: Double = 100/total
         progressBar = view.findViewById(R.id.progressBar)
         progressBar?.progress=(quitar*lugares).toInt()
