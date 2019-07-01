@@ -34,76 +34,36 @@ class QR : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qr)
         verificarYPedirPermisos()
-        empezar = findViewById(R.id.btnempezar)
+        empezar = this.findViewById(R.id.btnEmpezar)
         estacionamiento = intent.getParcelableExtra("estacionamiento")
         etTextoParaCodigo = findViewById(R.id.etTextoParaCodigo) as TextView
 
         val imagenCodigo = findViewById(R.id.ivCodigoGenerado) as ImageView
 
-        val btnGenerar = findViewById(R.id.btnGenerar) as Button
-        val btnGuardar = findViewById(R.id.btnGuardar) as Button
-        val btnEmpezar = findViewById(R.id.btnempezar) as Button
+        val btnFinalizar = findViewById(R.id.btnFinalizar) as Button
+        val btnleerQR = findViewById(R.id.btnleerQR) as Button
+        val btnEmpezar = findViewById(R.id.btnEmpezar) as Button
+        dbHandler.createTable()
 
-        btnGenerar.setOnClickListener {
+        btnEmpezar.setOnClickListener{
+            meterDatos()
+            intent()
+        }
+
+        btnFinalizar.setOnClickListener {
             obtenerTextoParaCodigo()
             val texto = todo
             if (texto.isEmpty()) return@setOnClickListener
-
             val bitmap = QRCode.from(texto).withSize(ANCHURA_CODIGO, ALTURA_CODIGO).bitmap()
             imagenCodigo.setImageBitmap(bitmap)
-        }
-
-        btnEmpezar.setOnClickListener {
-            val scanner = IntentIntegrator(this)
-            //scanner.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-            //scanner.initiateScan()
-            val separado = todo.split(".")
-            dbHandler.createTable()
-            val a = Automovil("1","1","1","1","1","1",false,"1")
-            dbHandler.addFields(a,true)
-            intent()
-            for(i in 0..separado.size-1){
-                if(i>0){
-                    val posicion = separado.get(i)
-                    //Toast.makeText(this, posicion, Toast.LENGTH_SHORT).show()
-                    var separado2 = posicion.split(",")
-                    Toast.makeText(this, "0="+separado2.get(0)+"1="+separado2.get(1)+"2="+separado2.get(2)+"3="+separado2.get(3)+"4="+separado2.get(4)+"6="+separado2.get(6)+"7="+false+"8="+separado2.get(8), Toast.LENGTH_SHORT).show()
-
-                    //val v2 = separado2.get(6)
-
-                    //Toast.makeText(this, v2, Toast.LENGTH_SHORT).show()
-
-
-                }
-                //Toast.makeText(this, "gg", Toast.LENGTH_SHORT).show()
-
-                //separado.size
-
-                /*
-                if(i>0){
-                //Toast.makeText(this, separado.get(i), Toast.LENGTH_SHORT).show()
-                    var separado2 = posicion.split(",")
-                    //Toast.makeText(this, separado2.get(0)+separado2.get(1)+separado2.get(2)+separado2.get(3)+separado2.get(4)+separado2.get(5)+separado2.get(6).toBoolean()+separado2.get(7), Toast.LENGTH_SHORT).show()
-                    val automovil = Automovil(separado2.get(0),separado2.get(1),separado2.get(2),separado2.get(3),separado2.get(4),separado2.get(5),separado2.get(6).toBoolean(),separado2.get(7))
-                    dbHandler.addFields(automovil,true)
-
-                }
-                */
-
-
-            }
-
-        }
-
-        btnGuardar.setOnClickListener {
-            val texto = todo
-            if (texto.isEmpty()) return@setOnClickListener
+            val texto2 = todo
+            if (texto2.isEmpty()) return@setOnClickListener
             if (!tienePermisoParaEscribir) {
                 noTienePermiso()
                 return@setOnClickListener
             }
             // Crear stream del código QR
-            val byteArrayOutputStream = QRCode.from(texto).withSize(ANCHURA_CODIGO, ALTURA_CODIGO).stream()
+            val byteArrayOutputStream = QRCode.from(texto2).withSize(ANCHURA_CODIGO, ALTURA_CODIGO).stream()
             // E intentar guardar
             val fos: FileOutputStream
             try {
@@ -117,21 +77,18 @@ class QR : AppCompatActivity() {
             }
         }
 
+        btnleerQR.setOnClickListener {
+            camara()
+        }
     }
 
     private fun obtenerTextoParaCodigo() {
-        /*
-        etTextoParaCodigo?.error = null
-        val posibleTexto = etTextoParaCodigo?.text.toString()
-        if (posibleTexto.isEmpty()) {
-            etTextoParaCodigo?.error = "Escribe el texto del código QR"
-            etTextoParaCodigo?.requestFocus()
-        }*/
         for (i in estacionamiento?.carros!!) {
-            todo =
-                todo + "." + i.matricula + "," + i.marca + "," + i.modelo + "," + i.horaEntrada + "," + i.horaSalida + "," + i.horaSalida+ "," + i.color+ "," + i.tipo + "," + i.folio
+            val aux= i.matricula + "," + i.marca + "," + i.modelo + "," + i.horaEntrada + "," + i.horaSalida + "," + i.horaSalida+ "," + i.color+ "," + i.tipo + "," + i.folio
+            todo = todo+ aux + "."
+
         }
-        Toast.makeText(this, todo, Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this, todo, Toast.LENGTH_SHORT).show()
     }
 
     private fun noTienePermiso() {
@@ -175,9 +132,10 @@ class QR : AppCompatActivity() {
                 if (result.contents == null) {
                     Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show()
                 } else {
-                    Toast.makeText(this, "Scanned: " + result.contents, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Leido Correctamente" + result.contents, Toast.LENGTH_LONG).show()
                     etTextoParaCodigo?.text = result.contents
                     todo= result.contents
+
 
                 }
             } else {
@@ -190,6 +148,22 @@ class QR : AppCompatActivity() {
         val intent = Intent(applicationContext,MainActivityReal::class.java)
         startActivity(intent)
         finishAffinity()
+    }
+    private fun camara(){
+        val scanner = IntentIntegrator(this)
+        scanner.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
+        scanner.initiateScan()
+    }
+    private  fun meterDatos(){
+        val separado = todo.split(".")
+        for (i in 0..separado.size-2) {
+                val posicion = separado.get(i)
+                //Toast.makeText(this, posicion, Toast.LENGTH_SHORT).show()
+                var separado2 = posicion.split(",")
+                    Toast.makeText(this, "entre al if", Toast.LENGTH_SHORT).show()
+                    val automovil = Automovil(separado2.get(0), separado2.get(1), separado2.get(2), separado2.get(3), separado2.get(4), separado2.get(6), false,separado2.get(8))
+                    dbHandler.addFields(automovil, true)
+        }
     }
 
 }
