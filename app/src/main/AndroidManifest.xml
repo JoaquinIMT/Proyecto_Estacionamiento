@@ -20,20 +20,17 @@
         <activity android:name=".QR">
         </activity>
         <activity android:name=".PruebaDesechable">
-        </activity>
-        <activity
-                android:name=".MainActivityReal"
-                android:label="Estacionamiento"
-                android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
-
->>>>>>> Develop
-
+        </activity>
+        <activity
+                android:name=".MainActivityReal"
+                android:label="Estacionamiento"
+                android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
         <activity android:name=".TiempoYPrecio">

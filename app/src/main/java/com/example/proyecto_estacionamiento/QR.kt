@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
+import android.view.View
 import android.widget.*
 import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
@@ -24,31 +25,27 @@ class QR : AppCompatActivity() {
     val ANCHURA_CODIGO = 500
     var etTextoParaCodigo: TextView? = null
     lateinit var estacionamiento: Estacionamiento
-//    var arreglo: Estacionamiento?= intent.getParcelableExtra("estacionamiento")
+    lateinit var checkButton: ImageButton
+    lateinit var btnFinalizar: Button
+    lateinit var btnleerQR: Button
+    lateinit var imagenCodigo: ImageView
+    //    var arreglo: Estacionamiento?= intent.getParcelableExtra("estacionamiento")
     var todo: String = ""
     val dbHandler = MindOrksDBOpenHelper(this, null)
-    lateinit var empezar: Button
     private var tienePermisoParaEscribir = false // Para los permisos en tiempo de ejecución
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qr)
         verificarYPedirPermisos()
-        empezar = this.findViewById(R.id.btnEmpezar)
+
+        imagenCodigo = findViewById(R.id.ivCodigoGenerado)
+        btnFinalizar = findViewById(R.id.btnFinalizar)
+        btnleerQR = findViewById(R.id.btnleerQR)
+        checkButton = findViewById(R.id.checkedbtn)
+
         estacionamiento = intent.getParcelableExtra("estacionamiento")
-        etTextoParaCodigo = findViewById(R.id.etTextoParaCodigo) as TextView
 
-        val imagenCodigo = findViewById(R.id.ivCodigoGenerado) as ImageView
-
-        val btnFinalizar = findViewById(R.id.btnFinalizar) as Button
-        val btnleerQR = findViewById(R.id.btnleerQR) as Button
-        val btnEmpezar = findViewById(R.id.btnEmpezar) as Button
-        dbHandler.createTable()
-
-        btnEmpezar.setOnClickListener{
-            meterDatos()
-            intent()
-        }
 
         btnFinalizar.setOnClickListener {
             obtenerTextoParaCodigo()
@@ -70,21 +67,50 @@ class QR : AppCompatActivity() {
                 fos = FileOutputStream(Environment.getExternalStorageDirectory().toString() + "/codigo.png")
                 byteArrayOutputStream.writeTo(fos)
                 Toast.makeText(this@QR, "Código guardado", Toast.LENGTH_SHORT).show()
+
+                btnFinalizar.visibility = View.GONE
+                btnleerQR.visibility = View.GONE
+                imagenCodigo.visibility = View.VISIBLE
+                checkButton.visibility = View.VISIBLE
+
+
+
             } catch (e: FileNotFoundException) {
                 e.printStackTrace()
             } catch (e: IOException) {
                 e.printStackTrace()
             }
+
+
         }
 
         btnleerQR.setOnClickListener {
             camara()
+        }
+
+        checkButton.setOnClickListener {
+            dbHandler.dropTable(true)
+            intent()
+        }
+
+    }
+
+    override fun onBackPressed() {
+        if(checkButton.visibility == View.VISIBLE){
+
+            btnFinalizar.visibility = View.VISIBLE
+            btnleerQR.visibility = View.VISIBLE
+            imagenCodigo.visibility = View.GONE
+            checkButton.visibility = View.GONE
+        }else{
+            super.onBackPressed()
         }
     }
 
     private fun obtenerTextoParaCodigo() {
         todo += intent.getStringExtra("folio")+"."
         for (i in estacionamiento?.carros!!) {
+
             val aux= i.matricula + "," + i.marca + "," + i.modelo + "," + i.horaEntrada + "," + i.horaSalida + "," + i.horaSalida+ "," + i.color+ "," + i.tipo + "," + i.folio
             todo = todo+ aux + "."
 
@@ -137,25 +163,30 @@ class QR : AppCompatActivity() {
                     Toast.makeText(this, "Leido Correctamente" + result.contents, Toast.LENGTH_LONG).show()
                     etTextoParaCodigo?.text = result.contents
                     todo = result.contents
-
-
+                    dbHandler.dropTable(true)
+                    dbHandler.createTable()
+                    meterDatos()
+                    intent()
                 }
             } else {
                 super.onActivityResult(requestCode, resultCode, data)
             }
         }
     }
+
     private fun intent(){
 
         val intent = Intent(applicationContext,MainActivityReal::class.java)
         startActivity(intent)
         finishAffinity()
     }
+
     private fun camara(){
         val scanner = IntentIntegrator(this)
         scanner.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
         scanner.initiateScan()
     }
+
     private  fun meterDatos(){
 
         val separado = todo.split(".")

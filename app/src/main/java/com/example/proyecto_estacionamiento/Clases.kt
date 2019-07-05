@@ -81,6 +81,18 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
 
     }
 
+    fun onCreateType(db: SQLiteDatabase){
+        val CREATE_PRODCTS_TABLE_TYPE = ("CREATE TABLE " +
+                TABLE_TYPE +
+                "(" + COLUMN_ID + " INTEGER PRIMARY KEY,"
+                + COLUMN_TIPO + " INTEGER" +")")
+        db.execSQL(CREATE_PRODCTS_TABLE_TYPE)
+        val values = ContentValues()
+        values.put(COLUMN_TIPO,0)
+        db.insert(TABLE_TYPE,null,values)
+
+    }
+
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ESTACIONAMIENTO)
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SALIDA)
@@ -150,7 +162,29 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
 
     }
 
+    fun upDateType(type: Int){
+
+        val db = this.writableDatabase
+
+        val values = ContentValues()
+
+        val cursor: Cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"
+                + TABLE_TYPE + "'", null)
+
+        if(cursor.count <= 0){
+            onCreateType(db)
+        }
+
+        cursor.close()
+
+        values.put(COLUMN_TIPO,type)
+
+        db.update(TABLE_TYPE,values,null,null)
+
+    }
+
     fun dropTable(tipo: Boolean){
+
         val db = this.writableDatabase
 
         if(tipo){
@@ -158,6 +192,25 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         } else db.execSQL("DROP TABLE IF EXISTS $TABLE_SALIDA")
 
         db.close()
+
+    }
+
+    fun getType(): Cursor?{
+        val db = this.readableDatabase
+
+        val cursor: Cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"
+                + TABLE_TYPE + "'", null)
+
+        if(cursor.count <= 0){
+            onCreateType(db)
+        }
+
+        cursor.close()
+
+        val rawQuery = db.rawQuery("SELECT * FROM $TABLE_TYPE", null)
+
+        return  rawQuery
+
     }
 
     fun getFolio(): Cursor?{
@@ -210,6 +263,7 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         const val TABLE_ESTACIONAMIENTO = "estacionamiento_completo"
         const val TABLE_SALIDA = "salida_completa"
         const val TABLE_FOLIO = "folio_mayor"
+        const val TABLE_TYPE = "tipo_estacionamiento"
         const val COLUMN_ID = "_id"
         const val COLUMN_MATRICULA = "matricula"
         const val COLUMN_MARCA = "marca"
@@ -236,3 +290,6 @@ class Automovil(var matricula: String, var marca: String, var modelo:String,
                 var tipo: Boolean,var folio : String, var checked: Boolean = false): Parcelable
 
 
+class DatosIniciales(val parkingName: String, val workerName: String,
+                     val typeOfParking: Int, val parkingFee: List<Float>,
+                     val slotsNumber: Int)

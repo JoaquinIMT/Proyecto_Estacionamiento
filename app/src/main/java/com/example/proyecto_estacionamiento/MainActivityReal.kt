@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.os.Bundle
+import android.telecom.Call
 import androidx.core.view.GravityCompat
 import androidx.appcompat.app.ActionBarDrawerToggle
 import android.view.MenuItem
@@ -16,7 +17,13 @@ import android.view.Menu
 import android.widget.SearchView
 import android.widget.TabHost
 import android.widget.Toast
+import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.content_main_activity_real.*
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import java.io.IOException
 
 class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -26,11 +33,88 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
     lateinit var fragmentoBusqueda: FragmentoBusqueda
     lateinit var primerFragmento: PrimerFragmento
     lateinit var estacionamiento: Estacionamiento
+    lateinit var datos: DatosIniciales
 
 
 
     lateinit var pasado: Pasado
 
+    fun fetchJson(type: Int = 0) {
+
+        if(type == 0){
+            val body = intent.getStringExtra("json")
+
+            val gson = GsonBuilder().create()
+
+            datos = gson.fromJson(body, DatosIniciales::class.java)
+
+        }else{
+
+            val url = ""
+
+            val request = Request.Builder().url(url).build()
+
+            val client = OkHttpClient()
+
+            client.newCall(request).enqueue(object : Callback{
+
+                override fun onResponse(call: okhttp3.Call, response: Response) {
+
+                    val body = response.body?.string()
+
+                    val gson = GsonBuilder().create()
+
+                    datos = gson.fromJson(body, DatosIniciales::class.java)
+
+                }
+
+                override fun onFailure(call: okhttp3.Call, e: IOException) {
+                    println("Failure")
+                }
+
+            })
+
+        }
+
+    }
+    /*
+    fun fetchJson(lat: Float, lng : Float){
+        val urlAPI = "http://www.mocky.io/v2/5bf3ce193100008900619966"
+
+        val request = Request.Builder().url(urlAPI).build()
+
+        val client = OkHttpClient()
+
+        client.newCall(request).enqueue(object: Callback{
+
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body?.string()
+                println(body)
+
+                val gson = GsonBuilder().create()
+
+                val datos: Array<Place> = gson.fromJson(body, Array<Place>::class.java)
+
+                var j = 0
+                for(i in places){
+                    i.Distance = distFrom(lat, lng, i.Latitude, i.Longitude)
+                    places[j] = i
+                    j += 1
+                }
+                places.sortWith(compareBy({ it.Distance }))
+                runOnUiThread {
+                    reciclerView.adapter = PlacesAdapter(places, lat, lng)
+
+                }
+
+            }
+            override fun onFailure(call: Call, e: IOException) {
+                println("Failure")
+                toast("Fail")
+            }
+        })
+
+    }*/
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +134,12 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         navView.setNavigationItemSelectedListener(this)
 
-        val lugares = 50
+        fetchJson()
+
+        val lugares = datos.slotsNumber
+
+        dbHandler.upDateType(datos.typeOfParking)
+
 
         //var estacionamiento: Estacionamiento? =  null
         var pasado: Pasado? =  null
@@ -184,9 +273,9 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 intent.putExtra("estacionamiento",estacionamiento)
                 intent.putExtra("folio",getFolio())
                 startActivity(intent)
-                Toast.makeText(this,"Se borraron las entradas al pasar la información",Toast.LENGTH_SHORT).show()
+                /*Toast.makeText(this,"Se borraron las entradas al pasar la información",Toast.LENGTH_SHORT).show()
                 dbHandler.dropTable(true) //Mandamos false para eliminar la tabla de entradas de la base de datos
-
+*/
                 //intentToMainActivityReal()
 
 

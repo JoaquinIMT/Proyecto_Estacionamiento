@@ -17,23 +17,9 @@
             android:layout_marginRight="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/etTextoParaCodigo"/>
-
-    <EditText
-            android:id="@+id/etTextoParaCodigo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:ems="10"
-            android:hint="Escribe aquí..."
-            android:inputType="textPersonName"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginTop="8dp"
+            app:layout_constraintTop_toTopOf="parent" android:visibility="visible"/>
 
     <Button
             android:id="@+id/btnFinalizar"
@@ -41,35 +27,41 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="330dp"
             android:text="Finalizar Turno"
-            app:layout_constraintEnd_toStartOf="@+id/btnleerQR"
-            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etTextoParaCodigo"
-            android:background="@drawable/bg_boton_redondo_azul"/>
+            android:background="@drawable/bg_boton_redondo_verde"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:textColor="?attr/colorBackgroundFloating"
+            app:layout_constraintHorizontal_bias="0.502"
+            android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintVertical_bias="0.6"/>
 
     <Button
             android:id="@+id/btnleerQR"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="330dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:text="Leer Codigo"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/btnFinalizar"
-            app:layout_constraintTop_toBottomOf="@+id/etTextoParaCodigo"
-            android:background="@drawable/bg_boton_redondo_rojo"/>
-    <Button
             android:text="Empezar turno"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnEmpezar" android:layout_marginTop="150dp"
-            app:layout_constraintTop_toBottomOf="@+id/ivCodigoGenerado" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@drawable/bg_boton_redondo_azul"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:textColor="?attr/colorBackgroundFloating"
+            app:layout_constraintHorizontal_bias="0.502" android:layout_marginTop="8dp"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.4"/>
+    <ImageButton
+            android:layout_width="41dp"
+            android:layout_height="41dp" app:srcCompat="@drawable/ic_check_blanco"
+            android:id="@+id/checkedbtn"
+            android:background="@drawable/bg_boton_redondo_verde" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp" android:background="@drawable/bg_boton_redondo_verde"/>
+            android:layout_marginStart="8dp" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/ivCodigoGenerado" android:visibility="gone"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
