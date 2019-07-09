@@ -3,7 +3,6 @@ package com.example.proyecto_estacionamiento
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
-import android.database.Cursor
 import android.os.Bundle
 import androidx.core.view.GravityCompat
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -14,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.Menu
 import android.widget.SearchView
-import android.widget.TabHost
 import android.widget.Toast
 import kotlinx.android.synthetic.main.content_main_activity_real.*
 
@@ -26,12 +24,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
     lateinit var fragmentoBusqueda: FragmentoBusqueda
     lateinit var primerFragmento: PrimerFragmento
     lateinit var estacionamiento: Estacionamiento
-
-
-
-    lateinit var pasado: Pasado
-
-
+    lateinit var datos: DatosIniciales
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,15 +35,24 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
+
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
+
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
         navView.setNavigationItemSelectedListener(this)
 
-        val lugares = 50
+        datos = getDatosIniciales()
+
+        /*
+        drawerLayout.nombre_trabajador.text = datos.workerName
+        drawerLayout.nombre_estacionamiento.text = datos.parkingName
+*/
+        val lugares: Int = datos.slotsNumber
+
 
         //var estacionamiento: Estacionamiento? =  null
         var pasado: Pasado? =  null
@@ -83,8 +85,8 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val codigoActual = getFolio()
 
 
-        fragmentoSalidas = FragmentoSalidas(pasado)
-        fragmentoBusqueda = FragmentoBusqueda(estacionamiento, pasado, dbHandler)
+        fragmentoSalidas = FragmentoSalidas(pasado,datos.typeOfParking)
+        fragmentoBusqueda = FragmentoBusqueda(estacionamiento, pasado, dbHandler,datos.typeOfParking)
         primerFragmento = PrimerFragmento(estacionamiento.lugares,lugares.toFloat(), codigoActual)
 
         adapter.newFragment(primerFragmento)
@@ -110,7 +112,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         } else if(fragmentoBusqueda.bye.size > 1){
 
-            fragmentoBusqueda.bye = mutableListOf(0)
+            fragmentoBusqueda.bye = mutableListOf()
             val ft = supportFragmentManager.beginTransaction()
             ft.detach(fragmentoBusqueda)
             ft.attach(fragmentoBusqueda)
@@ -183,10 +185,11 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 val intent:Intent = Intent(applicationContext, QR::class.java)
                 intent.putExtra("estacionamiento",estacionamiento)
                 intent.putExtra("folio",getFolio())
+                intent.putExtra("type",datos)
                 startActivity(intent)
-                Toast.makeText(this,"Se borraron las entradas al pasar la información",Toast.LENGTH_SHORT).show()
+                /*Toast.makeText(this,"Se borraron las entradas al pasar la información",Toast.LENGTH_SHORT).show()
                 dbHandler.dropTable(true) //Mandamos false para eliminar la tabla de entradas de la base de datos
-
+*/
                 //intentToMainActivityReal()
 
 
@@ -209,6 +212,23 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         return true
     }
 
+    fun getDatosIniciales(): DatosIniciales{
+
+        val cursor = dbHandler.getType()
+
+        cursor!!.moveToFirst()
+
+        //datos.parkingFee = listOf(cursor_fee.getFloat(cursor_fee.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO)),cursor_fee.getFloat(cursor_fee.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO)))
+
+        val parkingName = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_PARKING_NAME))
+        val slotsNumber = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_SLOTS_NUMBER))
+        val workerName = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_WORKER_NAME))
+        val typeOfParking = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO))
+
+        cursor.close()
+        return DatosIniciales(parkingName,workerName,typeOfParking, listOf(0f),slotsNumber)
+    }
+
     fun getFolio(): String {
         val cursor = dbHandler.getFolio()
 
@@ -217,6 +237,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         if(cursor.count > 0){
             folio = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO))
         }
+        cursor.close()
         return folio
     }
 

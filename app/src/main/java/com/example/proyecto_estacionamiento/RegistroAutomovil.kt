@@ -29,6 +29,7 @@ class RegistroAutomovil : AppCompatActivity() {
     lateinit var folio: TextView
     lateinit var tipo: TextView
     lateinit var salida: Button
+    val dbHandler = MindOrksDBOpenHelper(this, null)
 
 
     var todosModelos : String = ""
@@ -105,6 +106,16 @@ class RegistroAutomovil : AppCompatActivity() {
 
         val entrada = intent.getStringExtra("estado")
 
+        val condicion : Int = getType()
+
+
+
+        if(condicion != 0){
+
+            makeInvisible(condicion)
+
+        }
+
         val dbHandler = MindOrksDBOpenHelper(this, null)
 
 
@@ -119,7 +130,7 @@ class RegistroAutomovil : AppCompatActivity() {
             var letra = folioRecibido[0]
             var nuevoNumero: Int = numeroDeFolioRecibido.toInt()+1
 
-            if(nuevoNumero > 3){
+            if(nuevoNumero > 9999){
                 if(letra == "Z".single()){
                     letra = "A".single()
                 }else{
@@ -135,7 +146,9 @@ class RegistroAutomovil : AppCompatActivity() {
                 1 -> letra+"000"+nuevoNumero.toString()
                 2 -> letra+"00"+nuevoNumero.toString()
                 3 -> letra+"0"+nuevoNumero.toString()
+                4 -> letra+nuevoNumero.toString()
                 else -> "Error"
+
             }
 
             folio.text = folioInsertar
@@ -167,7 +180,7 @@ class RegistroAutomovil : AppCompatActivity() {
                 //Toast.makeText(this, mat + "Added to database", Toast.LENGTH_LONG).show()
 
 
-                if (texts[0].equals("") || texts[1].equals("") || texts[2].equals("")) {
+                if ( (matricula.visibility ==  View.VISIBLE && texts[0].equals("") ) || (modelo.visibility == View.VISIBLE && texts[1].equals("") ) || (marca.visibility == View.VISIBLE && texts[2].equals("")) ) {
 
 
                     Toast.makeText(this@RegistroAutomovil, "Faltan Campos por completar", Toast.LENGTH_SHORT).show()
@@ -488,5 +501,29 @@ class RegistroAutomovil : AppCompatActivity() {
 
     }
 
+    fun makeInvisible(estado: Int){
+        if(estado == 2){
+            matricula.visibility = View.GONE
+        }
+        marca.visibility = View.GONE
+        modelo.visibility = View.GONE
+        color.visibility = View.GONE
+
+    }
+
+    fun getType(): Int{
+        val cursor = dbHandler.getType()
+
+        cursor!!.moveToFirst()
+
+        var type: Int = 0
+
+        if(cursor.count > 0){
+
+            type = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO))
+
+        }
+        return type
+    }
 
 }

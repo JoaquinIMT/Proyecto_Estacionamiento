@@ -81,6 +81,18 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
 
     }
 
+    fun onCreateType(db: SQLiteDatabase){
+        val CREATE_PRODCTS_TABLE_TYPE = ("CREATE TABLE " +
+                TABLE_TYPE +
+                "(" + COLUMN_ID + " INTEGER PRIMARY KEY,"
+                + COLUMN_TIPO + " INTEGER,"
+                + COLUMN_PARKING_NAME + " TEXT,"
+                + COLUMN_WORKER_NAME + " TEXT,"
+                + COLUMN_SLOTS_NUMBER+ " INTEGER"+")")
+        db.execSQL(CREATE_PRODCTS_TABLE_TYPE)
+
+    }
+
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ESTACIONAMIENTO)
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SALIDA)
@@ -113,26 +125,21 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         db.close()
     }
 
-    fun dropElement(automovil: Automovil){
-        val db = this.writableDatabase
-
-        db.execSQL("DELETE FROM $TABLE_ESTACIONAMIENTO WHERE $COLUMN_MATRICULA='${automovil.matricula}' AND $COLUMN_MODELO='${automovil.modelo}'")
-    }
 
     fun modify(automovilNuevo: Automovil,automovilAntiguo: Automovil,tipo: Boolean){
         val db = this.writableDatabase
         if(tipo){
-            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MODELO='${automovilNuevo.modelo}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
-            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MARCA='${automovilNuevo.marca}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
-            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_COLOR='${automovilNuevo.color}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
-            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_TIPO='${automovilNuevo.tipo}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
-            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MATRICULA='${automovilNuevo.matricula}' WHERE $COLUMN_HORAE='${automovilAntiguo.horaEntrada}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")        //db.update(TABLE_ESTACIONAMIENTO,values, COLUMN_ID+"="+index.toString(),null)
+            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MODELO='${automovilNuevo.modelo}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
+            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MARCA='${automovilNuevo.marca}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
+            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_COLOR='${automovilNuevo.color}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
+            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_TIPO='${automovilNuevo.tipo}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
+            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MATRICULA='${automovilNuevo.matricula}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")        //db.update(TABLE_ESTACIONAMIENTO,values, COLUMN_ID+"="+index.toString(),null)
         }else{
-            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MODELO='${automovilNuevo.modelo}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
-            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MARCA='${automovilNuevo.marca}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
-            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_COLOR='${automovilNuevo.color}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
-            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_TIPO='${automovilNuevo.tipo}' WHERE $COLUMN_MATRICULA='${automovilAntiguo.matricula}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")
-            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MATRICULA='${automovilNuevo.matricula}' WHERE $COLUMN_HORAE='${automovilAntiguo.horaEntrada}' AND $COLUMN_HORAE='${automovilAntiguo.horaEntrada}'")        //db.update(TABLE_ESTACIONAMIENTO,values, COLUMN_ID+"="+index.toString(),null)
+            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MODELO='${automovilNuevo.modelo}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
+            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MARCA='${automovilNuevo.marca}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
+            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_COLOR='${automovilNuevo.color}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
+            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_TIPO='${automovilNuevo.tipo}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
+            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MATRICULA='${automovilNuevo.matricula}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")        //db.update(TABLE_ESTACIONAMIENTO,values, COLUMN_ID+"="+index.toString(),null)
         }
 
         db.close()
@@ -150,7 +157,49 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
 
     }
 
+    fun newType(datosIniciales: DatosIniciales){
+
+        val db = this.writableDatabase
+
+        val values = ContentValues()
+
+        val cursor: Cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"
+                + TABLE_TYPE + "'", null)
+
+        if(cursor.count <= 0){
+            onCreateType(db)
+        }else{
+            db.execSQL("delete from "+ TABLE_TYPE)
+        }
+
+        cursor.close()
+        values.put(COLUMN_SLOTS_NUMBER, datosIniciales.slotsNumber)
+        values.put(COLUMN_TIPO,datosIniciales.typeOfParking)
+        values.put(COLUMN_PARKING_NAME, datosIniciales.parkingName)
+        values.put(COLUMN_WORKER_NAME, datosIniciales.workerName)
+
+        db.insert(TABLE_TYPE,null,values)
+
+    }
+
+    fun dropElement(automovil: Automovil){
+        val db = this.writableDatabase
+
+        db.execSQL("DELETE FROM $TABLE_ESTACIONAMIENTO WHERE $COLUMN_FOLIO='${automovil.folio}'")
+    }
+
+    fun dropTableType(){
+
+        val db = this.writableDatabase
+
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_TYPE")
+
+        db.close()
+
+    }
+
     fun dropTable(tipo: Boolean){
+
         val db = this.writableDatabase
 
         if(tipo){
@@ -158,6 +207,25 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         } else db.execSQL("DROP TABLE IF EXISTS $TABLE_SALIDA")
 
         db.close()
+
+    }
+
+    fun getType(): Cursor?{
+        val db = this.readableDatabase
+
+        val cursor: Cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"
+                + TABLE_TYPE + "'", null)
+
+        if(cursor.count <= 0){
+            onCreateType(db)
+        }
+
+        cursor.close()
+
+        val rawQuery = db.rawQuery("SELECT * FROM $TABLE_TYPE", null)
+
+        return  rawQuery
+
     }
 
     fun getFolio(): Cursor?{
@@ -210,6 +278,7 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         const val TABLE_ESTACIONAMIENTO = "estacionamiento_completo"
         const val TABLE_SALIDA = "salida_completa"
         const val TABLE_FOLIO = "folio_mayor"
+        const val TABLE_TYPE = "tipo_estacionamiento"
         const val COLUMN_ID = "_id"
         const val COLUMN_MATRICULA = "matricula"
         const val COLUMN_MARCA = "marca"
@@ -219,6 +288,13 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         const val COLUMN_COLOR = "color"
         const val COLUMN_FOLIO = "folio"
         const val COLUMN_TIPO = "tipo"
+        const val COLUMN_PARKING_NAME = "parking_name"
+        const val COLUMN_WORKER_NAME = "worker_name"
+        const val COLUMN_SLOTS_NUMBER = "slots_number"
+        const val COLUMN_FEE_HOUR = "fee_hour"
+        const val COLUMN_FEE_PAST = "fee_past"
+        const val COLUMN_FEE_DAY = "fee_day"
+        const val COLUMN_FEE_MONTH = "fee_month"
     }
 }
 
@@ -235,4 +311,7 @@ class Automovil(var matricula: String, var marca: String, var modelo:String,
                 var horaEntrada:String, var horaSalida:String,var color: String,
                 var tipo: Boolean,var folio : String, var checked: Boolean = false): Parcelable
 
-
+@Parcelize
+class DatosIniciales(var parkingName: String, var workerName: String,
+                     var typeOfParking: Int, var parkingFee: List<Float>,
+                     var slotsNumber: Int): Parcelable

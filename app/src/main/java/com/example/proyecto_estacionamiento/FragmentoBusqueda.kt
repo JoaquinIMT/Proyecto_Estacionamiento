@@ -18,10 +18,10 @@ import java.util.*
 
 
 class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado,
-                        val dbHandler: MindOrksDBOpenHelper) : Fragment(), CustomViewHolder.interfazLoca {
+                        val dbHandler: MindOrksDBOpenHelper, val type: Int) : Fragment(), CustomViewHolder.interfazLoca {
 
     var carros = estacionamiento.carros
-    var bye : MutableList<Int> = mutableListOf(0)
+    var bye : MutableList<Automovil> = mutableListOf()
     lateinit var salirCarro :Button
     lateinit var reciclerView: RecyclerView
     lateinit var adapter: MainAdapter
@@ -44,24 +44,20 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
         reciclerView = view.findViewById(R.id.recyclerview_carros)
         reciclerView.layoutManager = LinearLayoutManager(context?.applicationContext)
 
-        adapter = MainAdapter(estacionamiento,this, pasado)
+
+        adapter = MainAdapter(estacionamiento,this, pasado, type)
 
         reciclerView.adapter = adapter
 
         salirCarro.setOnClickListener {
 
-            if (bye.size > 1){
-
-                bye.removeAt(0)
+            if (bye.size > 0){
                 //implement Dialog text
 
-                val help = mutableListOf<Automovil>()
+                val help = bye
 
                 val horaSalida = getHoraActual("HH:mm")
 
-                for(i in bye){
-                    help.add(carros!![i])
-                }
                 for(i in help){
                     exitParking(i,horaSalida)
                 }
@@ -85,35 +81,25 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
 
 
 
-    override fun onCheckedBox(pos: Int, state:Boolean) {
+    override fun onCheckedBox(automovil: Automovil, state:Boolean) {
         if(state){
-            addToBye(pos)
+            addToBye(automovil)
         }else{
-            removeFromBye(pos)
+            removeFromBye(automovil)
         }
     }
 
-    private fun addToBye(index: Int) {
-        bye.add(index)
+    private fun addToBye(item: Automovil) {
+        bye.add(item)
     }
 
-    private fun removeFromBye(index: Int){
-        if(index==0){
-            bye.removeAt(0)
-
-        }else{
-            bye.remove(index)
-        }
+    private fun removeFromBye(item: Automovil){
+            bye.remove(item)
     }
 
     fun exitParking(index: Automovil?, horaSalida: String){
 
-        estacionamiento.carros?.remove(index)
         index?.horaSalida = horaSalida
-        //estacionamiento.carros?.set(index!!,automovil)
-        estacionamiento.lugares += 1
-
-        pasado.carros?.add(index!!)
 
         dbHandler.dropElement(index!!) //retiramos el automovil de entradas
 

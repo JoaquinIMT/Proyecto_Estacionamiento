@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 
-class FragmentoSalidas(val pasado : Pasado) : Fragment() {
+class FragmentoSalidas(val pasado : Pasado,val type: Int) : Fragment() {
 
     lateinit var reciclerView: RecyclerView
 
@@ -28,7 +28,7 @@ class FragmentoSalidas(val pasado : Pasado) : Fragment() {
 
         reciclerView.layoutManager = LinearLayoutManager(context?.applicationContext)
 
-        reciclerView.adapter = MainAdapter2(pasado)
+        reciclerView.adapter = MainAdapter2(pasado, type)
 
 
         return view
