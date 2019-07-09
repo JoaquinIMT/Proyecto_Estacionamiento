@@ -29,6 +29,7 @@ class RegistroAutomovil : AppCompatActivity() {
     lateinit var folio: TextView
     lateinit var tipo: TextView
     lateinit var salida: Button
+    val dbHandler = MindOrksDBOpenHelper(this, null)
 
 
     var todosModelos : String = ""
@@ -105,10 +106,14 @@ class RegistroAutomovil : AppCompatActivity() {
 
         val entrada = intent.getStringExtra("estado")
 
-        val condicion = intent.getIntExtra("",0)
+        val condicion : Int = getType()
+
+
 
         if(condicion != 0){
+
             makeInvisible(condicion)
+
         }
 
         val dbHandler = MindOrksDBOpenHelper(this, null)
@@ -506,5 +511,19 @@ class RegistroAutomovil : AppCompatActivity() {
 
     }
 
+    fun getType(): Int{
+        val cursor = dbHandler.getType()
+
+        cursor!!.moveToFirst()
+
+        var type: Int = 0
+
+        if(cursor.count > 0){
+
+            type = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO))
+
+        }
+        return type
+    }
 
 }

@@ -3,9 +3,7 @@ package com.example.proyecto_estacionamiento
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
-import android.database.Cursor
 import android.os.Bundle
-import android.telecom.Call
 import androidx.core.view.GravityCompat
 import androidx.appcompat.app.ActionBarDrawerToggle
 import android.view.MenuItem
@@ -15,15 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.Menu
 import android.widget.SearchView
-import android.widget.TabHost
 import android.widget.Toast
-import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.content_main_activity_real.*
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import java.io.IOException
 
 class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -35,88 +26,6 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
     lateinit var estacionamiento: Estacionamiento
     lateinit var datos: DatosIniciales
 
-
-
-    lateinit var pasado: Pasado
-
-    fun fetchJson(type: Int = 0) {
-
-        if(type == 0){
-            val body = intent.getStringExtra("json")
-
-            val gson = GsonBuilder().create()
-
-            datos = gson.fromJson(body, DatosIniciales::class.java)
-
-        }else{
-
-            val url = ""
-
-            val request = Request.Builder().url(url).build()
-
-            val client = OkHttpClient()
-
-            client.newCall(request).enqueue(object : Callback{
-
-                override fun onResponse(call: okhttp3.Call, response: Response) {
-
-                    val body = response.body?.string()
-
-                    val gson = GsonBuilder().create()
-
-                    datos = gson.fromJson(body, DatosIniciales::class.java)
-
-                }
-
-                override fun onFailure(call: okhttp3.Call, e: IOException) {
-                    println("Failure")
-                }
-
-            })
-
-        }
-
-    }
-    /*
-    fun fetchJson(lat: Float, lng : Float){
-        val urlAPI = "http://www.mocky.io/v2/5bf3ce193100008900619966"
-
-        val request = Request.Builder().url(urlAPI).build()
-
-        val client = OkHttpClient()
-
-        client.newCall(request).enqueue(object: Callback{
-
-            override fun onResponse(call: Call, response: Response) {
-                val body = response.body?.string()
-                println(body)
-
-                val gson = GsonBuilder().create()
-
-                val datos: Array<Place> = gson.fromJson(body, Array<Place>::class.java)
-
-                var j = 0
-                for(i in places){
-                    i.Distance = distFrom(lat, lng, i.Latitude, i.Longitude)
-                    places[j] = i
-                    j += 1
-                }
-                places.sortWith(compareBy({ it.Distance }))
-                runOnUiThread {
-                    reciclerView.adapter = PlacesAdapter(places, lat, lng)
-
-                }
-
-            }
-            override fun onFailure(call: Call, e: IOException) {
-                println("Failure")
-                toast("Fail")
-            }
-        })
-
-    }*/
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_real)
@@ -126,19 +35,23 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
+
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
+
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
         navView.setNavigationItemSelectedListener(this)
 
-        fetchJson()
+        datos = getDatosIniciales()
 
-        val lugares = datos.slotsNumber
-
-        dbHandler.upDateType(datos.typeOfParking)
+        /*
+        drawerLayout.nombre_trabajador.text = datos.workerName
+        drawerLayout.nombre_estacionamiento.text = datos.parkingName
+*/
+        val lugares: Int = datos.slotsNumber
 
 
         //var estacionamiento: Estacionamiento? =  null
@@ -172,8 +85,8 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val codigoActual = getFolio()
 
 
-        fragmentoSalidas = FragmentoSalidas(pasado)
-        fragmentoBusqueda = FragmentoBusqueda(estacionamiento, pasado, dbHandler)
+        fragmentoSalidas = FragmentoSalidas(pasado,datos.typeOfParking)
+        fragmentoBusqueda = FragmentoBusqueda(estacionamiento, pasado, dbHandler,datos.typeOfParking)
         primerFragmento = PrimerFragmento(estacionamiento.lugares,lugares.toFloat(), codigoActual)
 
         adapter.newFragment(primerFragmento)
@@ -199,7 +112,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         } else if(fragmentoBusqueda.bye.size > 1){
 
-            fragmentoBusqueda.bye = mutableListOf(0)
+            fragmentoBusqueda.bye = mutableListOf()
             val ft = supportFragmentManager.beginTransaction()
             ft.detach(fragmentoBusqueda)
             ft.attach(fragmentoBusqueda)
@@ -272,6 +185,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 val intent:Intent = Intent(applicationContext, QR::class.java)
                 intent.putExtra("estacionamiento",estacionamiento)
                 intent.putExtra("folio",getFolio())
+                intent.putExtra("type",datos)
                 startActivity(intent)
                 /*Toast.makeText(this,"Se borraron las entradas al pasar la información",Toast.LENGTH_SHORT).show()
                 dbHandler.dropTable(true) //Mandamos false para eliminar la tabla de entradas de la base de datos
@@ -298,6 +212,23 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         return true
     }
 
+    fun getDatosIniciales(): DatosIniciales{
+
+        val cursor = dbHandler.getType()
+
+        cursor!!.moveToFirst()
+
+        //datos.parkingFee = listOf(cursor_fee.getFloat(cursor_fee.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO)),cursor_fee.getFloat(cursor_fee.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO)))
+
+        val parkingName = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_PARKING_NAME))
+        val slotsNumber = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_SLOTS_NUMBER))
+        val workerName = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_WORKER_NAME))
+        val typeOfParking = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO))
+
+        cursor.close()
+        return DatosIniciales(parkingName,workerName,typeOfParking, listOf(0f),slotsNumber)
+    }
+
     fun getFolio(): String {
         val cursor = dbHandler.getFolio()
 
@@ -306,6 +237,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         if(cursor.count > 0){
             folio = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO))
         }
+        cursor.close()
         return folio
     }
 

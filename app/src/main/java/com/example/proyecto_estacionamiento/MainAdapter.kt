@@ -7,11 +7,16 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.carros_row.view.*
+import kotlinx.android.synthetic.main.activity_main_real.*
+import kotlinx.android.synthetic.main.carros_row.view.hora_entrada1
+import kotlinx.android.synthetic.main.carros_row.view.hora_entrada2
+import kotlinx.android.synthetic.main.carros_row.view.state_carro
+import kotlinx.android.synthetic.main.carros_row_folio.view.*
 
 
 //Esta clase es para que los elementos se generen repetitivamente con datos especificos
 class MainAdapter(var estacionamiento: Estacionamiento,
-                  val context: FragmentoBusqueda, val pasado: Pasado): RecyclerView.Adapter<CustomViewHolder>(),Filterable, CustomViewHolder.checked {
+                  val context: FragmentoBusqueda, val pasado: Pasado, val type: Int): RecyclerView.Adapter<CustomViewHolder>(),Filterable, CustomViewHolder.checked {
 
 
     val carros = if(estacionamiento.carros != null){
@@ -69,7 +74,17 @@ class MainAdapter(var estacionamiento: Estacionamiento,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val lineOfRow = layoutInflater.inflate(R.layout.carros_row,parent,false)
+
+
+
+        val carros_row = if(type == 2){
+            R.layout.carros_row_folio
+        }else{
+            R.layout.carros_row
+        }
+
+
+        val lineOfRow = layoutInflater.inflate(carros_row,parent,false)
         return CustomViewHolder(lineOfRow, cosa = context, cosa2 = this)
     }
 
@@ -91,11 +106,18 @@ class MainAdapter(var estacionamiento: Estacionamiento,
                 holder.view.state_carro.setImageResource(R.drawable.bg_boton_redondo_rojo)
             }
 
+            if(type == 0){
+                holder.view.matricula.text = autos.matricula
+                holder.view.marca_modelo.text = autos.marca + " " + autos.modelo
+            }else if(type == 1){
+                holder.view.matricula.text = autos.folio
+                holder.view.marca_modelo.text = autos.matricula
 
-            holder.view.matricula.text = autos.matricula
+            }else{
+                holder.view.folio2.text = autos.folio
+            }
             holder.view.hora_entrada1.text = autos.horaEntrada
             holder.view.hora_entrada2.text = "--:--"
-            holder.view.marca_modelo.text = autos.marca + " " + autos.modelo
 
             holder.estacionamiento = estacionamiento
             holder.carro = autos
@@ -144,7 +166,7 @@ class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = n
     }
 
     interface interfazLoca {
-        fun onCheckedBox(pos : Int,state: Boolean)
+        fun onCheckedBox(automovil : Automovil,state: Boolean)
     }
 
 
@@ -174,12 +196,12 @@ class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = n
         view.setOnLongClickListener {
             if(hold){
 
-                activityCallBack?.onCheckedBox(position!!,false)
+                activityCallBack?.onCheckedBox(carro!!,false)
                 autoCallback?.imageChecked(position!!,false)
 
             }else{
 
-                activityCallBack?.onCheckedBox(position!!,true)
+                activityCallBack?.onCheckedBox(carro!!,true)
                 autoCallback?.imageChecked(position!!,true)
 
             }
@@ -206,11 +228,16 @@ class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = n
 
 
 
-class MainAdapter2(val pasado: Pasado)/*(Carros: ArrayList<Array>)*/: RecyclerView.Adapter<CustomViewHolder2>() {
+class MainAdapter2(val pasado: Pasado, val type: Int)/*(Carros: ArrayList<Array>)*/: RecyclerView.Adapter<CustomViewHolder2>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder2 {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val lineOfRow = layoutInflater.inflate(R.layout.carros_row,parent,false)
+        val carros_row = if(type == 2){
+            R.layout.carros_row_folio
+        }else{
+            R.layout.carros_row
+        }
+        val lineOfRow = layoutInflater.inflate(carros_row,parent,false)
         return CustomViewHolder2(lineOfRow)
     }
 
@@ -228,10 +255,19 @@ class MainAdapter2(val pasado: Pasado)/*(Carros: ArrayList<Array>)*/: RecyclerVi
                 holder.view.state_carro.setImageResource(R.drawable.bg_boton_redondo_rojo)
             }
 
-            holder.view.matricula.text = autos.matricula
+            if(type == 0){
+                holder.view.matricula.text = autos.matricula
+                holder.view.marca_modelo.text = autos.marca + " " + autos.modelo
+            }else if(type == 1){
+                holder.view.matricula.text = autos.folio
+                holder.view.marca_modelo.text = autos.matricula
+
+            }else{
+                holder.view.folio2.text = autos.folio
+            }
             holder.view.hora_entrada1.text = autos.horaEntrada
             holder.view.hora_entrada2.text = autos.horaSalida
-            holder.view.marca_modelo.text = autos.marca + " " + autos.modelo
+
 
             holder.carro = autos
             holder.position = position
