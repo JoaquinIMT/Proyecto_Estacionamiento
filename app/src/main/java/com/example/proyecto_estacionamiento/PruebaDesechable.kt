@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import com.google.gson.GsonBuilder
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -32,11 +33,15 @@ class PruebaDesechable : AppCompatActivity() {
 
             val datos : DatosIniciales = fetchJson(0,valor)
 
-            saveJson(datos)
 
-            val intent = Intent(this,MainActivityReal::class.java)
-            startActivity(intent)
-            finishAffinity()
+            if(datos.register){
+                saveJson(datos)
+                val intent = Intent(this,MainActivityReal::class.java)
+                startActivity(intent)
+                finishAffinity()
+            }else{
+                Toast.makeText(this,"Cuenta o contraseña no validos",Toast.LENGTH_SHORT).show()
+            }
 
         }
     }
@@ -91,6 +96,7 @@ class PruebaDesechable : AppCompatActivity() {
 
         val json: String =  if(valor == 0){
             """{
+    "register" : true,
     "parkingName": "Luis Estacionamiento",
     "workerName": "Joaquin",
     "typeOfParking": 0,
@@ -99,19 +105,30 @@ class PruebaDesechable : AppCompatActivity() {
 }""".trimIndent()
         } else if (valor == 1){
             """{
+    "register" : true,
     "parkingName": "Fernando Estacionamiento",
     "workerName": "Raquel",
     "typeOfParking": 1,
     "parkingFee": [3.0,4.0],
     "slotsNumber": 20
 }""".trimIndent()
-        }else{
+        } else if (valor == 2){
             """{
+    "register" : true,
     "parkingName": "Raquel Estacionamiento",
     "workerName": "Fernando",
     "typeOfParking": 2,
     "parkingFee": [5.0,6.0],
     "slotsNumber": 30
+}""".trimIndent()
+        } else{
+            """{
+    "register" : false,
+    "parkingName": null,
+    "workerName": null,
+    "typeOfParking": null,
+    "parkingFee": null,
+    "slotsNumber": null
 }""".trimIndent()
         }
 
