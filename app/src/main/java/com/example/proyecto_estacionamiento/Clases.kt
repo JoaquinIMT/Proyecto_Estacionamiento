@@ -314,4 +314,4 @@ class Automovil(var matricula: String, var marca: String, var modelo:String,
 @Parcelize
 class DatosIniciales(var parkingName: String, var workerName: String,
                      var typeOfParking: Int, var parkingFee: List<Float>,
-                     var slotsNumber: Int): Parcelable
+                     var slotsNumber: Int, var register: Boolean = true): Parcelable

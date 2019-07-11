@@ -110,7 +110,6 @@ class QR : AppCompatActivity() {
     private fun obtenerTextoParaCodigo() {
         val datos = intent.getParcelableExtra<DatosIniciales>("type")
         todo += intent.getStringExtra("folio")+"."
-        todo += datos.parkingName+","+datos.workerName+","+datos.slotsNumber.toString()+","+datos.parkingFee.toString()+","+datos.typeOfParking.toString()+"."
         for (i in estacionamiento?.carros!!) {
 
             val aux= i.matricula + "," + i.marca + "," + i.modelo + "," + i.horaEntrada + "," + i.horaSalida + "," + i.horaSalida+ "," + i.color+ "," + i.tipo + "," + i.folio
@@ -195,23 +194,17 @@ class QR : AppCompatActivity() {
 
         for (i in 0..separado.size-2) {
 
-                val posicion = separado.get(i)
-                //Toast.makeText(this, posicion, Toast.LENGTH_SHORT).show()
-                if(i == 0){
-                    dbHandler.upDateFolio(posicion)
-                } else if(i == 1){
-                    val datosArray = posicion.split(",")
-                    val datos = DatosIniciales(datosArray[0],datosArray[1],datosArray[4].toInt(), listOf(0f),datosArray[2].toInt())
-                    dbHandler.newType(datos)
-                } else {
-                    var separado2 = posicion.split(",")
-                    Toast.makeText(this, "entre al if", Toast.LENGTH_SHORT).show()
-                    val automovil = Automovil(separado2.get(0), separado2.get(1), separado2.get(2), separado2.get(3), separado2.get(4), separado2.get(6), false,separado2.get(8))
-                    dbHandler.addFields(automovil, true)
+            val posicion = separado.get(i)
+            //Toast.makeText(this, posicion, Toast.LENGTH_SHORT).show()
+            if(i == 0){
+                dbHandler.upDateFolio(posicion)
+            } else {
+                var separado2 = posicion.split(",")
+                Toast.makeText(this, "entre al if", Toast.LENGTH_SHORT).show()
+                val automovil = Automovil(separado2.get(0), separado2.get(1), separado2.get(2), separado2.get(3), separado2.get(4), separado2.get(6), false,separado2.get(8))
+                dbHandler.addFields(automovil, true)
 
-                }
-
-
+            }
         }
 
     }

@@ -12,7 +12,9 @@ import com.google.android.material.navigation.NavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.Menu
+import android.view.View
 import android.widget.SearchView
+import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.content_main_activity_real.*
 
@@ -25,10 +27,15 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
     lateinit var primerFragmento: PrimerFragmento
     lateinit var estacionamiento: Estacionamiento
     lateinit var datos: DatosIniciales
+    lateinit var workerNameTV: TextView
+    lateinit var pakingName: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_real)
+
+        /*val workerName: TextView = findViewById(R.id.nombre_trabajador)
+        workerName.text = "holi"*/
 
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -226,7 +233,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val typeOfParking = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO))
 
         cursor.close()
-        return DatosIniciales(parkingName,workerName,typeOfParking, listOf(0f),slotsNumber)
+        return DatosIniciales(parkingName, workerName, typeOfParking, listOf(0f), slotsNumber)
     }
 
     fun getFolio(): String {
