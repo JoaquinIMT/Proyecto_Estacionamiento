@@ -17,8 +17,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado,
-                        val dbHandler: MindOrksDBOpenHelper, val type: Int) : Fragment(), CustomViewHolder.interfazLoca {
+class FragmentoBusqueda(var estacionamiento: Estacionamiento, val dbHandler: MindOrksDBOpenHelper,
+                        val type: Int, val activity: MainActivityReal) : Fragment(), CustomViewHolder.interfazLoca {
 
     var carros = estacionamiento.carros
     var bye : MutableList<Automovil> = mutableListOf()
@@ -36,7 +36,6 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         val view = inflater.inflate(R.layout.fragment_busqueda, container, false)
 
         salirCarro = view.findViewById(R.id.salida)
@@ -45,7 +44,7 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, var pasado: Pasado
         reciclerView.layoutManager = LinearLayoutManager(context?.applicationContext)
 
 
-        adapter = MainAdapter(estacionamiento,this, pasado, type)
+        adapter = MainAdapter(estacionamiento,this, type, activity)
 
         reciclerView.adapter = adapter
 

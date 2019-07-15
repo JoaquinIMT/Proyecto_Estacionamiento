@@ -7,17 +7,18 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.carros_row.view.*
-import kotlinx.android.synthetic.main.activity_main_real.*
 import kotlinx.android.synthetic.main.carros_row.view.hora_entrada1
 import kotlinx.android.synthetic.main.carros_row.view.hora_entrada2
 import kotlinx.android.synthetic.main.carros_row.view.state_carro
 import kotlinx.android.synthetic.main.carros_row_folio.view.*
+import kotlin.collections.ArrayList
 
 
 //Esta clase es para que los elementos se generen repetitivamente con datos especificos
-class MainAdapter(var estacionamiento: Estacionamiento,
-                  val context: FragmentoBusqueda, val pasado: Pasado, val type: Int): RecyclerView.Adapter<CustomViewHolder>(),Filterable, CustomViewHolder.checked {
+class MainAdapter(var estacionamiento: Estacionamiento, val context: FragmentoBusqueda,
+                  val type: Int, val activity: MainActivityReal): RecyclerView.Adapter<CustomViewHolder>(),Filterable, CustomViewHolder.checked {
 
+    var list: List<Int> = arrayListOf()
 
     val carros = if(estacionamiento.carros != null){
 
@@ -77,15 +78,15 @@ class MainAdapter(var estacionamiento: Estacionamiento,
 
 
 
-        val carros_row = if(type == 2){
+        val carrosRow = if(type == 2){
             R.layout.carros_row_folio
         }else{
             R.layout.carros_row
         }
 
 
-        val lineOfRow = layoutInflater.inflate(carros_row,parent,false)
-        return CustomViewHolder(lineOfRow, cosa = context, cosa2 = this)
+        val lineOfRow = layoutInflater.inflate(carrosRow,parent,false)
+        return CustomViewHolder(lineOfRow, cosa = context, cosa2 = this, activity = activity )
     }
 
     override fun getItemCount(): Int {
@@ -124,7 +125,6 @@ class MainAdapter(var estacionamiento: Estacionamiento,
             holder.position = position
 
             holder.cosa = context
-            holder.pasado = pasado
 
             if(autos.checked){
 
@@ -137,6 +137,7 @@ class MainAdapter(var estacionamiento: Estacionamiento,
             }
 
             holder.hold = autos.checked
+
         }
     }
 
@@ -147,6 +148,7 @@ class MainAdapter(var estacionamiento: Estacionamiento,
     private fun changeChecked(position: Int, state: Boolean){
 
         filterList[position].checked = state
+        estacionamiento.oneSelected = if(state) estacionamiento.oneSelected.inc() else estacionamiento.oneSelected.dec()
         notifyDataSetChanged()
     }
 }
@@ -154,8 +156,8 @@ class MainAdapter(var estacionamiento: Estacionamiento,
 
 class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = null,
                        var carro: Automovil? = null, var position: Int? = null,
-                       var cosa: FragmentoBusqueda? = null, var cosa2: MainAdapter? = null, var pasado: Pasado? = null,
-                       var hold: Boolean = false): RecyclerView.ViewHolder(view){
+                       var cosa: FragmentoBusqueda? = null, var cosa2: MainAdapter? = null,
+                       var hold: Boolean = false, var activity: MainActivityReal? = null): RecyclerView.ViewHolder(view){
 
 
     var activityCallBack : interfazLoca? = null
@@ -169,6 +171,21 @@ class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = n
         fun onCheckedBox(automovil : Automovil,state: Boolean)
     }
 
+    private fun selection(){
+
+        if(hold){
+
+            activityCallBack?.onCheckedBox(carro!!,false)
+            autoCallback?.imageChecked(position!!,false)
+
+        }else{
+
+            activityCallBack?.onCheckedBox(carro!!,true)
+            autoCallback?.imageChecked(position!!,true)
+
+        }
+
+    }
 
     init {
 
@@ -184,31 +201,73 @@ class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = n
 
         }
 
+
         view.setOnClickListener{
-            val intent = Intent(view.context,RegistroAutomovil::class.java)
-            intent.putExtra("Auto",carro)
-            intent.putExtra("estado","Salida")
-            intent.putExtra("Estacionamiento",estacionamiento)
-            intent.putExtra("index", position)
-            view.context.startActivity(intent)
-
-        }
-        view.setOnLongClickListener {
-            if(hold){
-
-                activityCallBack?.onCheckedBox(carro!!,false)
-                autoCallback?.imageChecked(position!!,false)
-
+            if(estacionamiento!!.oneSelected > 0){
+                selection()
             }else{
-
-                activityCallBack?.onCheckedBox(carro!!,true)
-                autoCallback?.imageChecked(position!!,true)
-
+                val intent = Intent(view.context,RegistroAutomovil::class.java)
+                intent.putExtra("Auto",carro)
+                intent.putExtra("estado","Salida")
+                intent.putExtra("Estacionamiento",estacionamiento)
+                intent.putExtra("index", position)
+                view.context.startActivity(intent)
             }
 
-            //Toast.makeText(view.context,"Holi", Toast.LENGTH_SHORT).show()
+        }
+
+        view.setOnLongClickListener {
+
+            selection()
             true
         }
+
+
+        /*fun createTask(): TimerTask{
+            val a = timerTask{
+
+                activity?.runOnUiThread {
+
+                    if(hold){
+
+                        activityCallBack?.onCheckedBox(carro!!,false)
+                        autoCallback?.imageChecked(position!!,false)
+
+                    }else{
+
+                        activityCallBack?.onCheckedBox(carro!!,true)
+                        autoCallback?.imageChecked(position!!,true)
+
+                    }
+                }
+            }
+            return a
+        }
+        val timerTask: TimerTask = createTask()
+    */
+
+        /*val timer = Timer("click")
+
+        view.setOnTouchListener { view, event ->
+
+            if(event.action == MotionEvent.ACTION_DOWN) {
+                this@CustomViewHolder.run {
+                    timer.schedule(timerTask,500)}
+                println("holi1")
+
+            /*}else if(event.action == MotionEvent.ACTION_UP){
+                this@CustomViewHolder.run{ timerTask.cancel()
+                timer.purge()}
+                println("holi2")
+
+            }else if(event.action == MotionEvent.ACTION_CANCEL){
+                this@CustomViewHolder.run{timerTask.cancel()
+                    timer.purge()  }
+                println("holi3")
+            */}
+                false
+        }*/
+
 
 
         /*view.setOnLongClickListener {
@@ -221,6 +280,7 @@ class CustomViewHolder(var view: View, var estacionamiento: Estacionamiento? = n
 
 
     }
+
 
 
 }
