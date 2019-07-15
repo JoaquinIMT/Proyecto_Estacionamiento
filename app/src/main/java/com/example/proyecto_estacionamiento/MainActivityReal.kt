@@ -37,6 +37,20 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         /*val workerName: TextView = findViewById(R.id.nombre_trabajador)
         workerName.text = "holi"*/
 
+        /*tracker = SelectionTracker.Builder<String>(
+            "mySelection",
+            recyclerView,
+            StableIdKeyProvider(recyclerView),
+            MyItemDetailsLookup(recyclerView),
+            StorageStrategy.createLongStorage()
+        ).withSelectionPredicate(
+            SelectionPredicates.createSelectAnything()
+        ).build()
+
+
+
+        */
+
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -93,7 +107,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
 
         fragmentoSalidas = FragmentoSalidas(pasado,datos.typeOfParking)
-        fragmentoBusqueda = FragmentoBusqueda(estacionamiento, pasado, dbHandler,datos.typeOfParking)
+        fragmentoBusqueda = FragmentoBusqueda(estacionamiento, dbHandler,datos.typeOfParking, this)
         primerFragmento = PrimerFragmento(estacionamiento.lugares,lugares.toFloat(), codigoActual)
 
         adapter.newFragment(primerFragmento)
@@ -117,7 +131,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
             drawerLayout.closeDrawer(GravityCompat.START)
 
-        } else if(fragmentoBusqueda.bye.size > 1){
+        } else if(fragmentoBusqueda.bye.size > 0){
 
             fragmentoBusqueda.bye = mutableListOf()
             val ft = supportFragmentManager.beginTransaction()
@@ -127,6 +141,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
             for(i in 0 until fragmentoBusqueda.adapter.filterList.size-1){
                 fragmentoBusqueda.adapter.filterList[i].checked = false
             }
+            fragmentoBusqueda.adapter.estacionamiento.oneSelected = 0
             fragmentoBusqueda.adapter.notifyDataSetChanged()
 
         } else{
