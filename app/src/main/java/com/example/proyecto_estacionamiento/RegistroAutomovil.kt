@@ -270,7 +270,7 @@ class RegistroAutomovil : AppCompatActivity() {
 
             salida.setOnClickListener {
                 val texts = getText()
-                val automovilPantalla = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,texts[6])
+                val automovilPantalla = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,","+texts[6])
 
                 hora = Date()
 
