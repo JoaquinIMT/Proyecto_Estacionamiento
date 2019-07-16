@@ -108,15 +108,22 @@ class MainAdapter(var estacionamiento: Estacionamiento, val context: FragmentoBu
             }
 
             if(type == 0){
+
                 holder.view.matricula.text = autos.matricula
                 holder.view.marca_modelo.text = autos.marca + " " + autos.modelo
+
             }else if(type == 1){
-                holder.view.matricula.text = autos.folio
+
+                holder.view.matricula.text = if(autos.folio[0].toString() == ",") autos.folio.substring(1)
+                else autos.folio
                 holder.view.marca_modelo.text = autos.matricula
 
             }else{
-                holder.view.folio2.text = autos.folio
+                holder.view.folio2.text = if(autos.folio[0].toString() == ",") autos.folio.substring(1)
+                else autos.folio
             }
+
+
             holder.view.hora_entrada1.text = autos.horaEntrada
             holder.view.hora_entrada2.text = "--:--"
 
@@ -316,15 +323,21 @@ class MainAdapter2(val pasado: Pasado, val type: Int)/*(Carros: ArrayList<Array>
             }
 
             if(type == 0){
+
                 holder.view.matricula.text = autos.matricula
                 holder.view.marca_modelo.text = autos.marca + " " + autos.modelo
+
             }else if(type == 1){
-                holder.view.matricula.text = autos.folio
+
+                holder.view.matricula.text = if(autos.folio[0].toString() == ",") autos.folio.substring(1)
+                else autos.folio
                 holder.view.marca_modelo.text = autos.matricula
 
             }else{
-                holder.view.folio2.text = autos.folio
+                holder.view.folio2.text = if(autos.folio[0].toString() == ",") autos.folio.substring(1)
+                else autos.folio
             }
+
             holder.view.hora_entrada1.text = autos.horaEntrada
             holder.view.hora_entrada2.text = autos.horaSalida
 
