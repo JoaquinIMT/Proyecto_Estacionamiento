@@ -169,7 +169,8 @@ class QR : AppCompatActivity() {
                 } else{
                     var separado2 = posicion.split(",")
                     Toast.makeText(this, "entre al if", Toast.LENGTH_SHORT).show()
-                    val automovil = Automovil(separado2.get(0), separado2.get(1), separado2.get(2), separado2.get(3), separado2.get(4), separado2.get(6), false,separado2.get(8))
+                    var tipov:Boolean = separado2.get(7).toBoolean()
+                    val automovil = Automovil(separado2.get(0), separado2.get(1), separado2.get(2), separado2.get(3), separado2.get(4), separado2.get(6), tipov,separado2.get(8))
                     dbHandler.addFields(automovil, true)
 
                 }
@@ -179,4 +180,6 @@ class QR : AppCompatActivity() {
 
     }
 
+
 }
+

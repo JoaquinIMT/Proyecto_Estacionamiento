@@ -30,10 +30,9 @@ class PrimerFragmento(val lugares: Int, val total: Float, val codigo: String) : 
         entraCarro = view.findViewById(R.id.nuevo_registro)
         // Inflate the layout for this fragment
         espacios = view.findViewById(R.id.espacios)
-
         espacios.text = lugares.toString()
 
-        val total:Float = 50.0
+
 
 
         val quitar: Float = 100/total
