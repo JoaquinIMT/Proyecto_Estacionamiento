@@ -18,18 +18,18 @@
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/folio2" app:layout_constraintEnd_toStartOf="@+id/textView3"
+            android:id="@+id/folio2" app:layout_constraintEnd_toStartOf="@+id/textespecial"
             android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
             app:layout_constraintStart_toEndOf="@+id/state_carro" android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
             android:textSize="36sp"
-            android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="@+id/textView3"
+            android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="@+id/textespecial"
             android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="@+id/hora_entrada2"/>
     <TextView
             android:text="Entrada:"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/textView3"
+            android:id="@+id/textespecial"
             app:layout_constraintTop_toTopOf="parent" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="16dp" android:layout_marginTop="8dp" android:textSize="18sp"/>
     <TextView
@@ -37,8 +37,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/hora_entrada1"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="8dp" app:layout_constraintTop_toBottomOf="@+id/textView3"
-            android:layout_marginTop="4dp" app:layout_constraintStart_toStartOf="@+id/textView3"
+            android:layout_marginEnd="8dp" app:layout_constraintTop_toBottomOf="@+id/textespecial"
+            android:layout_marginTop="4dp" app:layout_constraintStart_toStartOf="@+id/textespecial"
             android:layout_marginStart="8dp"/>
     <TextView
             android:text="Salida:"
@@ -48,7 +48,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="16dp" android:textSize="18sp"
             android:layout_marginTop="4dp" app:layout_constraintTop_toBottomOf="@+id/hora_entrada1"
-            android:layout_marginStart="8dp" app:layout_constraintStart_toStartOf="@+id/textView3"/>
+            android:layout_marginStart="8dp" app:layout_constraintStart_toStartOf="@+id/textespecial"/>
     <TextView
             android:text="12:00"
             android:layout_width="wrap_content"

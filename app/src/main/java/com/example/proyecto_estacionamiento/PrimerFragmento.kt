@@ -13,8 +13,11 @@ import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_primer_fragmento.*
 
-class PrimerFragmento(val lugares: Int, val total: Float, val codigo: String) : Fragment() {
+class PrimerFragmento(val lugares: Int, val total: Float, val codigo: String, val generalEspecial: List<Int>) : Fragment() {
 
+    lateinit var numberOfGenerals: TextView
+    lateinit var numberOfEspecials: TextView
+    lateinit var textEspecial: TextView
     lateinit var entraCarro: Button
     lateinit var espacios: TextView
     var progressBar: ProgressBar? = null
@@ -30,6 +33,21 @@ class PrimerFragmento(val lugares: Int, val total: Float, val codigo: String) : 
         entraCarro = view.findViewById(R.id.nuevo_registro)
         // Inflate the layout for this fragment
         espacios = view.findViewById(R.id.espacios)
+        numberOfGenerals = view.findViewById(R.id.number_generals)
+        numberOfEspecials = view.findViewById(R.id.number_especials)
+        textEspecial = view.findViewById(R.id.textespecial)
+
+
+        if(generalEspecial[1] != 0){
+            numberOfEspecials.visibility = View.VISIBLE
+            textEspecial.visibility = View.VISIBLE
+
+        }
+
+
+        numberOfGenerals.text = generalEspecial[0].toString()
+        numberOfEspecials.text = generalEspecial[1].toString()
+
 
         espacios.text = lugares.toString()
 

@@ -105,10 +105,23 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         val codigoActual = getFolio()
 
+        val generalEspecial: List<Int> =   if(estacionamiento.carros == null){
+            listOf(0,0)
+        }else{
+            var especial : Int = 0
+            var general : Int = 0
+            for(i in estacionamiento.carros!!){
+                if(i.folio[0].toString() == ",") ++especial
+                else ++general
+            }
+            listOf(general,especial)
+        }
+
+
 
         fragmentoSalidas = FragmentoSalidas(pasado,datos.typeOfParking)
         fragmentoBusqueda = FragmentoBusqueda(estacionamiento, dbHandler,datos.typeOfParking, this)
-        primerFragmento = PrimerFragmento(estacionamiento.lugares,lugares.toFloat(), codigoActual)
+        primerFragmento = PrimerFragmento(estacionamiento.lugares,lugares.toFloat(), codigoActual,generalEspecial)
 
         adapter.newFragment(primerFragmento)
         adapter.newFragment(fragmentoBusqueda)
