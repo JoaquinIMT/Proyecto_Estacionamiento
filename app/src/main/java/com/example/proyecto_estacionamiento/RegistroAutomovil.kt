@@ -81,8 +81,17 @@ class RegistroAutomovil : AppCompatActivity() {
         val botonVerde: Drawable = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_verde)!!
         val botonAzul: Drawable = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_azul)!!
 
+        val entrada = intent.getStringExtra("estado")
+
+        val condicion : Int = getType()
+
+
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_registro_automovil)
+        if(condicion == 2 && entrada != "Registro"){
+            setContentView(R.layout.activity_registro_automovil_folio)
+        }else{
+            setContentView(R.layout.activity_registro_automovil)
+        }
 
         matricula = this.findViewById(R.id.matricula2)
         marca = findViewById(R.id.matricula)
@@ -103,10 +112,6 @@ class RegistroAutomovil : AppCompatActivity() {
         saHora = findViewById(R.id.sahora)
         color = findViewById(R.id.color)
         folio = findViewById(R.id.folio)
-
-        val entrada = intent.getStringExtra("estado")
-
-        val condicion : Int = getType()
 
 
 
@@ -248,6 +253,10 @@ class RegistroAutomovil : AppCompatActivity() {
             }
 
         }else{ //Si entra aquí tendrá una salida o esta checando información
+
+            if(condicion == 2){
+                makeInvisible(3)
+            }
 
             val automovil = intent.getParcelableExtra<Automovil>("Auto")
             registro.background = botonVerde
@@ -503,7 +512,14 @@ class RegistroAutomovil : AppCompatActivity() {
 
     fun makeInvisible(estado: Int){
         if(estado == 2){
+
             matricula.visibility = View.GONE
+
+        }
+        if(estado == 3){
+
+            registro.visibility = View.GONE
+
         }
         marca.visibility = View.GONE
         modelo.visibility = View.GONE
