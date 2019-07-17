@@ -95,7 +95,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:inputType="textCapSentences"
-                    android:hint="Modelo"
+                    android:hint="Tipo"
                     app:layout_constraintWidth_default="percent"
                     app:layout_constraintWidth_percent="0.45"
                     android:ems="10"
