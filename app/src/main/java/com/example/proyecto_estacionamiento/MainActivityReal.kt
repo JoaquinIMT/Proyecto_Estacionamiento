@@ -3,7 +3,11 @@ package com.example.proyecto_estacionamiento
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
+import android.os.StrictMode
+import android.util.Log
 import androidx.core.view.GravityCompat
 import androidx.appcompat.app.ActionBarDrawerToggle
 import android.view.MenuItem
@@ -16,7 +20,11 @@ import android.view.View
 import android.widget.SearchView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
 import kotlinx.android.synthetic.main.content_main_activity_real.*
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
 
 class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -72,7 +80,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         drawerLayout.nombre_trabajador.text = datos.workerName
         drawerLayout.nombre_estacionamiento.text = datos.parkingName
 */
-        val lugares: Int = datos.slotsNumber
+        val lugares: Int = datos.slotsNumber!!
 
 
         //var estacionamiento: Estacionamiento? =  null
@@ -119,8 +127,8 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
 
 
-        fragmentoSalidas = FragmentoSalidas(pasado,datos.typeOfParking)
-        fragmentoBusqueda = FragmentoBusqueda(estacionamiento, dbHandler,datos.typeOfParking, this)
+        fragmentoSalidas = FragmentoSalidas(pasado,datos.typeOfParking!!)
+        fragmentoBusqueda = FragmentoBusqueda(estacionamiento, dbHandler,datos.typeOfParking!!, this)
         primerFragmento = PrimerFragmento(estacionamiento.lugares,lugares.toFloat(), codigoActual,generalEspecial)
 
         adapter.newFragment(primerFragmento)
@@ -233,11 +241,11 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
             }
 
             R.id.ic_power -> {
-                Toast.makeText(this,"Se borraron las salidas al salir de sesión",Toast.LENGTH_SHORT).show()
-                dbHandler.dropTable(false) //Mandamos false para eliminar la tabla de salidas de la base de datos
-                intentToMainActivityReal()
-
-
+                if(hasInternetAccess()){
+                    Toast.makeText(this, "Se borraron las salidas al salir de sesión", Toast.LENGTH_SHORT).show()
+                    dbHandler.dropTable(false) //Mandamos false para eliminar la tabla de salidas de la base de datos
+                    intentToMainActivityReal()
+                }
             }
         }
 
@@ -261,7 +269,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val typeOfParking = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO))
 
         cursor.close()
-        return DatosIniciales(parkingName, workerName, typeOfParking, listOf(0f), slotsNumber)
+        return DatosIniciales(parkingName, workerName, typeOfParking, arrayOf(Fee(arrayOf(),0.0)), slotsNumber)
     }
 
     fun getFolio(): String {
@@ -327,6 +335,41 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val intent = Intent(applicationContext,MainActivityReal::class.java)
         startActivity(intent)
         finishAffinity()
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE)
+
+        return if (connectivityManager is ConnectivityManager) {
+            val networkInfo: NetworkInfo? = connectivityManager.activeNetworkInfo
+            networkInfo?.isConnected ?: false
+        } else false
+    }
+
+    fun hasInternetAccess(): Boolean {
+        if (isNetworkAvailable()) {
+            try {
+                val urlc = URL("http://clients3.google.com/generate_204").openConnection() as HttpURLConnection
+                urlc.setRequestProperty("User-Agent", "Android")
+                urlc.setRequestProperty("Connection", "close")
+                urlc.connectTimeout = 1500
+                //Con este if logramos hacer la conexión de otro modo crashea
+                if (android.os.Build.VERSION.SDK_INT > 9) {
+                    val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+                    StrictMode.setThreadPolicy(policy)
+                }
+                urlc.connect()
+                return urlc.responseCode == 204 && urlc.contentLength == 0
+            } catch (e: IOException) {
+                Toast.makeText(this,"Error al verificar la conexión a internet",Toast.LENGTH_LONG).show()
+                //Log.e(FragmentActivity.TAG, "Error checking internet connection", e)
+            }
+
+        } else {
+            Toast.makeText(this,"No hay redes disponibles",Toast.LENGTH_SHORT).show()
+            //Log.d(FragmentActivity.TAG, "No network available!")
+        }
+        return false
     }
 
 }

@@ -312,6 +312,9 @@ class Automovil(var matricula: String, var marca: String, var modelo:String,
                 var tipo: Boolean,var folio : String, var checked: Boolean = false): Parcelable
 
 @Parcelize
-class DatosIniciales(var parkingName: String, var workerName: String,
-                     var typeOfParking: Int, var parkingFee: List<Float>,
-                     var slotsNumber: Int, var register: Boolean = true): Parcelable
+class DatosIniciales(var parkingName: String?, var workerName: String?,
+                     var typeOfParking: Int?, var parkingFee: Array<Fee>?,
+                     var slotsNumber: Int?, var register: Boolean? = true): Parcelable
+
+@Parcelize
+class Fee(var time: Array<Int?>, var cost: Double): Parcelable

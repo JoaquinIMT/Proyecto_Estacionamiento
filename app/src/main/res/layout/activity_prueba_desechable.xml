@@ -10,13 +10,14 @@
     <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="Tipo de estacionamiento 1-4"
+            android:hint="Tipo de estacionamiento 0-2"
             android:inputType="number"
             android:id="@+id/jsonthing" android:layout_marginTop="8dp"
             app:layout_constraintTop_toTopOf="parent" android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="8dp" android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toTopOf="@+id/send" android:textSize="18sp"/>
+
     <Button
             android:text="@string/menu_send"
             android:layout_width="0dp"
@@ -25,4 +26,5 @@
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
             android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
             android:background="@drawable/bg_boton_redondo_azul" android:textColor="@android:color/background_light"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
