@@ -37,7 +37,7 @@ class PruebaDesechable : AppCompatActivity() {
             val datos : DatosIniciales = fetchJson(0,valor)
 
 
-            if(datos.register){
+            if(datos.register!!){
                 saveJson(datos)
                 val intent = Intent(this,MainActivityReal::class.java)
                 startActivity(intent)
@@ -103,7 +103,11 @@ class PruebaDesechable : AppCompatActivity() {
     "parkingName": "Luis Estacionamiento",
     "workerName": "Joaquin",
     "typeOfParking": 0,
-    "parkingFee": [1.0,2.0],
+    "parkingFee":  [{
+    "time":[0,60],"cost":10.0
+    },{
+    "time":[60,null],"cost":25.0
+    }],
     "slotsNumber": 40
 }""".trimIndent()
         } else if (valor == 1){
@@ -112,7 +116,11 @@ class PruebaDesechable : AppCompatActivity() {
     "parkingName": "Fernando Estacionamiento",
     "workerName": "Raquel",
     "typeOfParking": 1,
-    "parkingFee": [3.0,4.0],
+    "parkingFee":  [{
+    "time":[0,60],"cost":10.0
+    },{
+    "time":[60,null],"cost":25.0
+    }],
     "slotsNumber": 20
 }""".trimIndent()
         } else if (valor == 2){
@@ -121,7 +129,11 @@ class PruebaDesechable : AppCompatActivity() {
     "parkingName": "Raquel Estacionamiento",
     "workerName": "Fernando",
     "typeOfParking": 2,
-    "parkingFee": [5.0,6.0],
+    "parkingFee": [{
+    "time":[0,60],"cost":10.0
+    },{
+    "time":[60,null],"cost":25.0
+    }],
     "slotsNumber": 30
 }""".trimIndent()
         } else{
