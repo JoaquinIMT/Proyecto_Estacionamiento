@@ -8,17 +8,20 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.google.gson.GsonBuilder
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 
 class PruebaDesechable : AppCompatActivity() {
 
     lateinit var jsonThing: TextView
+    lateinit var userPassword: TextView
     lateinit var passActivity: Button
     val dbHandler = MindOrksDBOpenHelper(this,null)
+
+    val url = ""
+    var registerMade: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +52,81 @@ class PruebaDesechable : AppCompatActivity() {
         }
     }
 
+    fun sendData(){
+
+        var datos: DatosIniciales?
+
+        val name : String = jsonThing.text.toString()
+        val password : String = userPassword.text.toString()
+
+        val json : String = """{
+            "workerName" : "$name",
+            "password" : "$password"
+            }""".trimIndent()
+
+        val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+        val request = Request.Builder().url(url).post(body).build()
+
+        val client2 = OkHttpClient()
+
+        client2.newCall(request).enqueue(object: Callback {
+
+            override fun onResponse(call: Call, response: Response) {
+
+                val bodyOfJson = response.body?.string()
+
+                val gson = GsonBuilder().create()
+
+                datos = gson.fromJson(bodyOfJson, DatosIniciales::class.java)
+
+                if(datos?.register!!){
+                    saveJson(datos!!)
+                }else{
+                    makeRegisterFalse(2)
+                }
+                println("Register made")
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                println("Fallo al intentar acceso")
+                makeRegisterFalse(1)
+
+            }
+
+        })
+
+
+        Handler().postDelayed(
+            {
+                if (registerMade == 0){
+
+                    Toast.makeText(this,"Acceso concedido",Toast.LENGTH_SHORT).show()
+
+                    val intent = Intent(this,MainActivityReal::class.java)
+                    startActivity(intent)
+                    finishAffinity()
+
+                } else if(registerMade == 1){
+                    Toast.makeText(this,"Fallo al intentar acceso",Toast.LENGTH_SHORT).show()
+
+                }else if(registerMade == 2){
+
+                    Toast.makeText(this,"Usuario o contraseña invalido",Toast.LENGTH_SHORT).show()
+
+                }
+
+            }
+            ,50
+        )
+
+
+    }
+
+    private fun makeRegisterFalse(case: Int){
+        registerMade = case
+    }
+
 
     fun fetchJson(type: Int = 0, body: String /*Retirar parametros cuando se tenga url*/): DatosIniciales {
 
@@ -61,8 +139,6 @@ class PruebaDesechable : AppCompatActivity() {
             datos = gson.fromJson(body, DatosIniciales::class.java)
 
         }else{
-
-            val url = ""
 
             val request = Request.Builder().url(url).build()
 
@@ -100,6 +176,7 @@ class PruebaDesechable : AppCompatActivity() {
         val json: String =  if(valor == 0){
             """{
     "register" : true,
+    "user.token": "ANAKAzsncasdAS",    
     "parkingName": "Luis Estacionamiento",
     "workerName": "Joaquin",
     "typeOfParking": 0,
@@ -113,6 +190,7 @@ class PruebaDesechable : AppCompatActivity() {
         } else if (valor == 1){
             """{
     "register" : true,
+    "user.token": "ANAKAzsncasdAS",
     "parkingName": "Fernando Estacionamiento",
     "workerName": "Raquel",
     "typeOfParking": 1,
@@ -126,6 +204,7 @@ class PruebaDesechable : AppCompatActivity() {
         } else if (valor == 2){
             """{
     "register" : true,
+    "user.token": "ANAKAzsncasdAS",
     "parkingName": "Raquel Estacionamiento",
     "workerName": "Fernando",
     "typeOfParking": 2,
@@ -139,6 +218,7 @@ class PruebaDesechable : AppCompatActivity() {
         } else{
             """{
     "register" : false,
+    "user.token": null,
     "parkingName": null,
     "workerName": null,
     "typeOfParking": null,
