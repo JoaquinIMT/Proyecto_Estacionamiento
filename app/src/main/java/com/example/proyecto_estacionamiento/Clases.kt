@@ -88,6 +88,7 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
                 + COLUMN_TIPO + " INTEGER,"
                 + COLUMN_PARKING_NAME + " TEXT,"
                 + COLUMN_WORKER_NAME + " TEXT,"
+                + COLUMN_JWT + " TEXT,"
                 + COLUMN_SLOTS_NUMBER+ " INTEGER"+")")
         db.execSQL(CREATE_PRODCTS_TABLE_TYPE)
 
@@ -177,9 +178,51 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         values.put(COLUMN_TIPO,datosIniciales.typeOfParking)
         values.put(COLUMN_PARKING_NAME, datosIniciales.parkingName)
         values.put(COLUMN_WORKER_NAME, datosIniciales.workerName)
+        values.put(COLUMN_JWT, datosIniciales.token)
 
         db.insert(TABLE_TYPE,null,values)
 
+    }
+
+    fun getToken(): String?{
+
+        val db = this.readableDatabase
+
+        var token: String? = null
+
+        val cursor: Cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"
+                + TABLE_TYPE + "'", null)
+
+        if(cursor.count <= 0){
+            onCreateType(db)
+        }
+
+        cursor.close()
+
+        val rawQuery = db.rawQuery("SELECT * FROM $TABLE_TYPE", null)
+
+        rawQuery.moveToFirst()
+
+        if(rawQuery.count > 0){
+            token = rawQuery.getString(rawQuery.getColumnIndex(COLUMN_JWT))
+        }
+
+        rawQuery.close()
+
+        return token
+
+    }
+
+    fun upDateToken(newToken: String){
+
+        val db = this.writableDatabase
+
+        val values = ContentValues()
+
+        values.put(COLUMN_JWT,newToken)
+
+        db.update(TABLE_TYPE,values,null,null)
+        
     }
 
     fun dropElement(automovil: Automovil){
@@ -291,6 +334,7 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         const val COLUMN_PARKING_NAME = "parking_name"
         const val COLUMN_WORKER_NAME = "worker_name"
         const val COLUMN_SLOTS_NUMBER = "slots_number"
+        const val COLUMN_JWT = "json_web_token"
         const val COLUMN_FEE_HOUR = "fee_hour"
         const val COLUMN_FEE_PAST = "fee_past"
         const val COLUMN_FEE_DAY = "fee_day"
@@ -314,7 +358,7 @@ class Automovil(var matricula: String, var marca: String, var modelo:String,
 @Parcelize
 class DatosIniciales(var parkingName: String?, var workerName: String?,
                      var typeOfParking: Int?, var parkingFee: Array<Fee>?,
-                     var slotsNumber: Int?, var register: Boolean? = true): Parcelable
+                     var slotsNumber: Int?, var register: Boolean? = true, var token: String? = null): Parcelable
 
 @Parcelize
 class Fee(var time: Array<Int?>, var cost: Double): Parcelable
