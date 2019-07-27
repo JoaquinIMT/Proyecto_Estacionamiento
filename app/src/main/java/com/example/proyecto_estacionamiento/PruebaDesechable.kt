@@ -20,8 +20,8 @@ class PruebaDesechable : AppCompatActivity() {
     lateinit var passActivity: Button
     val dbHandler = MindOrksDBOpenHelper(this,null)
 
-    val url = ""
-    var registerMade: Int = 0
+    val url = "https://estacionamientos-dev.herokuapp.com/signin/employee/test"
+    var registerMade: Int = 3
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,8 +34,8 @@ class PruebaDesechable : AppCompatActivity() {
         passActivity = findViewById(R.id.send)
 
         passActivity.setOnClickListener {
-
-            val valor: String = makeJson(jsonThing.text.toString().toInt())
+            sendData()
+            /*val valor: String = makeJson(jsonThing.text.toString().toInt())
 
             val datos : DatosIniciales = fetchJson(0,valor)
 
@@ -47,7 +47,7 @@ class PruebaDesechable : AppCompatActivity() {
                 finishAffinity()
             }else{
                 Toast.makeText(this,"Cuenta o contraseña no validos",Toast.LENGTH_SHORT).show()
-            }
+            }*/
 
         }
     }
@@ -57,12 +57,17 @@ class PruebaDesechable : AppCompatActivity() {
         var datos: DatosIniciales?
 
         val name : String = jsonThing.text.toString()
-        val password : String = userPassword.text.toString()
+//        val password : String = userPassword.text.toString()
 
-        val json : String = """{
+        /*val json : String = """{
             "workerName" : "$name",
             "password" : "$password"
-            }""".trimIndent()
+            }""".trimIndent()*/
+
+        val json: String = """{
+            "enroll_id": "2019030505",
+            "password": "Martinez2004"
+            }""".trimIndent() //4
 
         val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
@@ -79,13 +84,17 @@ class PruebaDesechable : AppCompatActivity() {
                 val gson = GsonBuilder().create()
 
                 datos = gson.fromJson(bodyOfJson, DatosIniciales::class.java)
+                if (datos?.register != null){
 
-                if(datos?.register!!){
-                    saveJson(datos!!)
-                }else{
-                    makeRegisterFalse(2)
+                    if(datos?.register!!){
+                        println("Register made")
+                        saveJson(datos!!)
+                        makeRegisterFalse(0)
+                    }else{
+                        makeRegisterFalse(2)
+                    }
                 }
-                println("Register made")
+
             }
 
             override fun onFailure(call: Call, e: IOException) {
@@ -176,7 +185,7 @@ class PruebaDesechable : AppCompatActivity() {
         val json: String =  if(valor == 0){
             """{
     "register" : true,
-    "user.token": "ANAKAzsncasdAS",    
+    "token": "ANAKAzsncasdAS",    
     "parkingName": "Luis Estacionamiento",
     "workerName": "Joaquin",
     "typeOfParking": 0,
@@ -190,7 +199,7 @@ class PruebaDesechable : AppCompatActivity() {
         } else if (valor == 1){
             """{
     "register" : true,
-    "user.token": "ANAKAzsncasdAS",
+    "token": "ANAKAzsncasdAS",
     "parkingName": "Fernando Estacionamiento",
     "workerName": "Raquel",
     "typeOfParking": 1,
@@ -204,7 +213,7 @@ class PruebaDesechable : AppCompatActivity() {
         } else if (valor == 2){
             """{
     "register" : true,
-    "user.token": "ANAKAzsncasdAS",
+    "token": "ANAKAzsncasdAS",
     "parkingName": "Raquel Estacionamiento",
     "workerName": "Fernando",
     "typeOfParking": 2,
@@ -218,7 +227,7 @@ class PruebaDesechable : AppCompatActivity() {
         } else{
             """{
     "register" : false,
-    "user.token": null,
+    "token": null,
     "parkingName": null,
     "workerName": null,
     "typeOfParking": null,
