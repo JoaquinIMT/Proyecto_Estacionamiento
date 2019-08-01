@@ -35,10 +35,12 @@ class RegistroAutomovil : AppCompatActivity() {
     lateinit var folio: TextView
     lateinit var tipo: TextView
     lateinit var salida: Button
-    var carro: ImageView? = null
-    var carro2: CircleImageView? = null
-    var camioneta: ImageView? = null
-    var camioneta2: CircleImageView? = null
+    var carro: Button? = null
+
+    var camioneta: Button? = null
+    var fondo1: ImageView? = null
+    var fondo2: ImageView? = null
+
     var tipoVehiculo : Boolean=false
     var agregarMarmod : ImageView? = null
 
@@ -95,7 +97,6 @@ class RegistroAutomovil : AppCompatActivity() {
     )
 
     var nuevoArrayModelos = modelos
-
     override fun onCreate(savedInstanceState: Bundle?) {
         val botonVerde: Drawable = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_verde)!!
         val botonAzul: Drawable = ContextCompat.getDrawable(this,R.drawable.bg_boton_redondo_azul)!!
@@ -108,6 +109,8 @@ class RegistroAutomovil : AppCompatActivity() {
         marcaAutoCompletar= findViewById(R.id.matricula)
         modeloAutoCompletar= findViewById(R.id.modelo)
         colorAutocompletar = findViewById(R.id.color)
+        fondo1  = findViewById(R.id.imagenCarro)
+        fondo2  = findViewById(R.id.imagen)
 
 
         var adapterColor : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,VehiColor)
@@ -120,36 +123,31 @@ class RegistroAutomovil : AppCompatActivity() {
         saHora = findViewById(R.id.sahora)
         color = findViewById(R.id.color)
         folio = findViewById(R.id.folio)
-        carro = findViewById(R.id.btnCarro) as ImageView
-        carro2 = findViewById(R.id.btnCarro) as CircleImageView
-        camioneta = findViewById(R.id.btnCamioneta) as ImageView
-        camioneta2 = findViewById(R.id.btnCamioneta) as CircleImageView
+        carro = findViewById(R.id.btnCarro) as Button
+        camioneta = findViewById(R.id.btnCamioneta) as Button
         agregarMarmod = findViewById(R.id.imageView) as ImageView
         var adapterrMarcas : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,nuevoArray)
         this.marcaAutoCompletar.setAdapter(adapterrMarcas)
-        //var sqlpruebaa = sqlprueba(applicationContext,null,null,1)
         var sql  = sqlLite(this,"AUTOMOVIL.BD",null,1)
-        //val dbHandlerr = MindOrksDBOpenHelper(this, null)
-        //var sql : sqlLite = sqlLite(this,NOMBRE_BD = "AUTOMOVIL.BD",null)
+
         agregarMarcass()
         agregarModeloss()
 
 
         carro!!.setOnClickListener{
-            carro2!!.borderColor = Color.BLUE
-            camioneta2!!.borderColor = Color.GRAY
+            fondo1?.setColorFilter(Color.BLUE)
+            fondo2?.setColorFilter(Color.GRAY)
             tipoVehiculo=false
 
-            //Picasso.with(applicationContext).load(R.color.colorPrimary).into(carro)
+
 
         }
         camioneta!!.setOnClickListener{
-            carro2!!.borderColor = Color.GRAY
-            camioneta2!!.borderColor = Color.BLUE
+            fondo1?.setColorFilter(Color.GRAY)
+            fondo2?.setColorFilter(Color.BLUE)
             tipoVehiculo=true
         }
-        //photoImageView?.setBackgroundResource(R.drawable.carro2)
-        //Picasso.with(applicationContext).load(R.drawable.prueba4).into(photoImageView)
+
 
         val entrada = intent.getStringExtra("estado")
 
@@ -544,84 +542,6 @@ class RegistroAutomovil : AppCompatActivity() {
         }
 
     }
-    fun mandarModelos2 (){
-        for(num in 0..nuevoArray.size-1){
-            var textoPosicion:String = nuevoArray.get(num)
-            var textoMarca:String = marca.text.toString()
-            var comparacion = textoPosicion.compareTo(textoMarca)
-            if(comparacion==0){
-                var mod:String=nuevoArrayModelos.get(num)
-                var modelosCorre = mod.split(",")
-                //var a1 : MutableList<String>  = modelosCorre.toMutableList()
-                //aqui
-                /*
-                var nuevosModelos = dbHandler.llenarArrayModelo()
-                for(num3 in 0..nuevosModelos.size-1){
-                    a1.add(num3.toString())
-                }*/
-                var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,modelosCorre)
-                this.modeloAutoCompletar.setAdapter(adapterr)
-                modelosCorre=g
-
-            }
-        }
-        if(marca.text.isEmpty()){
-            for(num2 in 0..nuevoArrayModelos.size-1){
-                todosModelos=todosModelos+","+nuevoArrayModelos.get(num2)
-            }
-            val todosModelosSeparados  = todosModelos.split(",")
-            todosModelos=""
-            //var a2 : MutableList<String>  = todosModelosSeparados.toMutableList()
-            //aqui
-            /*
-            var nuevosModelos = dbHandler.llenarArrayModelo()
-            for(num3 in 0..nuevosModelos.size-1){
-                a2.add(num3.toString())
-            }*/
-            var adapterrr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,todosModelosSeparados)
-            this.modeloAutoCompletar.setAdapter(adapterrr)
-        }
-
-    }
-    fun mandarModelos3 (){
-        for(num in 0..nuevoArray.size-1){
-            var textoPosicion:String = nuevoArray.get(num)
-            var textoMarca:String = marca.text.toString()
-            var comparacion = textoPosicion.compareTo(textoMarca)
-            if(comparacion==0){
-                var mod:String=nuevoArrayModelos.get(num)
-                var modelosCorre = mod.split(",")
-                //var a1 : MutableList<String>  = modelosCorre.toMutableList()
-                //aqui
-                /*
-                var nuevosModelos = dbHandler.llenarArrayModelo()
-                for(num3 in 0..nuevosModelos.size-1){
-                    a1.add(num3.toString())
-                }*/
-                var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,modelosCorre)
-                this.modeloAutoCompletar.setAdapter(adapterr)
-                modelosCorre=g
-
-            }
-        }
-        if(marca.text.isEmpty()){
-            for(num2 in 0..nuevoArrayModelos.size-1){
-                todosModelos=todosModelos+","+nuevoArrayModelos.get(num2)
-            }
-            val todosModelosSeparados  = todosModelos.split(",")
-            todosModelos=""
-            //var a2 : MutableList<String>  = todosModelosSeparados.toMutableList()
-            //aqui
-            /*
-            var nuevosModelos = dbHandler.llenarArrayModelo()
-            for(num3 in 0..nuevosModelos.size-1){
-                a2.add(num3.toString())
-            }*/
-            var adapterrrr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,todosModelosSeparados)
-            this.modeloAutoCompletar.setAdapter(adapterrrr)
-        }
-
-    }
 
     fun autocompletaMarca(){
         for(num3 in 0..nuevoArrayModelos.size-1){
@@ -666,14 +586,7 @@ class RegistroAutomovil : AppCompatActivity() {
         //var adapterrMarcas : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,nuevoArrayModelos)
         //this.modeloAutoCompletar.setAdapter(adapterrMarcas)
     }
-    fun reiniciarActivity(actividad: Activity) {
-        val intent = Intent()
-        intent.setClass(actividad, actividad.javaClass)
-        //llamamos a la actividad
-        actividad.startActivity(intent)
-        //finalizamos la actividad actual
-        actividad.finish()
-    }
+
 
 
 }

@@ -1,5 +1,6 @@
 package com.example.proyecto_estacionamiento
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
@@ -35,9 +36,15 @@ class buscar_salidas : AppCompatActivity() {
         ha = findViewById(R.id.ha) as Button
         hs = findViewById(R.id.hs) as Button
         vt = findViewById(R.id.vt) as TextView
+        var carro : Button = findViewById(R.id.botonCarro) as Button
+        var imagenfondo1 : ImageView = findViewById(R.id.imagenFondo) as ImageView
+        carro.setOnClickListener{
+            imagenfondo1.setColorFilter(Color.BLUE)
+        }
 
         comenzar?.isEnabled = true
         pausar?.isEnabled = false
+
 
         tiempo?.setOnChronometerTickListener { chronometer ->
             val time = SystemClock.elapsedRealtime() - chronometer.base
@@ -58,7 +65,7 @@ class buscar_salidas : AppCompatActivity() {
             //hora = Date()
             //var fechaActual = android.text.format.DateFormat.format("dd-MM-yyyy",hora!!.time)
             //ha?.text= fechaActual.toString()
-            ha?.text = precio("15-06-2018","15:00","16-05-2019", "16:01")
+            ha?.text = precio("15-05-2019","15:00","16-05-2019", "16:01")
 
         }
 
@@ -127,10 +134,11 @@ class buscar_salidas : AppCompatActivity() {
 
     fun precio(fechaEntrada: String, horaEntrada: String, fechaSalida: String, horaSalida: String): String {
         var mesTotal:Int=0
+        var dias:Int
         var fechaEntradaSep = fechaEntrada.split("-")
         var fechaSalidaSep = fechaSalida.split("-")
         var año = fechaSalidaSep.get(2).toInt() - fechaEntradaSep.get(2).toInt()
-        var calAño:Int= fechaSalida.get(1).toInt()
+        var calAño:Int= fechaSalidaSep.get(1).toInt()
         if(calAño>=2){
             calAño = fechaSalidaSep.get(2).toInt()
         }else{
@@ -138,25 +146,58 @@ class buscar_salidas : AppCompatActivity() {
         }
         var mes = 0
         //AÑO
-        if (año > 1) {
+        var diasAñoFinal:Int = 0
+        if (año >= 1) {
             if (fechaSalidaSep.get(1).toInt() < fechaEntradaSep.get(1).toInt()) {
                 año = año - 1
-                año = año * 8760 //año en horas
+                var diasAño = fechaEntradaSep.get(2).toInt()
+
+                for(num in 1..año){
+                    var cal:Calendar = Calendar.getInstance()
+                    cal.set(Calendar.YEAR, diasAño)
+                    if(cal.getActualMaximum(DAY_OF_YEAR) > 365){
+                        diasAñoFinal = diasAñoFinal + 366
+                    }
+                    else{
+                        diasAñoFinal = diasAñoFinal + 365
+                    }
+                    diasAño=diasAño+1
+                }
+            }
+            else{
+                var diasAño = fechaEntradaSep.get(2).toInt()
+
+                for(num in 1..año){
+                    var cal:Calendar = Calendar.getInstance()
+                    cal.set(Calendar.YEAR, diasAño)
+                    if(cal.getActualMaximum(DAY_OF_YEAR) > 365){
+                        diasAñoFinal = diasAñoFinal + 366
+                    }
+                    else{
+                        diasAñoFinal = diasAñoFinal + 365
+                    }
+                    diasAño=diasAño+1
+                }
             }
         }
         //MES
         if (fechaSalidaSep.get(1).toInt() < fechaEntradaSep.get(1).toInt()) {
             mes = 12 - (fechaEntradaSep.get(1).toInt() - fechaSalidaSep.get(1).toInt())
             mesTotal= diasMes(mes,fechaEntradaSep.get(1).toInt(),calAño)
-            mesTotal = mes * 24 //mes en horas
+            //mesTotal = mes * 24 //mes en horas
         } else {
             mes = fechaSalidaSep.get(1).toInt() - fechaEntradaSep.get(1).toInt()
             mesTotal= diasMes(mes,fechaEntradaSep.get(1).toInt(),calAño)
-            mesTotal = mes * 24 //mes en horas
+            //mesTotal = mes * 24 //mes en horas
         }
         //DIAS
-
-
+        if(fechaEntradaSep.get(0).toInt()>fechaSalidaSep.get(0).toInt()){
+            dias = fechaEntradaSep.get(0).toInt()- fechaSalidaSep.get(0).toInt()
+            mesTotal = (mesTotal-dias)+diasAñoFinal
+        }else{
+            dias = fechaSalidaSep.get(0).toInt() - fechaEntradaSep.get(0).toInt()
+            mesTotal = (mesTotal+dias)+diasAñoFinal
+        }
         var horaEntradaSep = horaEntrada.split(":")
         var horaSalidaSep = horaSalida.split(":")
         var entNum: Int = horaEntradaSep.get(0).toInt()
@@ -171,16 +212,20 @@ class buscar_salidas : AppCompatActivity() {
             resMin = (60 - entNum) + salNum
             resHora = resHora - 60
         }
-        var resultado1: Int = (resHora + resMin) / 60
-        var aux: Int = resultado1
-        var resultado2: Double = (resHora.toDouble() + resMin.toDouble()) / 60
+        //var resultado1: Int = (resHora + resMin) / 60
+        var minutosTotales: Int = (resHora + resMin)
+        //var aux: Int = resultado1
+        //var resultado2: Double = (resHora.toDouble() + resMin.toDouble()) / 60
         var costo: Int
+        /*
         if (resultado2 == aux.toDouble()) {
-            costo = (resultado1) * 20
+            costo = resultado1 + (mesTotal*24)
             return costo.toString()
         }
-
-        costo = (resultado1 + 1) * 20
+        costo = (resultado1+1) + (mesTotal*24)
+        return costo.toString()
+        */
+        costo = minutosTotales + (mesTotal*24)*60
         return costo.toString()
     }
 
@@ -218,7 +263,11 @@ class buscar_salidas : AppCompatActivity() {
         else{
             return 28
         }
-
+    }
+    fun getFechaActual():String{
+        var hora: Date? = Date()
+        var fechaActual = android.text.format.DateFormat.format("dd-MM-yyyy",hora!!.time)
+        return fechaActual.toString()
     }
 }
 
