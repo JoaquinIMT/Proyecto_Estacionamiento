@@ -21,7 +21,7 @@ class PruebaDesechable : AppCompatActivity() {
     val dbHandler = MindOrksDBOpenHelper(this,null)
 
     val url = "https://estacionamientos-dev.herokuapp.com/signin/employee/test"
-    var registerMade: Int = 3
+    var registerMade: Int = 2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +63,11 @@ class PruebaDesechable : AppCompatActivity() {
             "workerName" : "$name",
             "password" : "$password"
             }""".trimIndent()*/
+        /*val json: String = """{
+            "enroll_id": "2019030505",
+            "password": "Martinez2004"
+            }""".trimIndent() //4
+        */
 
         val json: String = """{
             "enroll_id": "2019030505",
@@ -84,22 +89,30 @@ class PruebaDesechable : AppCompatActivity() {
                 val gson = GsonBuilder().create()
 
                 datos = gson.fromJson(bodyOfJson, DatosIniciales::class.java)
+
+                datos?.enrollId = "2019030505"
+
                 if (datos?.register != null){
 
                     if(datos?.register!!){
                         println("Register made")
                         saveJson(datos!!)
-                        makeRegisterFalse(0)
+                        responseCase(0)
+                        //makeRegisterFalse(0)
                     }else{
-                        makeRegisterFalse(2)
+                        responseCase(2)
+                        //makeRegisterFalse(2)
                     }
+                }else{
+                    Toast.makeText(applicationContext,"Fallo con API",Toast.LENGTH_SHORT).show()
                 }
 
             }
 
             override fun onFailure(call: Call, e: IOException) {
                 println("Fallo al intentar acceso")
-                makeRegisterFalse(1)
+                responseCase(1)
+                //makeRegisterFalse(1)
 
             }
 
@@ -130,6 +143,32 @@ class PruebaDesechable : AppCompatActivity() {
         )*/
 
 
+    }
+
+    private fun responseCase(case: Int){
+        if (case == 0){
+
+            val runnable = Runnable {
+                Toast.makeText(applicationContext,"Acceso concedido",Toast.LENGTH_SHORT).show()
+                val intent = Intent(applicationContext,MainActivityReal::class.java)
+                startActivity(intent)
+                finishAffinity()
+            }
+
+            runOnUiThread(
+                runnable
+            )
+
+
+
+        } else if(case == 1){
+            Toast.makeText(applicationContext,"Fallo al intentar acceso",Toast.LENGTH_SHORT).show()
+
+        }else if(case == 2){
+
+            Toast.makeText(applicationContext,"Usuario o contraseña invalido",Toast.LENGTH_SHORT).show()
+
+        }
     }
 
     private fun makeRegisterFalse(case: Int){

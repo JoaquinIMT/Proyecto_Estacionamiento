@@ -14,6 +14,11 @@
     <item android:title="@string/log_out">
         <menu>
             <item
+                    android:id="@+id/ic_upload"
+                    android:icon="@drawable/ic_file_upload_grey"
+                    android:title="Cerrar sesión"/>
+
+            <item
                     android:id="@+id/ic_power"
                     android:icon="@drawable/ic_power"
                     android:title="Cerrar sesión"/>

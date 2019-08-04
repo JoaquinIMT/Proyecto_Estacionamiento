@@ -89,10 +89,10 @@ class QR : AppCompatActivity() {
         }
 
         checkButton.setOnClickListener {
-            dbHandler.dropTable(true)
+            dbHandler.activeVisibility(false)
+            //dbHandler.dropTable(true)
             intent()
         }
-
     }
 
     override fun onBackPressed() {
@@ -164,6 +164,7 @@ class QR : AppCompatActivity() {
                     Toast.makeText(this, "Leido Correctamente" + result.contents, Toast.LENGTH_LONG).show()
                     etTextoParaCodigo?.text = result.contents
                     todo = result.contents
+                    dbHandler.activeVisibility(true)
                     dbHandler.dropTable(true)
                     dbHandler.createTable()
                     meterDatos()

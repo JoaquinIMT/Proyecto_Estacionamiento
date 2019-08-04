@@ -200,6 +200,8 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
                 + COLUMN_PARKING_NAME + " TEXT,"
                 + COLUMN_WORKER_NAME + " TEXT,"
                 + COLUMN_JWT + " TEXT,"
+                + COLUMN_SHOW_ACTIVE + " INTEGER,"
+                + COLUMN_ENROLL_ID + " TEXT,"
                 + COLUMN_SLOTS_NUMBER+ " INTEGER"+")")
         db.execSQL(CREATE_PRODCTS_TABLE_TYPE)
 
@@ -271,7 +273,7 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
 
     }
 
-    fun newType(datosIniciales: DatosIniciales){
+    fun newType(datosIniciales: DatosIniciales) {
 
         val db = this.writableDatabase
 
@@ -292,6 +294,8 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         values.put(COLUMN_PARKING_NAME, datosIniciales.parkingName)
         values.put(COLUMN_WORKER_NAME, datosIniciales.workerName)
         values.put(COLUMN_JWT, datosIniciales.token)
+        values.put(COLUMN_SHOW_ACTIVE,1)
+        values.put(COLUMN_ENROLL_ID,datosIniciales.enrollId)
 
         db.insert(TABLE_TYPE,null,values)
 
@@ -336,6 +340,48 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
 
         db.update(TABLE_TYPE,values,null,null)
         
+    }
+
+    fun activeVisibility(visible: Boolean){
+
+        val db = this.writableDatabase
+
+        val values = ContentValues()
+        if(visible){
+            values.put(COLUMN_SHOW_ACTIVE,1)
+        }else{
+            values.put(COLUMN_SHOW_ACTIVE,0)
+        }
+
+        db.update(TABLE_TYPE,values,null,null)
+
+    }
+
+    fun checkActive(): Boolean{
+        val db = this.readableDatabase
+
+        var active: Boolean = true
+
+        val cursor: Cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"
+                + TABLE_TYPE + "'", null)
+
+        if(cursor.count <= 0){
+            onCreateType(db)
+        }
+
+        cursor.close()
+
+        val rawQuery = db.rawQuery("SELECT * FROM $TABLE_TYPE", null)
+
+        rawQuery.moveToFirst()
+
+        if(rawQuery.count > 0){
+            active = rawQuery.getInt(rawQuery.getColumnIndex(COLUMN_SHOW_ACTIVE)) != 0
+        }
+
+        rawQuery.close()
+
+        return active
     }
 
     fun dropElement(automovil: Automovil){
@@ -449,6 +495,8 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         const val COLUMN_WORKER_NAME = "worker_name"
         const val COLUMN_SLOTS_NUMBER = "slots_number"
         const val COLUMN_JWT = "json_web_token"
+        const val COLUMN_SHOW_ACTIVE = "active_parking"
+        const val COLUMN_ENROLL_ID = "enroll_id"
         const val COLUMN_FEE_HOUR = "fee_hour"
         const val COLUMN_FEE_PAST = "fee_past"
         const val COLUMN_FEE_DAY = "fee_day"
@@ -472,7 +520,8 @@ class Automovil(var matricula: String, var marca: String, var modelo:String,
 @Parcelize
 class DatosIniciales(var parkingName: String?, var workerName: String?,
                      var typeOfParking: Int?, var parkingFee: Array<Fee>?,
-                     var slotsNumber: Int?, var register: Boolean? = true, var token: String? = null): Parcelable
+                     var slotsNumber: Int?, var register: Boolean? = true,
+                     var token: String? = null, var enrollId: String? = null): Parcelable
 
 @Parcelize
 class Fee(var time: Array<Int?>, var cost: Double): Parcelable

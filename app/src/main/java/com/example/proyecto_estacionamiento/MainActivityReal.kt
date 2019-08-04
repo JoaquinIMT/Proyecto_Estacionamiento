@@ -21,22 +21,30 @@ import android.widget.SearchView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
+import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.content_main_activity_real.*
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.*
 
 class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     lateinit var searchView: SearchView
-    val dbHandler = MindOrksDBOpenHelper(this, null)
     lateinit var fragmentoSalidas: FragmentoSalidas
     lateinit var fragmentoBusqueda: FragmentoBusqueda
     lateinit var primerFragmento: PrimerFragmento
     lateinit var estacionamiento: Estacionamiento
+    lateinit var pasado: Pasado
     lateinit var datos: DatosIniciales
     lateinit var workerNameTV: TextView
     lateinit var pakingName: TextView
+
+    val dbHandler = MindOrksDBOpenHelper(this, null)
+    val urlPost = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,7 +92,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
 
         //var estacionamiento: Estacionamiento? =  null
-        var pasado: Pasado? =  null
+        //var pasado: Pasado? =  null
 
         val dataBaseNew: MutableList<Automovil> = getSQLITE(true)
 
@@ -242,11 +250,24 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
             R.id.ic_power -> {
                 if(hasInternetAccess()){
-                    Toast.makeText(this, "Se borraron las salidas al salir de sesión", Toast.LENGTH_SHORT).show()
+                    if(postData()){
+                        checkOut()
+                    }
+                    /*Toast.makeText(this, "Se borraron las salidas al salir de sesión", Toast.LENGTH_SHORT).show()
                     dbHandler.dropTable(false) //Mandamos false para eliminar la tabla de salidas de la base de datos
-                    intentToMainActivityReal()
+                    intentToMainActivityReal()*/
+
                 }
             }
+
+            R.id.ic_upload -> {
+
+                if(hasInternetAccess()){
+                    postData()
+                }
+
+            }
+
         }
 
 
@@ -255,21 +276,113 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         return true
     }
 
+    private fun checkOut(){
+
+        dbHandler.dropTable(false)
+    }
+
+    private fun postData(): Boolean{
+
+        val json: String = makeJson()
+
+        var success: Boolean = false
+
+        fun inform(){
+
+            success = true
+
+        }
+
+        val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+        val request = Request.Builder().url(urlPost).post(body).header("JWT",dbHandler.getToken()!!).build()
+
+        val client2 = OkHttpClient()
+
+        client2.newCall(request).enqueue(object: Callback {
+
+            override fun onResponse(call: Call, response: Response) {
+
+                val bodyOfJson = response.body?.string()
+                Toast.makeText(applicationContext, "Datos enviados correctamente",Toast.LENGTH_SHORT).show()
+                inform()
+
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+
+                println("Fallo al intentar acceso")
+                Toast.makeText(applicationContext, "Error al enviar datos, intentelo más tarde",Toast.LENGTH_SHORT).show()
+
+            }
+
+        })
+
+        return success
+
+    }
+
+    private fun makeJson(): String{
+        var array: String = "["
+        val parkingName: String = datos.parkingName!!
+        val enrollId: String = datos.enrollId!!
+
+        var dateIn: Date
+        var dateOut: Date
+
+        for(i in pasado.carros){
+            dateIn = Date()
+            dateOut = Date()
+            array += """{
+                 "folio": ${i.folio}, 
+                 "check_in": $dateIn,
+                 "check_out" $dateOut,
+                 "total": 20.0,
+                 "plate": ${i.matricula},
+                 "model": ${i.modelo},
+                 "color": ${i.color},
+                 "brand": ${i.marca},
+                 "type": ${i.tipo}
+                 },""".trimIndent()
+        }
+        array.dropLast(1)
+        array += "]"
+
+        val json: String = """{
+            
+            "cars": $array
+            "parking_name": $parkingName,
+            "enroll_id": $enrollId
+        
+        }""".trimIndent()
+
+        return json
+    }
+
     fun getDatosIniciales(): DatosIniciales{
 
         val cursor = dbHandler.getType()
 
-        cursor!!.moveToFirst()
+
 
         //datos.parkingFee = listOf(cursor_fee.getFloat(cursor_fee.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO)),cursor_fee.getFloat(cursor_fee.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO)))
+        var parkingName = ""
+        var slotsNumber = 1
+        var workerName = ""
+        var typeOfParking = 0
+        var enroll = ""
 
-        val parkingName = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_PARKING_NAME))
-        val slotsNumber = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_SLOTS_NUMBER))
-        val workerName = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_WORKER_NAME))
-        val typeOfParking = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO))
+        if(cursor!!.count > 0 && cursor.moveToFirst()){
+             parkingName = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_PARKING_NAME))
+             slotsNumber = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_SLOTS_NUMBER))
+             workerName = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_WORKER_NAME))
+             typeOfParking = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO))
+             enroll = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_ENROLL_ID))
+        }
 
         cursor.close()
-        return DatosIniciales(parkingName, workerName, typeOfParking, arrayOf(Fee(arrayOf(),0.0)), slotsNumber)
+
+        return DatosIniciales(parkingName, workerName, typeOfParking, arrayOf(Fee(arrayOf(),0.0)), slotsNumber, enrollId = enroll)
     }
 
     fun getFolio(): String {
