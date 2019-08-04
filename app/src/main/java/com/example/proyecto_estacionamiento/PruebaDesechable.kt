@@ -106,7 +106,7 @@ class PruebaDesechable : AppCompatActivity() {
         })
 
 
-        Handler().postDelayed(
+        /*Handler().postDelayed(
             {
                 if (registerMade == 0){
 
@@ -127,13 +127,32 @@ class PruebaDesechable : AppCompatActivity() {
 
             }
             ,50
-        )
+        )*/
 
 
     }
 
     private fun makeRegisterFalse(case: Int){
-        registerMade = case
+
+        runOnUiThread {
+            if (case == 0){
+
+                Toast.makeText(this,"Acceso concedido",Toast.LENGTH_SHORT).show()
+
+                val intent = Intent(this,MainActivityReal::class.java)
+                startActivity(intent)
+                finishAffinity()
+
+            } else if(case == 1){
+                Toast.makeText(this,"Fallo al intentar acceso",Toast.LENGTH_SHORT).show()
+
+            }else if(case == 2){
+
+                Toast.makeText(this,"Usuario o contraseña invalido",Toast.LENGTH_SHORT).show()
+
+            }
+        }
+
     }
 
 

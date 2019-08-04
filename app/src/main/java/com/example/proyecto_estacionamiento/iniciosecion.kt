@@ -1,30 +1,171 @@
 package com.example.proyecto_estacionamiento
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
+import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
+import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.activity_iniciosecion.*
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.IOException
 
 class iniciosecion : AppCompatActivity() {
+
+    lateinit var userName: TextView
+    lateinit var userPassword: TextView
+    lateinit var passActivity: Button
+    val dbHandler = MindOrksDBOpenHelper(this,null)
+
+    val url = "https://estacionamientos-dev.herokuapp.com/signin/employee/test"
+    var registerMade: Int = 3
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_iniciosecion)
 
-        val textoContraseña= findViewById(R.id.textoContraseña) as TextView
+        userName = findViewById(R.id.textoCorreo)
+        userPassword = findViewById(R.id.textoContraseña)
+        passActivity = findViewById(R.id.botonlogin)
+
         var valor = true
+
         botonOjo.setOnClickListener{
             if(valor == true){
-                textoContraseña.setInputType(InputType.TYPE_CLASS_TEXT)
+                userPassword.setInputType(InputType.TYPE_CLASS_TEXT)
                 botonOjo.setBackgroundResource(R.drawable.ojocontra)
                 valor=false
             }
             else{
-                textoContraseña.setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD)
+                userPassword.setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD)
                 botonOjo.setBackgroundResource(R.drawable.ojocontradesac2)
                 valor=true
             }
         }
+
+        passActivity.setOnClickListener {
+            if(hasText()){
+                sendData()
+            }else{
+                Toast.makeText(this,"Llene ambos campos",Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
+    }
+
+    private fun hasText(): Boolean{
+        return (userName.text.isNotBlank() && userPassword.text.isNotEmpty())
+    }
+
+    private fun sendData(){
+
+        var datos: DatosIniciales?
+
+        val name : String = userName.text.toString()
+        val password : String = userPassword.text.toString()
+
+        val json : String = """{
+            "workerName" : "$name",
+            "password" : "$password"
+            }""".trimIndent()
+
+        /*val json: String = """{
+            "enroll_id": "2019030505",
+            "password": "Martinez2004"
+            }""".trimIndent() //4*/
+
+        val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+        val request = Request.Builder().url(url).post(body).build()
+
+        val client2 = OkHttpClient()
+
+        client2.newCall(request).enqueue(object: Callback {
+
+            override fun onResponse(call: Call, response: Response) {
+
+                val bodyOfJson = response.body?.string()
+
+                val gson = GsonBuilder().create()
+
+                datos = gson.fromJson(bodyOfJson, DatosIniciales::class.java)
+                if (datos?.register != null){
+
+                    if(datos?.register!!){
+                        println("Register made")
+                        saveJson(datos!!)
+                        handleResponse(0)
+                    }else{
+                        handleResponse(2)
+                    }
+                }
+
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                println("Fallo al intentar acceso")
+                handleResponse(1)
+
+            }
+
+        })
+
+
+        /*Handler().postDelayed(
+            {
+                if (registerMade == 0){
+
+                    Toast.makeText(this,"Acceso concedido",Toast.LENGTH_SHORT).show()
+
+                    val intent = Intent(this,MainActivityReal::class.java)
+                    startActivity(intent)
+                    finishAffinity()
+
+                } else if(registerMade == 1){
+                    Toast.makeText(this,"Fallo al intentar acceso",Toast.LENGTH_SHORT).show()
+
+                }else if(registerMade == 2){
+
+                    Toast.makeText(this,"Usuario o contraseña invalido",Toast.LENGTH_SHORT).show()
+
+                }
+
+            }
+            ,50
+        )*/
+
+
+    }
+
+    private fun handleResponse(case: Int){
+
+        runOnUiThread {
+            if (case == 0){
+
+                Toast.makeText(this,"Acceso concedido",Toast.LENGTH_SHORT).show()
+
+                val intent = Intent(this,MainActivityReal::class.java)
+                startActivity(intent)
+                finishAffinity()
+
+            } else if(case == 1){
+                Toast.makeText(this,"Fallo al intentar acceso",Toast.LENGTH_SHORT).show()
+
+            }else if(case == 2){
+
+                Toast.makeText(this,"Usuario o contraseña invalido",Toast.LENGTH_SHORT).show()
+
+            }
+        }
+
+    }
+
+    private fun saveJson(datos: DatosIniciales){
+        dbHandler.newType(datos)
     }
 }
