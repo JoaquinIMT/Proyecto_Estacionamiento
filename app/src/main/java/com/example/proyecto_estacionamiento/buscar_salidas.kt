@@ -1,16 +1,16 @@
 package com.example.proyecto_estacionamiento
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
-import android.widget.Button
-import android.widget.Chronometer
+import android.widget.*
 import kotlin.toULong as toULong1
-import android.widget.Toast
 import java.util.*
-import android.widget.TextView
 import java.lang.Double.parseDouble
+import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.util.Calendar.DAY_OF_YEAR
 
 
 class buscar_salidas : AppCompatActivity() {
@@ -20,10 +20,10 @@ class buscar_salidas : AppCompatActivity() {
     var pausar: Button? = null
     var ha: Button? = null
     var hs: Button? = null
-    var hora : Date? = null
-    var vt : TextView? = null
-    var mili : Long? = null
-    var mili2 : Long? = null
+    var hora: Date? = null
+    var vt: TextView? = null
+    var mili: Long? = null
+    var mili2: Long? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,11 +36,17 @@ class buscar_salidas : AppCompatActivity() {
         ha = findViewById(R.id.ha) as Button
         hs = findViewById(R.id.hs) as Button
         vt = findViewById(R.id.vt) as TextView
+        var carro : Button = findViewById(R.id.botonCarro) as Button
+        var imagenfondo1 : ImageView = findViewById(R.id.imagenFondo) as ImageView
+        carro.setOnClickListener{
+            imagenfondo1.setColorFilter(Color.BLUE)
+        }
 
         comenzar?.isEnabled = true
         pausar?.isEnabled = false
 
-        tiempo?.setOnChronometerTickListener{ chronometer ->
+
+        tiempo?.setOnChronometerTickListener { chronometer ->
             val time = SystemClock.elapsedRealtime() - chronometer.base
             val h = (time / 3600000).toInt()
             val m = (time - h * 3600000).toInt() / 60000
@@ -49,20 +55,26 @@ class buscar_salidas : AppCompatActivity() {
                 (if (h < 10) "0$h" else h).toString() + ":" + (if (m < 10) "0$m" else m) + ":" + if (s < 10) "0$s" else s
             chronometer.text = t
         }
-        ha?.setOnClickListener{
+        ha?.setOnClickListener {
+            /*
             hora = Date()
             var gg = getHoraActual("HH:mm")
             mili = hora?.time
             ha?.text = gg
+            */
+            //hora = Date()
+            //var fechaActual = android.text.format.DateFormat.format("dd-MM-yyyy",hora!!.time)
+            //ha?.text= fechaActual.toString()
+            ha?.text = precio("15-05-2019","15:00","16-05-2019", "16:01")
 
         }
 
-        hs?.setOnClickListener{
+        hs?.setOnClickListener {
             hora = Date()
             var gg = getHoraActual("HH:mm")
             mili2 = hora?.time
             hs?.text = gg
-            horaFinal(mili,mili2)
+            horaFinal(mili, mili2)
         }
 
 
@@ -70,17 +82,17 @@ class buscar_salidas : AppCompatActivity() {
 
 
 
-        tiempo?.base=SystemClock.elapsedRealtime()
-        tiempo?.text=("00:00:00")
+        tiempo?.base = SystemClock.elapsedRealtime()
+        tiempo?.text = ("00:00:00")
 
-        comenzar?.setOnClickListener{
+        comenzar?.setOnClickListener {
             comenzar?.isEnabled = false
             pausar?.isEnabled = true
             tiempo?.base = SystemClock.elapsedRealtime()
             tiempo?.start()
         }
 
-        pausar?.setOnClickListener{
+        pausar?.setOnClickListener {
             comenzar?.isEnabled = true
             pausar?.isEnabled = false
             tiempo?.stop()
@@ -88,6 +100,7 @@ class buscar_salidas : AppCompatActivity() {
         }
 
     }
+
     private fun showElapsedTime() {
         val time2 = SystemClock.elapsedRealtime() - tiempo!!.base
         val h = (time2 / 3600000).toInt()
@@ -101,6 +114,7 @@ class buscar_salidas : AppCompatActivity() {
             Toast.LENGTH_SHORT
         ).show()
     }
+
     fun getHoraActual(strFormato: String): String {
 
         val objCalendar = Calendar.getInstance()
@@ -111,15 +125,150 @@ class buscar_salidas : AppCompatActivity() {
     }
 
 
-
-    fun horaFinal(entrada:Long?,salida:Long?){
-        var  horaFinal = salida!!- entrada!!
+    fun horaFinal(entrada: Long?, salida: Long?) {
+        var horaFinal = salida!! - entrada!!
         horaFinal = horaFinal.div(1000)
         horaFinal = horaFinal.div(60)
-        vt?.text= horaFinal.toString()
+        vt?.text = horaFinal.toString()
     }
 
+    fun precio(fechaEntrada: String, horaEntrada: String, fechaSalida: String, horaSalida: String): String {
+        var mesTotal:Int=0
+        var dias:Int
+        var fechaEntradaSep = fechaEntrada.split("-")
+        var fechaSalidaSep = fechaSalida.split("-")
+        var año = fechaSalidaSep.get(2).toInt() - fechaEntradaSep.get(2).toInt()
+        var calAño:Int= fechaSalidaSep.get(1).toInt()
+        if(calAño>=2){
+            calAño = fechaSalidaSep.get(2).toInt()
+        }else{
+            calAño = fechaSalidaSep.get(2).toInt()-1
+        }
+        var mes = 0
+        //AÑO
+        var diasAñoFinal:Int = 0
+        if (año >= 1) {
+            if (fechaSalidaSep.get(1).toInt() < fechaEntradaSep.get(1).toInt()) {
+                año = año - 1
+                var diasAño = fechaEntradaSep.get(2).toInt()
 
+                for(num in 1..año){
+                    var cal:Calendar = Calendar.getInstance()
+                    cal.set(Calendar.YEAR, diasAño)
+                    if(cal.getActualMaximum(DAY_OF_YEAR) > 365){
+                        diasAñoFinal = diasAñoFinal + 366
+                    }
+                    else{
+                        diasAñoFinal = diasAñoFinal + 365
+                    }
+                    diasAño=diasAño+1
+                }
+            }
+            else{
+                var diasAño = fechaEntradaSep.get(2).toInt()
 
+                for(num in 1..año){
+                    var cal:Calendar = Calendar.getInstance()
+                    cal.set(Calendar.YEAR, diasAño)
+                    if(cal.getActualMaximum(DAY_OF_YEAR) > 365){
+                        diasAñoFinal = diasAñoFinal + 366
+                    }
+                    else{
+                        diasAñoFinal = diasAñoFinal + 365
+                    }
+                    diasAño=diasAño+1
+                }
+            }
+        }
+        //MES
+        if (fechaSalidaSep.get(1).toInt() < fechaEntradaSep.get(1).toInt()) {
+            mes = 12 - (fechaEntradaSep.get(1).toInt() - fechaSalidaSep.get(1).toInt())
+            mesTotal= diasMes(mes,fechaEntradaSep.get(1).toInt(),calAño)
+            //mesTotal = mes * 24 //mes en horas
+        } else {
+            mes = fechaSalidaSep.get(1).toInt() - fechaEntradaSep.get(1).toInt()
+            mesTotal= diasMes(mes,fechaEntradaSep.get(1).toInt(),calAño)
+            //mesTotal = mes * 24 //mes en horas
+        }
+        //DIAS
+        if(fechaEntradaSep.get(0).toInt()>fechaSalidaSep.get(0).toInt()){
+            dias = fechaEntradaSep.get(0).toInt()- fechaSalidaSep.get(0).toInt()
+            mesTotal = (mesTotal-dias)+diasAñoFinal
+        }else{
+            dias = fechaSalidaSep.get(0).toInt() - fechaEntradaSep.get(0).toInt()
+            mesTotal = (mesTotal+dias)+diasAñoFinal
+        }
+        var horaEntradaSep = horaEntrada.split(":")
+        var horaSalidaSep = horaSalida.split(":")
+        var entNum: Int = horaEntradaSep.get(0).toInt()
+        var salNum: Int = horaSalidaSep.get(0).toInt()
+        var resHora = (salNum - entNum) * 60
+        entNum = horaEntradaSep.get(1).toInt()
+        salNum = horaSalidaSep.get(1).toInt()
+        var resMin = 0
+        if (salNum > entNum) {
+            resMin = salNum - entNum
+        } else {
+            resMin = (60 - entNum) + salNum
+            resHora = resHora - 60
+        }
+        //var resultado1: Int = (resHora + resMin) / 60
+        var minutosTotales: Int = (resHora + resMin)
+        //var aux: Int = resultado1
+        //var resultado2: Double = (resHora.toDouble() + resMin.toDouble()) / 60
+        var costo: Int
+        /*
+        if (resultado2 == aux.toDouble()) {
+            costo = resultado1 + (mesTotal*24)
+            return costo.toString()
+        }
+        costo = (resultado1+1) + (mesTotal*24)
+        return costo.toString()
+        */
+        costo = minutosTotales + (mesTotal*24)*60
+        return costo.toString()
+    }
+
+    fun diasMes(cont: Int, mesAct: Int, año :Int): Int {
+        var aux = mesAct
+        var mesTotal: Int = 0
+        for (num in 1..cont) {
+            when (aux) {
+                1 -> mesTotal=mesTotal+31
+                2 -> mesTotal=mesTotal+esBisiesto(año)
+                3 -> mesTotal=mesTotal+31
+                4 -> mesTotal=mesTotal+30
+                5 -> mesTotal=mesTotal+31
+                6 -> mesTotal=mesTotal+30
+                7 -> mesTotal=mesTotal+31
+                8 -> mesTotal=mesTotal+31
+                9 -> mesTotal=mesTotal+30
+                10 -> mesTotal=mesTotal+31
+                11 -> mesTotal=mesTotal+30
+                12 -> mesTotal=mesTotal+31
+            }
+            aux++
+            if(aux>12){
+                aux=1
+            }
+        }
+        return mesTotal
+    }
+    fun esBisiesto(año:Int):Int {
+        var cal:Calendar = Calendar.getInstance()
+        cal.set(Calendar.YEAR, año)
+        if(cal.getActualMaximum(DAY_OF_YEAR) > 365){
+            return 29
+        }
+        else{
+            return 28
+        }
+    }
+    fun getFechaActual():String{
+        var hora: Date? = Date()
+        var fechaActual = android.text.format.DateFormat.format("dd-MM-yyyy",hora!!.time)
+        return fechaActual.toString()
+    }
 }
+
 

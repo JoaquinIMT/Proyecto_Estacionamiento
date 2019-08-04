@@ -194,19 +194,21 @@ class QR : AppCompatActivity() {
 
         for (i in 0..separado.size-2) {
 
-            val posicion = separado.get(i)
-            //Toast.makeText(this, posicion, Toast.LENGTH_SHORT).show()
-            if(i == 0){
-                dbHandler.upDateFolio(posicion)
-            } else {
-                var separado2 = posicion.split(",")
-                Toast.makeText(this, "entre al if", Toast.LENGTH_SHORT).show()
-                val automovil = Automovil(separado2.get(0), separado2.get(1), separado2.get(2), separado2.get(3), separado2.get(4), separado2.get(6), false,separado2.get(8))
-                dbHandler.addFields(automovil, true)
+                val posicion = separado.get(i)
+                //Toast.makeText(this, posicion, Toast.LENGTH_SHORT).show()
+                if(i == 0){
+                    dbHandler.upDateFolio(posicion)
+                } else{
+                    var separado2 = posicion.split(",")
+                    Toast.makeText(this, "entre al if", Toast.LENGTH_SHORT).show()
+                    var tipov:Boolean = separado2.get(7).toBoolean()
+                    val automovil = Automovil(separado2.get(0), separado2.get(1), separado2.get(2), separado2.get(3), separado2.get(4), separado2.get(6), tipov,separado2.get(8))
+                    dbHandler.addFields(automovil, true)
+
+                }
 
             }
-        }
-
     }
 
 }
+

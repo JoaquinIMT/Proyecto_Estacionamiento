@@ -2,6 +2,7 @@ package com.example.proyecto_estacionamiento
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
+import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Parcelable
@@ -45,9 +46,10 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
                 + COLUMN_FOLIO + " TEXT,"
                 + COLUMN_TIPO + " INTEGER,"
                 + COLUMN_HORAE + " TEXT,"
-                + COLUMN_HORASA + " TEXT" +")")
-
+                + COLUMN_HORASA + " TEXT" + ")")
         db.execSQL(CREATE_PRODUCTS_TABLE)
+
+
     }
 
     fun onCreateSalida(db: SQLiteDatabase) {
@@ -62,10 +64,119 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
                 + COLUMN_FOLIO + " TEXT,"
                 + COLUMN_TIPO + " INTEGER,"
                 + COLUMN_HORAE + " TEXT,"
-                + COLUMN_HORASA + " TEXT" +")")
+                + COLUMN_HORASA + " TEXT" + ")")
 
         db.execSQL(CREATE_PRODUCTS_TABLE_SALIDA)
 
+    }
+
+    fun onCreateMarMod(db: SQLiteDatabase) {
+
+        val CREATE_PRODUCTS_TABLE_MARMOD = ("CREATE TABLE " +
+                TABLE_MARMOD +
+                "(" + COLUMN_MARCA + " TEXT,"
+                + COLUMN_MODELO + " TEXT" + ")")
+
+        db.execSQL(CREATE_PRODUCTS_TABLE_MARMOD)
+
+    }
+    fun llenarArrayMarca(): ArrayList<String> {
+        var listaMarca : ArrayList<String> = ArrayList<String>()
+        val db = this.writableDatabase
+        val cursor: Cursor = db.rawQuery(
+            "select DISTINCT tbl_name from sqlite_master where tbl_name = '"
+                    + TABLE_MARMOD + "'", null
+        )
+
+        if (cursor.count <= 0) {
+            onCreateMarMod(db)
+        }
+        cursor.close()
+        val query : String = "SELECT * FROM TABLE_MARMOD"
+        var registros: Cursor = db.rawQuery(query,null)
+
+        if(registros.moveToFirst()){
+            do{
+                listaMarca.add(registros.getString(0))
+            }while (registros.moveToNext())
+        }
+        return listaMarca
+    }
+/*
+    fun getMarMod(): Cursor? {
+        val db = this.readableDatabase
+        val cursor: Cursor = db.rawQuery(
+            "select DISTINCT tbl_name from sqlite_master where tbl_name = '"
+                    + TABLE_MARMOD + "'", null
+        )
+
+        if (cursor.count <= 0) {
+            onCreateMarMod(db)
+        }
+        cursor.close()
+    }*/
+    fun crear() {
+    val db = this.writableDatabase
+    val cursor: Cursor = db.rawQuery(
+        "select DISTINCT tbl_name from sqlite_master where tbl_name = '"
+                + TABLE_MARMOD + "'", null
+    )
+    if (cursor.count <= 0) {
+        onCreateMarMod(db)
+    }
+    cursor.close()
+    }
+
+    fun guardar(marca: String, modelo: String): String {
+        val db = this.writableDatabase
+        val cursor: Cursor = db.rawQuery(
+            "select DISTINCT tbl_name from sqlite_master where tbl_name = '"
+                    + TABLE_MARMOD + "'", null
+        )
+
+        if (cursor.count <= 0) {
+            onCreateMarMod(db)
+        }
+        cursor.close()
+        var mensaje = ""
+        val database = this.writableDatabase
+        val contenedor = ContentValues()
+        contenedor.put("marca", marca)
+        contenedor.put("modelo", modelo)
+        try {
+            database.insertOrThrow(TABLE_MARMOD, null, contenedor)
+            mensaje = "Ingresado Correctamente"
+        } catch (e: SQLException) {
+            mensaje = "No Ingresado"
+        }
+        database.close()
+        return mensaje
+    }
+    /*
+    fun llenarArrayMarca(): ArrayList<String> {
+        var listaMarca : ArrayList<String> = ArrayList<String>()
+        val db = this.writableDatabase
+        val query : String = "SELECT * FROM TABLE_MARMOD"
+        var registros: Cursor = db.rawQuery(query,null)
+        if(registros.moveToFirst()){
+            do{
+                listaMarca.add(registros.getString(0))
+            }while (registros.moveToNext())
+        }
+        return listaMarca
+
+    }*/
+    fun llenarArrayModelo(): ArrayList<String> {
+        var listaModelo : ArrayList<String> = ArrayList()
+        val db = this.writableDatabase
+        val query : String = "SELECT * FROM TABLE_MARMOD"
+        var registros: Cursor = db.rawQuery(query,null)
+        if(registros.moveToFirst()){
+            do{
+                listaModelo.add(registros.getString(1))
+            }while (registros.moveToNext())
+        }
+        return listaModelo
     }
 
     fun onCreateFolio(db: SQLiteDatabase){
@@ -97,8 +208,10 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ESTACIONAMIENTO)
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SALIDA)
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MARMOD)
         onCreate(db)
         onCreateSalida(db)
+        onCreateMarMod(db)
     }
 
     fun createTable(){
@@ -320,6 +433,7 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         private val DATABASE_NAME = "mindorksName.db"
         const val TABLE_ESTACIONAMIENTO = "estacionamiento_completo"
         const val TABLE_SALIDA = "salida_completa"
+        const val TABLE_MARMOD = "marcaModelo_completa"
         const val TABLE_FOLIO = "folio_mayor"
         const val TABLE_TYPE = "tipo_estacionamiento"
         const val COLUMN_ID = "_id"

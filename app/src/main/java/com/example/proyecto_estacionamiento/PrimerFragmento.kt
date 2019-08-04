@@ -33,6 +33,7 @@ class PrimerFragmento(val lugares: Int, val total: Float, val codigo: String, va
         entraCarro = view.findViewById(R.id.nuevo_registro)
         // Inflate the layout for this fragment
         espacios = view.findViewById(R.id.espacios)
+
         numberOfGenerals = view.findViewById(R.id.number_generals)
         numberOfEspecials = view.findViewById(R.id.number_especials)
         textEspecial = view.findViewById(R.id.textespecial)
@@ -48,11 +49,12 @@ class PrimerFragmento(val lugares: Int, val total: Float, val codigo: String, va
         numberOfGenerals.text = generalEspecial[0].toString()
         numberOfEspecials.text = generalEspecial[1].toString()
 
-
         espacios.text = lugares.toString()
 
-        val quitar: Float = 100/total
 
+
+
+        val quitar: Float = 100/total
         progressBar = view.findViewById(R.id.progressBar)
 
         progressBar?.progress=(quitar*lugares).toInt()

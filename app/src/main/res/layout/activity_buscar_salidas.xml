@@ -60,4 +60,26 @@
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp" android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/hs"/>
+    <Button
+            android:text="Button"
+            android:layout_width="100dp"
+            android:layout_height="70dp"
+            android:id="@+id/botonCarro" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginLeft="8dp" android:layout_marginStart="8dp"
+            app:layout_constraintHorizontal_bias="0.498"
+            android:src="@drawable/boton_dedondeado_grande" android:background="@drawable/carro"
+            android:layout_marginTop="100dp" app:layout_constraintTop_toBottomOf="@+id/vt"
+            android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"/>
+    <ImageView
+            android:layout_width="105dp"
+            android:layout_height="76dp" app:srcCompat="@android:color/darker_gray"
+            android:id="@+id/imagenFondo"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="16dp" android:layout_marginRight="16dp"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintHorizontal_bias="0.515"
+            android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="100dp" app:layout_constraintTop_toBottomOf="@+id/vt"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
