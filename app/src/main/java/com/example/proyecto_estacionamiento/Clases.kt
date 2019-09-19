@@ -6,6 +6,7 @@ import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Parcelable
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -70,6 +71,34 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
 
     }
 
+    fun onCreateFolio(db: SQLiteDatabase){
+        val CREATE_PRODUCTS_TABLE_NUMERO = ("CREATE TABLE " +
+                TABLE_FOLIO +
+                "(" + COLUMN_ID + " INTEGER PRIMARY KEY,"
+                + COLUMN_FOLIO + " TEXT" +")")
+
+        db.execSQL(CREATE_PRODUCTS_TABLE_NUMERO)
+        val values = ContentValues()
+        values.put(COLUMN_FOLIO,"A0000")
+        db.insert(TABLE_FOLIO,null,values)
+
+    }
+
+    fun onCreateType(db: SQLiteDatabase){
+        val CREATE_PRODCTS_TABLE_TYPE = ("CREATE TABLE " +
+                TABLE_TYPE +
+                "(" + COLUMN_ID + " INTEGER PRIMARY KEY,"
+                + COLUMN_TIPO + " INTEGER,"
+                + COLUMN_PARKING_NAME + " TEXT,"
+                + COLUMN_WORKER_NAME + " TEXT,"
+                + COLUMN_JWT + " TEXT,"
+                + COLUMN_SHOW_ACTIVE + " INTEGER,"
+                + COLUMN_ENROLL_ID + " TEXT,"
+                + COLUMN_SLOTS_NUMBER+ " INTEGER"+")")
+        db.execSQL(CREATE_PRODCTS_TABLE_TYPE)
+
+    }
+
     fun onCreateMarMod(db: SQLiteDatabase) {
 
         val CREATE_PRODUCTS_TABLE_MARMOD = ("CREATE TABLE " +
@@ -80,6 +109,66 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         db.execSQL(CREATE_PRODUCTS_TABLE_MARMOD)
 
     }
+
+    fun onCreateLogIn(db: SQLiteDatabase){
+
+        val CREATE_PRODUCTS_TABLE_MARMOD = ("CREATE TABLE " +
+                TABLE_CHECKIN +
+                "(" + COLUMN_SHOW_ACTIVE + " INTEGER" + ")")
+
+        db.execSQL(CREATE_PRODUCTS_TABLE_MARMOD)
+
+        val values = ContentValues()
+
+        values.put(COLUMN_SHOW_ACTIVE,0)
+
+        db.insert(TABLE_CHECKIN,null,values)
+
+    }
+
+    fun changeLogStatus(statusToPut: Boolean){
+
+        val db = this.writableDatabase
+
+        val values = ContentValues()
+
+        val number = if(statusToPut) 1 else 0
+
+        values.put(COLUMN_SHOW_ACTIVE, number)
+
+        db.update(TABLE_CHECKIN,values,null,null)
+
+    }
+
+    fun checkLogIn(): Boolean{
+        val db = this.writableDatabase
+
+
+        val cursor: Cursor = db.rawQuery(
+            "select DISTINCT tbl_name from sqlite_master where tbl_name = '"
+                    + TABLE_CHECKIN + "'", null
+        )
+
+        if (cursor.count <= 0) {
+            onCreateLogIn(db)
+        }
+
+        cursor.close()
+
+        val rawQuery = db.rawQuery("SELECT * FROM $TABLE_CHECKIN", null)
+
+        rawQuery.moveToFirst()
+
+
+        val status: Boolean = rawQuery.getInt(rawQuery.getColumnIndex(COLUMN_SHOW_ACTIVE)) != 0
+
+
+        rawQuery.close()
+
+        return  status
+
+    }
+
     fun llenarArrayMarca(): ArrayList<String> {
         var listaMarca : ArrayList<String> = ArrayList<String>()
         val db = this.writableDatabase
@@ -179,33 +268,7 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         return listaModelo
     }
 
-    fun onCreateFolio(db: SQLiteDatabase){
-        val CREATE_PRODUCTS_TABLE_NUMERO = ("CREATE TABLE " +
-                TABLE_FOLIO +
-                "(" + COLUMN_ID + " INTEGER PRIMARY KEY,"
-                + COLUMN_FOLIO + " TEXT" +")")
 
-        db.execSQL(CREATE_PRODUCTS_TABLE_NUMERO)
-        val values = ContentValues()
-        values.put(COLUMN_FOLIO,"A0000")
-        db.insert(TABLE_FOLIO,null,values)
-
-    }
-
-    fun onCreateType(db: SQLiteDatabase){
-        val CREATE_PRODCTS_TABLE_TYPE = ("CREATE TABLE " +
-                TABLE_TYPE +
-                "(" + COLUMN_ID + " INTEGER PRIMARY KEY,"
-                + COLUMN_TIPO + " INTEGER,"
-                + COLUMN_PARKING_NAME + " TEXT,"
-                + COLUMN_WORKER_NAME + " TEXT,"
-                + COLUMN_JWT + " TEXT,"
-                + COLUMN_SHOW_ACTIVE + " INTEGER,"
-                + COLUMN_ENROLL_ID + " TEXT,"
-                + COLUMN_SLOTS_NUMBER+ " INTEGER"+")")
-        db.execSQL(CREATE_PRODCTS_TABLE_TYPE)
-
-    }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ESTACIONAMIENTO)
@@ -243,18 +306,21 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
 
 
     fun modify(automovilNuevo: Automovil,automovilAntiguo: Automovil,tipo: Boolean){
+        val tipoCarro = if(automovilNuevo.tipo){
+            1
+        }else 0
         val db = this.writableDatabase
         if(tipo){
             db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MODELO='${automovilNuevo.modelo}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
             db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MARCA='${automovilNuevo.marca}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
             db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_COLOR='${automovilNuevo.color}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
-            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_TIPO='${automovilNuevo.tipo}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
+            db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_TIPO='${tipoCarro}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
             db.execSQL("UPDATE $TABLE_ESTACIONAMIENTO SET $COLUMN_MATRICULA='${automovilNuevo.matricula}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")        //db.update(TABLE_ESTACIONAMIENTO,values, COLUMN_ID+"="+index.toString(),null)
         }else{
             db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MODELO='${automovilNuevo.modelo}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
             db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MARCA='${automovilNuevo.marca}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
             db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_COLOR='${automovilNuevo.color}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
-            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_TIPO='${automovilNuevo.tipo}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
+            db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_TIPO='${tipoCarro}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")
             db.execSQL("UPDATE $TABLE_SALIDA SET $COLUMN_MATRICULA='${automovilNuevo.matricula}' WHERE $COLUMN_FOLIO='${automovilAntiguo.folio}'")        //db.update(TABLE_ESTACIONAMIENTO,values, COLUMN_ID+"="+index.toString(),null)
         }
 
@@ -273,7 +339,7 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
 
     }
 
-    fun newType(datosIniciales: DatosIniciales) {
+    fun newType(datosIniciales: DatosIniciales,context: Context? = null) {
 
         val db = this.writableDatabase
 
@@ -282,11 +348,13 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         val cursor: Cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"
                 + TABLE_TYPE + "'", null)
 
-        if(cursor.count <= 0){
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_TYPE")
+        onCreateType(db)
+        /*if(cursor.count <= 0){
             onCreateType(db)
         }else{
             db.execSQL("delete from "+ TABLE_TYPE)
-        }
+        }*/
 
         cursor.close()
         values.put(COLUMN_SLOTS_NUMBER, datosIniciales.slotsNumber)
@@ -297,7 +365,11 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         values.put(COLUMN_SHOW_ACTIVE,1)
         values.put(COLUMN_ENROLL_ID,datosIniciales.enrollId)
 
-        db.insert(TABLE_TYPE,null,values)
+        val insert = db.insert(TABLE_TYPE,null,values)
+        if(context != null){
+            Toast.makeText(context, insert.toString() ,Toast.LENGTH_LONG).show()
+        }
+
 
     }
 
@@ -342,7 +414,7 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         
     }
 
-    fun activeVisibility(visible: Boolean){
+    fun activeCarVisibility(visible: Boolean){
 
         val db = this.writableDatabase
 
@@ -357,7 +429,7 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
 
     }
 
-    fun checkActive(): Boolean{
+    fun checkWorkerActive(): Boolean{
         val db = this.readableDatabase
 
         var active: Boolean = true
@@ -482,6 +554,7 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         const val TABLE_MARMOD = "marcaModelo_completa"
         const val TABLE_FOLIO = "folio_mayor"
         const val TABLE_TYPE = "tipo_estacionamiento"
+        const val TABLE_CHECKIN = "loged_in"
         const val COLUMN_ID = "_id"
         const val COLUMN_MATRICULA = "matricula"
         const val COLUMN_MARCA = "marca"
@@ -491,16 +564,13 @@ class MindOrksDBOpenHelper(context: Context, factory: SQLiteDatabase.CursorFacto
         const val COLUMN_COLOR = "color"
         const val COLUMN_FOLIO = "folio"
         const val COLUMN_TIPO = "tipo"
+        const val COLUMN_PENSION = "pensionado"
         const val COLUMN_PARKING_NAME = "parking_name"
         const val COLUMN_WORKER_NAME = "worker_name"
         const val COLUMN_SLOTS_NUMBER = "slots_number"
         const val COLUMN_JWT = "json_web_token"
         const val COLUMN_SHOW_ACTIVE = "active_parking"
         const val COLUMN_ENROLL_ID = "enroll_id"
-        const val COLUMN_FEE_HOUR = "fee_hour"
-        const val COLUMN_FEE_PAST = "fee_past"
-        const val COLUMN_FEE_DAY = "fee_day"
-        const val COLUMN_FEE_MONTH = "fee_month"
     }
 }
 
@@ -515,7 +585,7 @@ class Pasado(var carros: MutableList<Automovil>): Parcelable
 @Parcelize
 class Automovil(var matricula: String, var marca: String, var modelo:String,
                 var horaEntrada:String, var horaSalida:String,var color: String,
-                var tipo: Boolean,var folio : String, var checked: Boolean = false): Parcelable
+                var tipo: Boolean,var folio : String,var total: Double? = null,var pensionado: Boolean? = null ,var checked: Boolean = false): Parcelable
 
 @Parcelize
 class DatosIniciales(var parkingName: String?, var workerName: String?,

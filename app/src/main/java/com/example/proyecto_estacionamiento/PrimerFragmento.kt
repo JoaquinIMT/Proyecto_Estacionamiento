@@ -33,6 +33,7 @@ class PrimerFragmento(val lugares: Int, val total: Float, val codigo: String, va
         entraCarro = view.findViewById(R.id.nuevo_registro)
         // Inflate the layout for this fragment
         espacios = view.findViewById(R.id.espacios)
+        val dbHandler = MindOrksDBOpenHelper(view.context, null)
 
         numberOfGenerals = view.findViewById(R.id.number_generals)
         numberOfEspecials = view.findViewById(R.id.number_especials)
@@ -60,6 +61,10 @@ class PrimerFragmento(val lugares: Int, val total: Float, val codigo: String, va
         progressBar?.progress=(quitar*lugares).toInt()
 
         //espacios.text=(quitar*estacionamiento.lugares).toString()
+
+        if(!dbHandler.checkWorkerActive()) {
+            entraCarro.visibility = View.INVISIBLE
+        }
 
         if (lugares > 0){
             entraCarro.setOnClickListener {

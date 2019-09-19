@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
+import android.webkit.ConsoleMessage
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -12,6 +13,7 @@ import kotlinx.android.synthetic.main.activity_iniciosecion.*
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.Console
 import java.io.IOException
 
 class iniciosecion : AppCompatActivity() {
@@ -31,6 +33,12 @@ class iniciosecion : AppCompatActivity() {
         userName = findViewById(R.id.textoCorreo)
         userPassword = findViewById(R.id.textoContraseña)
         passActivity = findViewById(R.id.botonlogin)
+
+        if(dbHandler.checkLogIn()){
+            val intent = Intent(this,MainActivityReal::class.java)
+            startActivity(intent)
+            finishAffinity()
+        }
 
         var valor = true
 
@@ -63,6 +71,8 @@ class iniciosecion : AppCompatActivity() {
     }
 
     private fun sendData(){
+
+        passActivity.isEnabled = false
 
         var datos: DatosIniciales?
 
@@ -97,11 +107,11 @@ class iniciosecion : AppCompatActivity() {
                 if (datos?.register != null){
 
                     if(datos?.register!!){
+                        datos?.enrollId = name
                         println("Register made")
-                        saveJson(datos!!)
-                        handleResponse(0)
+                        handleResponse(0,datos!!)
                     }else{
-                        handleResponse(2)
+                        handleResponse(2,DatosIniciales(null,null,null,null,null))
                     }
                 }
 
@@ -109,13 +119,11 @@ class iniciosecion : AppCompatActivity() {
 
             override fun onFailure(call: Call, e: IOException) {
                 println("Fallo al intentar acceso")
-                handleResponse(1)
+                handleResponse(1, DatosIniciales(null,null,null,null,null))
 
             }
 
         })
-
-
         /*Handler().postDelayed(
             {
                 if (registerMade == 0){
@@ -139,14 +147,15 @@ class iniciosecion : AppCompatActivity() {
             ,50
         )*/
 
-
     }
 
-    private fun handleResponse(case: Int){
+    private fun handleResponse(case: Int, datos: DatosIniciales){
 
         runOnUiThread {
             if (case == 0){
 
+                dbHandler.newType(datos,this)
+                dbHandler.changeLogStatus(true)
                 Toast.makeText(this,"Acceso concedido",Toast.LENGTH_SHORT).show()
 
                 val intent = Intent(this,MainActivityReal::class.java)
@@ -166,6 +175,6 @@ class iniciosecion : AppCompatActivity() {
     }
 
     private fun saveJson(datos: DatosIniciales){
-        dbHandler.newType(datos)
+
     }
 }

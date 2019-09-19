@@ -107,7 +107,7 @@ public class sqlprueba extends SQLiteOpenHelper {
         Cursor registros = database.rawQuery(q,null);
         if(registros.moveToFirst()){
             do{
-                lista.add(registros.getString(1));
+                lista.add(registros.getString(0));
             }while(registros.moveToNext());
         }
         database.close();

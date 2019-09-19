@@ -99,7 +99,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         val past = getSQLITE(false) //esta variable nos dice si al sacar las variables del sqlite hay automoviles fuera
 
-        estacionamiento = if(dataBaseNew.size > 0){
+        estacionamiento = if(dataBaseNew.size > 0 && dbHandler.checkWorkerActive()){
             val lugaresDisponibles = lugares - dataBaseNew.size
             Estacionamiento(lugaresDisponibles,dataBaseNew)
 
@@ -249,23 +249,22 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
             }
 
             R.id.ic_power -> {
-                if(hasInternetAccess()){
+                /*if(hasInternetAccess()){
                     if(postData()){
                         checkOut()
                     }
-                    /*Toast.makeText(this, "Se borraron las salidas al salir de sesión", Toast.LENGTH_SHORT).show()
-                    dbHandler.dropTable(false) //Mandamos false para eliminar la tabla de salidas de la base de datos
-                    intentToMainActivityReal()*/
+                }*/
 
-                }
+                //Toast.makeText(this, "Opción no disponible",Toast.LENGTH_SHORT).show()
+                checkOut()
             }
 
             R.id.ic_upload -> {
-
+                /*
                 if(hasInternetAccess()){
                     postData()
-                }
-
+                }*/
+                Toast.makeText(this, "Opción no disponible aún",Toast.LENGTH_SHORT).show()
             }
 
         }
@@ -278,7 +277,15 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
     private fun checkOut(){
 
-        dbHandler.dropTable(false)
+        //dbHandler.dropTable(false)
+        dbHandler.changeLogStatus(false)
+
+        Toast.makeText(this, "Sesión cerrada con exito",Toast.LENGTH_LONG).show()
+
+        val intent = Intent(this,iniciosecion::class.java)
+        startActivity(intent)
+        finishAffinity()
+
     }
 
     private fun postData(): Boolean{
@@ -337,7 +344,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
                  "folio": ${i.folio}, 
                  "check_in": $dateIn,
                  "check_out" $dateOut,
-                 "total": 20.0,
+                 "total": ${i.total},
                  "plate": ${i.matricula},
                  "model": ${i.modelo},
                  "color": ${i.color},
@@ -363,16 +370,14 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         val cursor = dbHandler.getType()
 
-
-
         //datos.parkingFee = listOf(cursor_fee.getFloat(cursor_fee.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO)),cursor_fee.getFloat(cursor_fee.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO)))
-        var parkingName = ""
-        var slotsNumber = 1
-        var workerName = ""
-        var typeOfParking = 0
-        var enroll = ""
+        var parkingName: String = "Jose Luis"
+        var slotsNumber: Int = 80
+        var workerName: String = "Joaquin"
+        var typeOfParking: Int = 0
+        var enroll: String = "Joaquin"
 
-        if(cursor!!.count > 0 && cursor.moveToFirst()){
+        if(cursor!!.moveToFirst() && cursor.count > 0){
              parkingName = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_PARKING_NAME))
              slotsNumber = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_SLOTS_NUMBER))
              workerName = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_WORKER_NAME))

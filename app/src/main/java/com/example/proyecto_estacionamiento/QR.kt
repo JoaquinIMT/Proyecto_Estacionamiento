@@ -23,7 +23,7 @@ class QR : AppCompatActivity() {
     val CODIGO_PERMISO_ESCRIBIR_ALMACENAMIENTO = 1
     val ALTURA_CODIGO = 500
     val ANCHURA_CODIGO = 500
-    var etTextoParaCodigo: TextView? = null
+    //var etTextoParaCodigo: TextView? = null
     lateinit var estacionamiento: Estacionamiento
     lateinit var checkButton: ImageButton
     lateinit var btnFinalizar: Button
@@ -89,7 +89,7 @@ class QR : AppCompatActivity() {
         }
 
         checkButton.setOnClickListener {
-            dbHandler.activeVisibility(false)
+            dbHandler.activeCarVisibility(false)
             //dbHandler.dropTable(true)
             intent()
         }
@@ -108,7 +108,7 @@ class QR : AppCompatActivity() {
     }
 
     private fun obtenerTextoParaCodigo() {
-        val datos = intent.getParcelableExtra<DatosIniciales>("type")
+        //No se usan, checar si se mandan, y remover  val datos = intent.getParcelableExtra<DatosIniciales>("type")
         todo += intent.getStringExtra("folio")+"."
         for (i in estacionamiento?.carros!!) {
 
@@ -162,9 +162,9 @@ class QR : AppCompatActivity() {
                     Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show()
                 } else {
                     Toast.makeText(this, "Leido Correctamente" + result.contents, Toast.LENGTH_LONG).show()
-                    etTextoParaCodigo?.text = result.contents
+                    //etTextoParaCodigo?.text = result.contents
                     todo = result.contents
-                    dbHandler.activeVisibility(true)
+                    dbHandler.activeCarVisibility(true)
                     dbHandler.dropTable(true)
                     dbHandler.createTable()
                     meterDatos()
@@ -201,7 +201,6 @@ class QR : AppCompatActivity() {
                     dbHandler.upDateFolio(posicion)
                 } else{
                     var separado2 = posicion.split(",")
-                    Toast.makeText(this, "entre al if", Toast.LENGTH_SHORT).show()
                     var tipov:Boolean = separado2.get(7).toBoolean()
                     val automovil = Automovil(separado2.get(0), separado2.get(1), separado2.get(2), separado2.get(3), separado2.get(4), separado2.get(6), tipov,separado2.get(8))
                     dbHandler.addFields(automovil, true)

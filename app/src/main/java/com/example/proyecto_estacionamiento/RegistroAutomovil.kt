@@ -35,13 +35,13 @@ class RegistroAutomovil : AppCompatActivity() {
     lateinit var salida: Button
 
     var carro: Button? = null
-
     var camioneta: Button? = null
     var fondo1: ImageView? = null
     var fondo2: ImageView? = null
 
-    var tipoVehiculo : Boolean=false
+    var tipoVehiculo : Boolean = false
     var agregarMarmod : ImageView? = null
+    var vehiculoPresionado : Boolean = false
 
 
     var todosModelos : String = ""
@@ -131,8 +131,8 @@ class RegistroAutomovil : AppCompatActivity() {
         saHora = findViewById(R.id.sahora)
         color = findViewById(R.id.color)
         folio = findViewById(R.id.folio)
-        carro = findViewById(R.id.btnCarro) as Button
-        camioneta = findViewById(R.id.btnCamioneta) as Button
+        carro = findViewById(R.id.btnCarro)
+        camioneta = findViewById(R.id.btnCamioneta)
         agregarMarmod = findViewById(R.id.imageView) as ImageView
         var adapterrMarcas : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,nuevoArray)
         this.marcaAutoCompletar.setAdapter(adapterrMarcas)
@@ -146,7 +146,8 @@ class RegistroAutomovil : AppCompatActivity() {
             fondo1?.setColorFilter(Color.BLUE)
             fondo2?.setColorFilter(Color.GRAY)
             tipoVehiculo=false
-
+            vehiculoPresionado = true
+            cam = false
 
 
         }
@@ -154,6 +155,8 @@ class RegistroAutomovil : AppCompatActivity() {
             fondo1?.setColorFilter(Color.GRAY)
             fondo2?.setColorFilter(Color.BLUE)
             tipoVehiculo=true
+            vehiculoPresionado = true
+            cam = true
         }
 
 
@@ -185,6 +188,41 @@ class RegistroAutomovil : AppCompatActivity() {
 
         val actionBar = supportActionBar //Declaramos la barrra superior para su uso
         actionBar?.setDisplayHomeAsUpEnabled(true) //Activamos el icono de regreso de actividad
+
+
+        //Asi no se pueden precionar al inicio
+        carro?.isClickable = false
+        camioneta?.isClickable = false
+
+        modelo.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) {
+                mandarModelos()
+                autocompletaMarca()
+                //SAVE THE DATA
+
+
+            } else{
+                mandarModelos()
+            }
+        }
+        marca.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) {
+                //SAVE THE DATA
+                autocompletaMarca()
+                if(marca.text.isEmpty()){
+                    for(num2 in 0..nuevoArray.size-1){
+                        todosModelos=todosModelos+","+nuevoArrayModelos.get(num2)
+
+                    }
+                    val todosModelosSeparados = todosModelos.split(",")
+                    todosModelos=""
+                    var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,todosModelosSeparados)
+                    this.modeloAutoCompletar.setAdapter(adapterr)
+                }
+            } else{
+                mandarModelos()
+            }
+        }
 
 
         if(entrada == "Registro") {
@@ -244,7 +282,7 @@ class RegistroAutomovil : AppCompatActivity() {
                 //Toast.makeText(this, mat + "Added to database", Toast.LENGTH_LONG).show()
 
 
-                if ( (matricula.visibility ==  View.VISIBLE && texts[0].equals("") ) || (modelo.visibility == View.VISIBLE && texts[1].equals("") ) || (marca.visibility == View.VISIBLE && texts[2].equals("")) ) {
+                if ( (matricula.visibility ==  View.VISIBLE && texts[0].equals("") ) || (modelo.visibility == View.VISIBLE && texts[1].equals("") ) || (marca.visibility == View.VISIBLE && texts[2].equals("")) || (!vehiculoPresionado) ) {
 
 
                     Toast.makeText(this@RegistroAutomovil, "Faltan Campos por completar", Toast.LENGTH_SHORT).show()
@@ -265,7 +303,7 @@ class RegistroAutomovil : AppCompatActivity() {
                         texts[6]
                     }
 
-                    val automovil = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],tipoVehiculo,folioFinal)
+                    val automovil = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],tipoVehiculo,folioFinal,pensionado = switch1.isActivated)
                     dbHandler.addFields(automovil,true)
 
                     //checamos que cuando mandemos llamar la lista con automoviles esta ya tenga registrado a un automovil
@@ -273,35 +311,6 @@ class RegistroAutomovil : AppCompatActivity() {
 
                     intent()
 
-                }
-            }
-            modelo.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
-                if (!hasFocus) {
-                    mandarModelos()
-                    autocompletaMarca()
-                    //SAVE THE DATA
-
-
-                } else{
-                    mandarModelos()
-                }
-            }
-            marca.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
-                if (!hasFocus) {
-                    //SAVE THE DATA
-                    autocompletaMarca()
-                    if(marca.text.isEmpty()){
-                        for(num2 in 0..nuevoArray.size-1){
-                            todosModelos=todosModelos+","+nuevoArrayModelos.get(num2)
-
-                        }
-                        val todosModelosSeparados = todosModelos.split(",")
-                        todosModelos=""
-                        var adapterr : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,todosModelosSeparados)
-                        this.modeloAutoCompletar.setAdapter(adapterr)
-                    }
-                } else{
-                    mandarModelos()
                 }
             }
 
@@ -373,7 +382,6 @@ class RegistroAutomovil : AppCompatActivity() {
             }else{
 
                 registro.setOnClickListener {
-                    var g = dbHandler.llenarArrayMarca()
 
                     if (registro.background == botonVerde){
                         makeEnabled(true)
@@ -387,14 +395,9 @@ class RegistroAutomovil : AppCompatActivity() {
                         val automovilPantalla = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,automovil.folio)
                         update(automovilPantalla,automovil,false,dbHandler)
 
-
-
-
                     }
                 }
-
             }
-
         }
     }
 
@@ -469,6 +472,16 @@ class RegistroAutomovil : AppCompatActivity() {
             automovilToSet.folio
         }
 
+        if(automovilToSet.tipo){
+            fondo1?.setColorFilter(Color.GRAY)
+            fondo2?.setColorFilter(Color.BLUE)
+        }else{
+            fondo1?.setColorFilter(Color.BLUE)
+            fondo2?.setColorFilter(Color.GRAY)
+        }
+        if(automovilToSet.pensionado != null){
+            switch1.isActivated = automovilToSet.pensionado!!
+        }
 
     }
 
@@ -478,10 +491,15 @@ class RegistroAutomovil : AppCompatActivity() {
     }
 
     private fun makeEnabled(bol: Boolean){
+
         marca.isEnabled = bol
         matricula.isEnabled = bol
         modelo.isEnabled = bol
         colorAutocompletar.isEnabled = bol
+        carro?.isClickable = bol
+        camioneta?.isClickable = bol
+        switch1.isEnabled = bol
+
     }
 
     private fun getHoraActual(strFormato: String): String {
@@ -514,8 +532,7 @@ class RegistroAutomovil : AppCompatActivity() {
         automovil.horaSalida = horaSalida
 
         dbHandler.addFields(automovil,false) //ponemos el automovil en salida
-
-
+        
     }
 
     fun mandarModelos (){

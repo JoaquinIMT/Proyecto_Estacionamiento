@@ -37,7 +37,7 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, val dbHandler: Min
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_busqueda, container, false)
-
+        val dbHandler = MindOrksDBOpenHelper(view.context, null)
         salirCarro = view.findViewById(R.id.salida)
         // Inflate the layout for this fragment
         reciclerView = view.findViewById(R.id.recyclerview_carros)
@@ -47,6 +47,9 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, val dbHandler: Min
         adapter = MainAdapter(estacionamiento,this, type, activity)
 
         reciclerView.adapter = adapter
+        if(!dbHandler.checkWorkerActive()) {
+            salirCarro.visibility = View.INVISIBLE
+        }
 
         salirCarro.setOnClickListener {
 
@@ -69,7 +72,6 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, val dbHandler: Min
 
             }else{
                 Toast.makeText(context, "Seleccione el automovil a salir", Toast.LENGTH_LONG).show()
-
             }
 
         }
