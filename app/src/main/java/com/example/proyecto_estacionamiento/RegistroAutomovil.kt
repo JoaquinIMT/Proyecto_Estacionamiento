@@ -315,13 +315,14 @@ class RegistroAutomovil : AppCompatActivity() {
             }
 
         }else{ //Si entra aquí tendrá una salida o esta checando información
-
             if(condicion == 2){
                 makeInvisible(3)
             }
 
             val automovil = intent.getParcelableExtra<Automovil>("Auto")
             registro.background = botonVerde
+
+            cam = automovil.tipo
 
             registro.text = "Editar"
             setTexts(automovil)
