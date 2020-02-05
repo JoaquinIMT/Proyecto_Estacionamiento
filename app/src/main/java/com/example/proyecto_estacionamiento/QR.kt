@@ -112,7 +112,7 @@ class QR : AppCompatActivity() {
         todo += intent.getStringExtra("folio")+"."
         for (i in estacionamiento?.carros!!) {
 
-            val aux= i.matricula + "," + i.marca + "," + i.modelo + "," + i.horaEntrada + "," + i.horaSalida + "," + i.horaSalida+ "," + i.color+ "," + i.tipo + "," + i.folio
+            val aux= i.matricula + "," + i.marca + "," + i.modelo + "," + i.horaEntrada + "," + i.horaSalida + "," + i.horaSalida+ "," + i.color+ "," + i.tipo + "," + i.folio + "," + i.realTimeIn + "," + i.realTimeOut
             todo += aux + "."
 
         }
@@ -202,7 +202,7 @@ class QR : AppCompatActivity() {
                 } else{
                     var separado2 = posicion.split(",")
                     var tipov:Boolean = separado2.get(7).toBoolean()
-                    val automovil = Automovil(separado2.get(0), separado2.get(1), separado2.get(2), separado2.get(3), separado2.get(4), separado2.get(6), tipov,separado2.get(8))
+                    val automovil = Automovil(separado2.get(0), separado2.get(1), separado2.get(2), separado2.get(3), separado2.get(4), separado2.get(6), tipov,separado2.get(8), realTimeIn = separado2[9], realTimeOut = separado2[10])
                     dbHandler.addFields(automovil, true)
 
                 }

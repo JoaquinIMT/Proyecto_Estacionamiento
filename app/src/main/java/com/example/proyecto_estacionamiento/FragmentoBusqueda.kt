@@ -77,20 +77,24 @@ class FragmentoBusqueda(var estacionamiento: Estacionamiento, val dbHandler: Min
         }
 
         return view
+
     }
 
 
-
-
     override fun onCheckedBox(automovil: Automovil, state:Boolean) {
+
         if(state){
             addToBye(automovil)
         }else{
             removeFromBye(automovil)
         }
+
     }
 
     private fun addToBye(item: Automovil) {
+
+        val sdf = SimpleDateFormat("yyy-MM-dd HH:mm:ss.SSS") //FORMAT USE IN THE TIME
+        item.realTimeOut = sdf.format(Date())
         bye.add(item)
     }
 

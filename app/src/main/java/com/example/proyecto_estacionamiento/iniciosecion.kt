@@ -15,6 +15,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.Console
 import java.io.IOException
+import java.lang.Exception
 
 class iniciosecion : AppCompatActivity() {
 
@@ -23,13 +24,13 @@ class iniciosecion : AppCompatActivity() {
     lateinit var passActivity: Button
     val dbHandler = MindOrksDBOpenHelper(this,null)
 
-    val url = "https://estacionamientos-dev.herokuapp.com/signin/employee/test"
+    val url = "http://159.89.95.102/api/car/login" //"https://estacionamientos-dev.herokuapp.com/signin/employee/test"
+    //val url = "http://192.168.1.129:8000/api/car/login"
     var registerMade: Int = 3
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_iniciosecion)
-
         userName = findViewById(R.id.textoCorreo)
         userPassword = findViewById(R.id.textoContraseña)
         passActivity = findViewById(R.id.botonlogin)
@@ -58,6 +59,7 @@ class iniciosecion : AppCompatActivity() {
         passActivity.setOnClickListener {
             if(hasText()){
                 sendData()
+                passActivity.isEnabled = true
             }else{
                 Toast.makeText(this,"Llene ambos campos",Toast.LENGTH_SHORT).show()
             }
@@ -80,7 +82,7 @@ class iniciosecion : AppCompatActivity() {
         val password : String = userPassword.text.toString()
 
         val json : String = """{
-            "workerName" : "$name",
+            "name" : "$name",
             "password" : "$password"
             }""".trimIndent()
 
@@ -104,22 +106,25 @@ class iniciosecion : AppCompatActivity() {
                 val gson = GsonBuilder().create()
 
                 datos = gson.fromJson(bodyOfJson, DatosIniciales::class.java)
+
                 if (datos?.register != null){
 
                     if(datos?.register!!){
-                        datos?.enrollId = name
                         println("Register made")
                         handleResponse(0,datos!!)
                     }else{
                         handleResponse(2,DatosIniciales(null,null,null,null,null))
                     }
+                }else{
+                    handleResponse(2,DatosIniciales(null,null,null,null,null))
                 }
 
             }
 
             override fun onFailure(call: Call, e: IOException) {
-                println("Fallo al intentar acceso")
-                handleResponse(1, DatosIniciales(null,null,null,null,null))
+                println("Fallo al intentar acceso 111")
+
+                handleResponse(1, DatosIniciales(null,null,null,null,null), e)
 
             }
 
@@ -149,13 +154,19 @@ class iniciosecion : AppCompatActivity() {
 
     }
 
-    private fun handleResponse(case: Int, datos: DatosIniciales){
+    private fun handleResponse(case: Int, datos: DatosIniciales, exception: IOException? = null){
 
         runOnUiThread {
             if (case == 0){
 
                 dbHandler.newType(datos,this)
+                datos.parkingFee!!.forEachIndexed { index, fee ->  run{
+                    if(index!=0){
+                        dbHandler.insertMoreCosts(fee)
+                    }
+                } }
                 dbHandler.changeLogStatus(true)
+                dbHandler.limpiarRegistros()
                 Toast.makeText(this,"Acceso concedido",Toast.LENGTH_SHORT).show()
 
                 val intent = Intent(this,MainActivityReal::class.java)
@@ -163,12 +174,12 @@ class iniciosecion : AppCompatActivity() {
                 finishAffinity()
 
             } else if(case == 1){
-                Toast.makeText(this,"Fallo al intentar acceso",Toast.LENGTH_SHORT).show()
-
+                Toast.makeText(this, "Conexión no establecida" ,Toast.LENGTH_SHORT).show()
+                passActivity.isEnabled = true
             }else if(case == 2){
 
                 Toast.makeText(this,"Usuario o contraseña invalido",Toast.LENGTH_SHORT).show()
-
+                passActivity.isEnabled = true
             }
         }
 

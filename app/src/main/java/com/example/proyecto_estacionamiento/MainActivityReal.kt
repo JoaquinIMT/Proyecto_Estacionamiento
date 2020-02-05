@@ -44,8 +44,8 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
     lateinit var pakingName: TextView
 
     val dbHandler = MindOrksDBOpenHelper(this, null)
-    val urlPost = ""
-
+    val urlPost = "http://159.89.95.102/api/car/upcar"
+    //val urlPost = "http://192.168.1.129:8000/api/car/upcar"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_real)
@@ -66,6 +66,8 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
 
         */
+
+        //dbHandler.limpiarRegistros()
 
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -97,7 +99,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val dataBaseNew: MutableList<Automovil> = getSQLITE(true)
 
 
-        val past = getSQLITE(false) //esta variable nos dice si al sacar las variables del sqlite hay automoviles fuera
+        val past: MutableList<Automovil> = getSQLITE(false) //esta variable nos dice si al sacar las variables del sqlite hay automoviles fuera
 
         estacionamiento = if(dataBaseNew.size > 0 && dbHandler.checkWorkerActive()){
             val lugaresDisponibles = lugares - dataBaseNew.size
@@ -110,7 +112,7 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         pasado = if( past.size > 0 ){
 
-            Pasado(past)
+            Pasado(past.reversed().toMutableList())
 
             }else{
                 Pasado(mutableListOf())
@@ -260,11 +262,13 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
             }
 
             R.id.ic_upload -> {
-                /*
+
                 if(hasInternetAccess()){
-                    postData()
-                }*/
-                Toast.makeText(this, "Opción no disponible aún",Toast.LENGTH_SHORT).show()
+                    if(postData()){
+                        checkOut()
+                    }
+                }
+                //Toast.makeText(this, "Opción no disponible aún",Toast.LENGTH_SHORT).show()
             }
 
         }
@@ -302,8 +306,8 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
         val body = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
-        val request = Request.Builder().url(urlPost).post(body).header("JWT",dbHandler.getToken()!!).build()
-
+        //val request = Request.Builder().url(urlPost).post(body).header("JWT",dbHandler.getToken()!!).build()
+        val request = Request.Builder().url(urlPost).post(body).build()
         val client2 = OkHttpClient()
 
         client2.newCall(request).enqueue(object: Callback {
@@ -311,15 +315,16 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
             override fun onResponse(call: Call, response: Response) {
 
                 val bodyOfJson = response.body?.string()
-                Toast.makeText(applicationContext, "Datos enviados correctamente",Toast.LENGTH_SHORT).show()
+                //Toast.makeText(applicationContext, "Datos enviados correctamente",Toast.LENGTH_SHORT).show()
                 inform()
+                dropTableSalida()
 
             }
 
             override fun onFailure(call: Call, e: IOException) {
 
                 println("Fallo al intentar acceso")
-                Toast.makeText(applicationContext, "Error al enviar datos, intentelo más tarde",Toast.LENGTH_SHORT).show()
+                //Toast.makeText(applicationContext, "Error al enviar datos, intentelo más tarde",Toast.LENGTH_SHORT).show()
 
             }
 
@@ -329,41 +334,46 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
     }
 
-    private fun makeJson(): String{
-        var array: String = "["
-        val parkingName: String = datos.parkingName!!
-        val enrollId: String = datos.enrollId!!
+    private fun dropTableSalida(){
+        runOnUiThread {
+            dbHandler.dropTable(false)
+            Toast.makeText(applicationContext, "Datos enviados correctamente",Toast.LENGTH_SHORT).show()
+            val intent = Intent(applicationContext,MainActivityReal::class.java)
+            startActivity(intent)
+            finishAffinity()
+        }
 
-        var dateIn: Date
-        var dateOut: Date
+    }
+
+    private fun makeJson(): String{
+        var array: String = "[\n"
+        val workerID: Int = datos.workerID!!
+
 
         for(i in pasado.carros){
-            dateIn = Date()
-            dateOut = Date()
-            array += """{
-                 "folio": ${i.folio}, 
-                 "check_in": $dateIn,
-                 "check_out" $dateOut,
-                 "total": ${i.total},
-                 "plate": ${i.matricula},
-                 "model": ${i.modelo},
-                 "color": ${i.color},
-                 "brand": ${i.marca},
-                 "type": ${i.tipo}
-                 },""".trimIndent()
+
+            val rti: String  = i.realTimeIn!!.replace(" ","T")
+            val rto: String  = i.realTimeOut!!.replace(" ","T")
+
+            array += """
+    {
+         "folio" : "${i.folio}", 
+         "inDate" : "$rti", 
+         "outDate" : "$rto", 
+         "pensionate" : ${i.pensionado},
+         "total" : ${i.total}, 
+         "plate" : "${i.matricula}", 
+         "model" : "${i.modelo}", 
+         "color" : "${i.color}", 
+         "brand" : "${i.marca}", 
+         "kindOfCar" : ${i.tipo},
+         "employeeKey_id" : $workerID
+    },"""
         }
-        array.dropLast(1)
-        array += "]"
+        array = array.dropLast(1)
+        array += "\n]"
 
-        val json: String = """{
-            
-            "cars": $array
-            "parking_name": $parkingName,
-            "enroll_id": $enrollId
-        
-        }""".trimIndent()
-
-        return json
+        return array
     }
 
     fun getDatosIniciales(): DatosIniciales{
@@ -376,18 +386,22 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         var workerName: String = "Joaquin"
         var typeOfParking: Int = 0
         var enroll: String = "Joaquin"
+        var workerID: Int = 1
 
         if(cursor!!.moveToFirst() && cursor.count > 0){
-             parkingName = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_PARKING_NAME))
-             slotsNumber = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_SLOTS_NUMBER))
-             workerName = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_WORKER_NAME))
-             typeOfParking = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO))
-             enroll = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_ENROLL_ID))
+
+            parkingName = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_PARKING_NAME))
+            slotsNumber = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_SLOTS_NUMBER))
+            workerName = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_WORKER_NAME))
+            typeOfParking = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO))
+            workerID = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_WORKER_ID))
+
         }
 
         cursor.close()
 
-        return DatosIniciales(parkingName, workerName, typeOfParking, arrayOf(Fee(arrayOf(),0.0)), slotsNumber, enrollId = enroll)
+        return DatosIniciales(parkingName, workerName, typeOfParking, arrayOf(Fee(0,0.0f,0)), slotsNumber, workerID = workerID )
+
     }
 
     fun getFolio(): String {
@@ -407,11 +421,11 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val autmoviles = mutableListOf<Automovil>()
 
         val cursor = dbHandler.getAllName(tipo)
-
+        var tot: Int = 0
         cursor!!.moveToFirst()
 
         if(cursor.count > 0){
-
+            if( !tipo ) tot = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TOTAL))
             var mat: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MATRICULA))
             var mar: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MARCA))
             var mod: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MODELO))
@@ -420,13 +434,16 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
             var color: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_COLOR))
             var cam: Boolean = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO)) != 0
             var folio: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO))
+            var RTI: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_RTI))
+            var RTO: String = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_RTO))
+            var pens: Boolean = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_PENSION)) != 0
 
-            var cosa1 = Automovil(mat,mar,mod,he,hs,color,cam,folio)
+            var cosa1 = Automovil(mat,mar,mod,he,hs,color,cam,folio,realTimeIn = RTI, realTimeOut = RTO, total = tot.toDouble(), pensionado = pens)
 
             autmoviles.add(cosa1)
 
             while (cursor.moveToNext()) {
-
+                if( !tipo ) tot = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TOTAL))
                 mat = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MATRICULA))
                 mar = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MARCA))
                 mod = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_MODELO))
@@ -435,7 +452,11 @@ class MainActivityReal : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 color = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_COLOR))
                 cam = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO)) != 0
                 folio = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_FOLIO))
-                cosa1 = Automovil(mat,mar,mod,he,hs,color,cam,folio)
+                RTI = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_RTI))
+                RTO = cursor.getString(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_RTO))
+                pens = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_PENSION)) != 0
+
+                cosa1 = Automovil(mat,mar,mod,he,hs,color,cam,folio,realTimeIn = RTI, realTimeOut = RTO, total = tot.toDouble(), pensionado = pens)
 
                 autmoviles.add(cosa1)
             }

@@ -1,5 +1,6 @@
 package com.example.proyecto_estacionamiento
 import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -13,13 +14,16 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import android.view.View.OnFocusChangeListener
+import android.view.Window
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-
-
+import kotlinx.android.synthetic.main.modal_price.*
+import java.time.LocalDateTime
 
 
 class RegistroAutomovil : AppCompatActivity() {
+
+    val sdf = SimpleDateFormat("yyy-MM-dd HH:mm:ss.SSS") //FORMAT USE IN THE TIME
 
     lateinit var matricula: TextView
     lateinit var marcaAutoCompletar: AutoCompleteTextView
@@ -33,6 +37,14 @@ class RegistroAutomovil : AppCompatActivity() {
     lateinit var folio: TextView
     lateinit var tipo: TextView
     lateinit var salida: Button
+    lateinit var switch1: Switch
+
+    //modal precios
+    lateinit var dialog: Dialog
+    lateinit var price: TextView
+    lateinit var timeInParkingTxt: TextView
+    lateinit var aceptarPago: Button
+    lateinit var cancelarPago: Button
 
     var carro: Button? = null
     var camioneta: Button? = null
@@ -106,6 +118,10 @@ class RegistroAutomovil : AppCompatActivity() {
 
 
         super.onCreate(savedInstanceState)
+
+
+        setContentView(R.layout.activity_registro_automovil)
+
         if(condicion == 2 && entrada != "Registro"){
             setContentView(R.layout.activity_registro_automovil_folio)
         }else{
@@ -133,6 +149,8 @@ class RegistroAutomovil : AppCompatActivity() {
         folio = findViewById(R.id.folio)
         carro = findViewById(R.id.btnCarro)
         camioneta = findViewById(R.id.btnCamioneta)
+        switch1 = findViewById(R.id.switch1)
+
         agregarMarmod = findViewById(R.id.imageView) as ImageView
         var adapterrMarcas : ArrayAdapter<String> = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,nuevoArray)
         this.marcaAutoCompletar.setAdapter(adapterrMarcas)
@@ -141,32 +159,26 @@ class RegistroAutomovil : AppCompatActivity() {
         agregarMarcass()
         agregarModeloss()
 
+        if(condicion == 0){
+            carro!!.setOnClickListener{
+                fondo1?.setColorFilter(Color.BLUE)
+                fondo2?.setColorFilter(Color.GRAY)
+                tipoVehiculo=false
+                vehiculoPresionado = true
+                cam = false
 
-        carro!!.setOnClickListener{
-            fondo1?.setColorFilter(Color.BLUE)
-            fondo2?.setColorFilter(Color.GRAY)
-            tipoVehiculo=false
-            vehiculoPresionado = true
-            cam = false
+            }
+
+            camioneta!!.setOnClickListener{
+                fondo1?.setColorFilter(Color.GRAY)
+                fondo2?.setColorFilter(Color.BLUE)
+                tipoVehiculo=true
+                vehiculoPresionado = true
+                cam = true
+            }
+        }else makeInvisible(condicion)
 
 
-        }
-        camioneta!!.setOnClickListener{
-            fondo1?.setColorFilter(Color.GRAY)
-            fondo2?.setColorFilter(Color.BLUE)
-            tipoVehiculo=true
-            vehiculoPresionado = true
-            cam = true
-        }
-
-
-
-
-        if(condicion != 0){
-
-            makeInvisible(condicion)
-
-        }
 
         val dbHandler = MindOrksDBOpenHelper(this, null)
 
@@ -282,7 +294,7 @@ class RegistroAutomovil : AppCompatActivity() {
                 //Toast.makeText(this, mat + "Added to database", Toast.LENGTH_LONG).show()
 
 
-                if ( (matricula.visibility ==  View.VISIBLE && texts[0].equals("") ) || (modelo.visibility == View.VISIBLE && texts[1].equals("") ) || (marca.visibility == View.VISIBLE && texts[2].equals("")) || (!vehiculoPresionado) ) {
+                if ( (matricula.visibility ==  View.VISIBLE && texts[0].equals("") ) || (modelo.visibility == View.VISIBLE && texts[1].equals("") ) || (marca.visibility == View.VISIBLE && texts[2].equals("")) || (!vehiculoPresionado && carro?.visibility == View.VISIBLE) ) {
 
 
                     Toast.makeText(this@RegistroAutomovil, "Faltan Campos por completar", Toast.LENGTH_SHORT).show()
@@ -291,8 +303,11 @@ class RegistroAutomovil : AppCompatActivity() {
                 } else {
 
                     hora = Date()
-                    var horaEntrada = getHoraActual("HH:mm")
+                    //var horaEntrada = getHoraActual("HH:mm")
                     entradaMili = hora.time
+
+
+                    val realTimeIn = sdf.format(hora)
 
                     //Verificamos que el folio que vamos a usar sea el esperado, si fue modificado, se le agrega una coma al inicio para saber
                     // que es de un socio o valet parking
@@ -302,8 +317,7 @@ class RegistroAutomovil : AppCompatActivity() {
                         dbHandler.upDateFolio(texts[6])
                         texts[6]
                     }
-
-                    val automovil = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],tipoVehiculo,folioFinal,pensionado = switch1.isActivated)
+                    val automovil = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],tipoVehiculo,folioFinal,pensionado = switch1.isChecked,realTimeIn =realTimeIn, realTimeOut = "")
                     dbHandler.addFields(automovil,true)
 
                     //checamos que cuando mandemos llamar la lista con automoviles esta ya tenga registrado a un automovil
@@ -341,18 +355,8 @@ class RegistroAutomovil : AppCompatActivity() {
             }
 
             salida.setOnClickListener {
-                val texts = getText()
-                val automovilPantalla = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,automovil.folio)
-
-                hora = Date()
-
-                val horaSalida = getHoraActual("HH:mm")
-
-                entradaMili = hora.time
-
-                exitParking(automovilPantalla,horaSalida,dbHandler)
-
-                intent()
+                automovil.folio
+                showModal()
 
             }
             if(entrada == "Salida"){
@@ -371,7 +375,7 @@ class RegistroAutomovil : AppCompatActivity() {
                         registro.background = botonVerde
                         makeEnabled(false)
                         val texts = getText()
-                        val automovilPantalla = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,automovil.folio)
+                        val automovilPantalla = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,automovil.folio, pensionado = switch1.isChecked)
 
                         update(automovilPantalla,automovil,true,dbHandler)
 
@@ -481,7 +485,7 @@ class RegistroAutomovil : AppCompatActivity() {
             fondo2?.setColorFilter(Color.GRAY)
         }
         if(automovilToSet.pensionado != null){
-            switch1.isActivated = automovilToSet.pensionado!!
+            switch1.isChecked = automovilToSet.pensionado!!
         }
 
     }
@@ -515,6 +519,60 @@ class RegistroAutomovil : AppCompatActivity() {
         for (elemento in array){
             Toast.makeText(this@RegistroAutomovil, elemento.matricula+elemento.marca+elemento.modelo+elemento.horaEntrada+elemento.horaSalida, Toast.LENGTH_SHORT).show()
         }
+
+    }
+
+    private fun showModal(){
+
+        val automovil = intent.getParcelableExtra<Automovil>("Auto")
+        dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.modal_price)
+        hora = Date()
+        entradaMili = hora.time
+
+
+        val realTimeIn: Long = sdf.parse(automovil.realTimeIn).time //Hace long la fecha
+
+        val CalculateHour = CalculateExitValues(realTimeIn, entradaMili!!,this )
+
+        /*val timeInParking: Long = entradaMili!! - automovil.realTimeIn!!.toLong()
+
+        val segundos = timeInParking/1000
+        val min = segundos/60
+        val horas = min/60
+        val dias = horas/24
+*/
+        timeInParkingTxt = dialog.findViewById(R.id.tiempo_estacionado)
+        price = dialog.findViewById(R.id.monto_cobro)
+        aceptarPago = dialog.findViewById(R.id.aceptar_pago)
+        cancelarPago = dialog.findViewById(R.id.cancelar_pago)
+
+        val feeInfo: List<String> = CalculateHour.calculateTime()
+
+        timeInParkingTxt.text = feeInfo[0]             //"${dias.toString()}, ${horas.toString()}:${min.toString()}:${segundos.toString()}"
+        price.text = feeInfo[1]
+
+        aceptarPago.setOnClickListener {
+            salirEstacionamiento(sdf.format(hora), feeInfo[1].toDouble())
+        }
+        cancelarPago.setOnClickListener {
+            dialog.cancel()
+        }
+        dialog.show()
+
+    }
+
+    private fun salirEstacionamiento(tiempoDeSalida: String, total: Double){
+        val automovil = intent.getParcelableExtra<Automovil>("Auto")
+        val texts = getText()
+
+        val horaSalida = getHoraActual("HH:mm")
+
+        val automovilPantalla = Automovil(texts[0],texts[1],texts[2],texts[3],"",texts[5],cam,automovil.folio,realTimeOut = tiempoDeSalida,realTimeIn = automovil.realTimeIn, total = total)
+
+        exitParking(automovilPantalla,horaSalida,dbHandler)
+        intent()
 
     }
 
@@ -637,6 +695,11 @@ class RegistroAutomovil : AppCompatActivity() {
             registro.visibility = View.GONE
 
         }
+
+        fondo2?.visibility = View.GONE
+        fondo1?.visibility = View.GONE
+        camioneta?.visibility = View.GONE
+        carro?.visibility = View.GONE
         marca.visibility = View.GONE
         modelo.visibility = View.GONE
         color.visibility = View.GONE
@@ -655,7 +718,9 @@ class RegistroAutomovil : AppCompatActivity() {
             type = cursor.getInt(cursor.getColumnIndex(MindOrksDBOpenHelper.COLUMN_TIPO))
 
         }
+
         return type
+
     }
 
 }

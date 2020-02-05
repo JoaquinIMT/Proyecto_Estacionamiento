@@ -90,7 +90,7 @@ class PruebaDesechable : AppCompatActivity() {
 
                 datos = gson.fromJson(bodyOfJson, DatosIniciales::class.java)
 
-                datos?.enrollId = "2019030505"
+
 
                 if (datos?.register != null){
 
